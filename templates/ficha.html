@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="sheet-body">
+
+    <div class="actions-bar">
+        <a href="{{ url_for('editar_personagem', id=p.id) }}" class="btn btn-edit">Editar</a>
+        <a href="{{ url_for('deletar_personagem', id=p.id) }}" class="btn btn-delete" onclick="return confirm('Tem certeza que deseja apagar este herói da existência?')">Apagar</a>
+    </div>
+
+    <div class="sheet-header">
+        <h1>{{ p.nome }}</h1>
+        <div style="text-align: right;">
+            <span style="font-size: 1.2rem; font-weight: bold; color: #8a6d3b;">Nível {{ p.nivel }}</span><br>
+            <span style="font-style: italic;">{{ p.raca }} - {{ p.classe }}</span>
+        </div>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-box"><span class="stat-label">FOR</span><span class="stat-value">{{ p.forca }}</span></div>
+        <div class="stat-box"><span class="stat-label">DES</span><span class="stat-value">{{ p.destreza }}</span></div>
+        <div class="stat-box"><span class="stat-label">CON</span><span class="stat-value">{{ p.constituicao }}</span></div>
+        <div class="stat-box"><span class="stat-label">INT</span><span class="stat-value">{{ p.inteligencia }}</span></div>
+        <div class="stat-box"><span class="stat-label">SAB</span><span class="stat-value">{{ p.sabedoria }}</span></div>
+        <div class="stat-box"><span class="stat-label">CAR</span><span class="stat-value">{{ p.carisma }}</span></div>
+    </div>
+
+    <div class="bio-section">
+        <h3>Crônicas</h3>
+        <p style="white-space: pre-line;">{{ p.historia }}</p>
+    </div>
+
+</body>
+</html>

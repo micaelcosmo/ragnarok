@@ -1,71 +1,33 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ragnarok, O Dia do Sol Negro - Fichas de Personagem</title>
-    <!-- Carrega o Tailwind CSS para estilização moderna e responsiva -->
+    <title>Ragnarok - Grimório</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Link para o arquivo de estilo externo (CSS) -->
-    <link rel="stylesheet" href="style.css">
 </head>
-<body class="selection:bg-yellow-700 selection:text-white">
+<body>
+    <div class="sidebar">
+        <h2>Grimório</h2>
+        
+        <a href="{{ url_for('novo_personagem') }}" target="char_frame" class="btn btn-new">
+            + Novo Herói
+        </a>
 
-    <!-- Título Principal da Crônica -->
-    <header class="text-center mb-10 mt-5">
-        <h1 class="cinzel-font text-5xl md:text-7xl font-bold uppercase tracking-widest leading-tight text-shadow-lg" style="text-shadow: 2px 2px 5px rgba(0,0,0,0.7);">
-            Ragnarok
-        </h1>
-        <p class="cinzel-font text-xl md:text-3xl font-light italic text-yellow-500">
-            O Dia do Sol Negro
-        </p>
-    </header>
+        <nav>
+            {% for p in personagens %}
+                <a href="{{ url_for('ver_ficha', id=p.id) }}" target="char_frame" class="char-link">
+                    {{ p.nome }}
+                </a>
+            {% else %}
+                <p style="text-align:center; font-style:italic; color:#888;">Nenhum registro.</p>
+            {% endfor %}
+        </nav>
+    </div>
 
-    <!-- Área Principal do Carrossel -->
-    <main class="w-full flex justify-center items-center">
-        <div class="flex items-center space-x-4 w-full justify-center">
-
-            <!-- Botão Anterior -->
-            <button id="prevBtn" class="nav-button p-3 rounded-full shadow-lg disabled:opacity-50" aria-label="Personagem Anterior">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
-                </svg>
-            </button>
-            
-            <!-- Container da Ficha -->
-            <div class="container-fichas">
-                {% for ficha in fichas %}
-                    <div class="card">
-                        <h3>{{ ficha.nome }}</h3>
-                        <p>Classe: {{ ficha.classe }}</p>
-                        <p>Nível: {{ ficha.nivel }}</p>
-                    </div>
-                {% else %}
-                    <p>Nenhuma ficha encontrada no Ragnarok...</p>
-                {% endfor %}
-            </div>
-
-            <script src="{{ url_for('static', filename='js/script.js') }}"></script>
-            <div id="sheetContainer" class="character-sheet rounded-xl p-6 md:p-8 w-full max-w-4xl transition duration-500 ease-in-out opacity-0 translate-y-4">
-                <!-- Conteúdo da ficha será injetado aqui pelo JavaScript -->
-            </div>
-
-            <!-- Botão Próximo -->
-            <button id="nextBtn" class="nav-button p-3 rounded-full shadow-lg disabled:opacity-50" aria-label="Próximo Personagem">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
-                </svg>
-            </button>
+    <div class="main-content">
+        <div class="frame-container">
+            <iframe name="char_frame" src="{{ url_for('novo_personagem') }}" title="Ficha"></iframe>
         </div>
-    </main>
-
-    <footer class="mt-10 mb-5 text-gray-500 text-sm">
-        <p>© Crônica Ragnarok | D&D 3.5 Modelo</p>
-    </footer>
-
-    <!-- Link para o arquivo JavaScript externo (JS) -->
-    <script src="js/script.js"></script>
+    </div>
 </body>
 </html>
