@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ragnarok, O Dia do Sol Negro - Fichas de Personagem</title>
     <!-- Carrega o Tailwind CSS para estilização moderna e responsiva -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <script src="https://cdn.tailwindcss.com"></script>
     
     <!-- Link para o arquivo de estilo externo (CSS) -->
@@ -34,6 +35,19 @@
             </button>
             
             <!-- Container da Ficha -->
+            <div class="container-fichas">
+                {% for ficha in fichas %}
+                    <div class="card">
+                        <h3>{{ ficha.nome }}</h3>
+                        <p>Classe: {{ ficha.classe }}</p>
+                        <p>Nível: {{ ficha.nivel }}</p>
+                    </div>
+                {% else %}
+                    <p>Nenhuma ficha encontrada no Ragnarok...</p>
+                {% endfor %}
+            </div>
+
+            <script src="{{ url_for('static', filename='js/script.js') }}"></script>
             <div id="sheetContainer" class="character-sheet rounded-xl p-6 md:p-8 w-full max-w-4xl transition duration-500 ease-in-out opacity-0 translate-y-4">
                 <!-- Conteúdo da ficha será injetado aqui pelo JavaScript -->
             </div>
@@ -52,6 +66,6 @@
     </footer>
 
     <!-- Link para o arquivo JavaScript externo (JS) -->
-    <script src="script.js"></script>
+    <script src="js/script.js"></script>
 </body>
 </html>
