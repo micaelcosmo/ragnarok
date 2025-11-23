@@ -3,50 +3,61 @@
 <head>
     <meta charset="UTF-8">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    </head>
+</head>
 <body class="sheet-body">
 
     <div class="models-page-wrapper">
         <div class="models-header-center">
             <h1>Configuração de Modelos</h1>
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    <div style="background: #d4edda; color: #155724; padding: 10px; border-radius: 5px; margin-bottom: 15px; border: 1px solid #c3e6cb;">
+                        {{ messages[0] }}
+                    </div>
+                {% endif %}
+            {% endwith %}
         </div>
 
         <div class="model-selector-container">
             <label for="modelSelect" class="selector-label">SELECIONAR MODELO</label>
-            <select id="modelSelect" onchange="toggleModelView()">
-                <option value="" selected disabled>-- Escolha uma opção --</option>
+            <select id="modelSelect" onchange="handleSelection(this)">
+                <option value="" disabled {% if not modelo_selecionado %}selected{% endif %}>-- Escolha uma opção --</option>
                 <option value="new_model_action">Create New Model (+)</option>
                 
                 {% for modelo in modelos %}
-                <option value="{{ modelo.id }}" data-name="{{ modelo.nome }}">
-                    {{ modelo.nome }}
-                </option>
+                    <option value="{{ modelo.id }}" {% if modelo_selecionado and modelo_selecionado.id == modelo.id %}selected{% endif %}>
+                        {{ modelo.nome }}
+                    </option>
                 {% endfor %}
             </select>
         </div>
 
         <div id="panel-create" class="action-panel hidden">
             <h2>Criar Novo Grimório</h2>
-            <form action="/criar_modelo" method="POST" class="config-form">
-                <div class="form-group">
-                    <label>Nome do Modelo:</label>
-                    <input type="text" name="nome_modelo" placeholder="Ex: D&D 5e, Vampiro..." required>
+            <form action="{{ url_for('criar_modelo') }}" method="POST" class="config-form">
+                <div class="form-group" style="display:flex; gap:10px; align-items:center;">
+                    <label style="white-space:nowrap;">Nome do Modelo:</label>
+                    <input type="text" name="nome_modelo" placeholder="Ex: D&D 5e, Cthulhu..." required>
+                    <button type="submit" class="btn btn-new">Criar</button>
                 </div>
-                <button type="submit" class="btn btn-new">Criar e Configurar</button>
             </form>
         </div>
 
-        <div id="panel-edit" class="action-panel hidden">
+        {% if modelo_selecionado %}
+        <div id="panel-edit" class="action-panel">
+            
             <div class="edit-header">
                 <h2 id="edit-model-title" style="color: #8b0000;">Editando: {{ modelo_selecionado.nome }}</h2>
                 
-                <form action="{{ url_for('deletar_modelo') }}" method="POST" onsubmit="return confirm('Tem certeza absoluta? Isso apagará todas as fichas deste modelo.');">
+                <form action="{{ url_for('deletar_modelo') }}" method="POST" onsubmit="return confirm('ATENÇÃO: Isso apagará o modelo E TODAS AS FICHAS vinculadas a ele. Tem certeza?');">
+                    
                     <input type="hidden" name="id_modelo" value="{{ modelo_selecionado.id }}">
+                    
                     <button type="submit" class="btn btn-delete">Excluir Grimório</button>
                 </form>
             </div>
-
             <div class="fields-editor-area">
+                
                 <h3>Campos Atuais</h3>
                 <div class="fields-list">
                     <table>
@@ -54,65 +65,79 @@
                             <tr>
                                 <th>Nome do Campo</th>
                                 <th>Tipo</th>
-                                <th>Ação</th>
+                                <th style="width: 50px; text-align: center;">Ação</th>
                             </tr>
                         </thead>
-                    <tbody>
-                        {% for campo in modelo_selecionado.campos %}
-                        <tr>
-                            <td>{{ campo.nome }}</td>
-                            <td><span class="badge">{{ campo.tipo }}</span></td>
-                            <td style="text-align: center;">
-                                <form action="{{ url_for('deletar_campo') }}" method="POST">
-                                    <input type="hidden" name="campo_id" value="{{ campo.id }}">
-                                    <input type="hidden" name="modelo_id" value="{{ modelo_selecionado.id }}">
-                                    
-                                    <button type="submit" class="btn-icon" title="Remover Campo">X</button>
-                                </form>
-                            </td>
-                        </tr>
-                        {% else %}
-                        <tr><td colspan="3" style="text-align:center">Nenhum campo ainda.</td></tr>
-                        {% endfor %}
-                    </tbody>
+                        <tbody>
+                            {% for campo in modelo_selecionado.campos %}
+                            <tr>
+                                <td>{{ campo.nome }}</td>
+                                <td>
+                                    <span class="badge">{{ campo.tipo }}</span>
+                                </td>
+                                <td style="text-align: center;">
+                                    <form action="{{ url_for('deletar_campo') }}" method="POST">
+                                        <input type="hidden" name="modelo_id" value="{{ modelo_selecionado.id }}">
+                                        <input type="hidden" name="campo_id" value="{{ campo.id }}">
+                                        <button type="submit" class="btn-icon" title="Remover Campo">X</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="3" style="text-align:center; color:#777;">Nenhum campo configurado ainda.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
                     </table>
                 </div>
 
                 <h3>Adicionar Novo Campo</h3>
-                <div class="add-field-form">
-                    <input type="text" placeholder="Nome do campo (ex: Destreza)">
-                    <select>
-                        <option value="text">Texto</option>
-                        <option value="number">Número</option>
+                <form action="{{ url_for('adicionar_campo') }}" method="POST" class="add-field-form">
+                    <input type="hidden" name="modelo_id" value="{{ modelo_selecionado.id }}">
+                    
+                    <input type="text" name="nome_campo" placeholder="Nome (ex: Destreza)" required>
+                    
+                    <select name="tipo_campo">
+                        <option value="texto">Texto Curto</option>
+                        <option value="inteiro">Número Inteiro</option>
                         <option value="textarea">Texto Longo</option>
+                        <option value="booleano">Sim/Não (Checkbox)</option>
                     </select>
-                    <button class="btn btn-success">Adicionar</button>
-                </div>
+                    
+                    <button type="submit" class="btn btn-success">Adicionar</button>
+                </form>
+
             </div>
         </div>
+        {% endif %}
 
     </div>
 
     <script>
-        function toggleModelView() {
-            const select = document.getElementById('modelSelect');
-            const val = select.value;
+        function handleSelection(selectObject) {
+            const val = selectObject.value;
             const panelCreate = document.getElementById('panel-create');
-            const panelEdit = document.getElementById('panel-edit');
-
-            // Reseta visibilidade
-            panelCreate.classList.add('hidden');
-            panelEdit.classList.add('hidden');
-
+            
             if (val === 'new_model_action') {
                 panelCreate.classList.remove('hidden');
+                // Esconde o painel de edição se estiver visível (embora o reload cuide disso)
+                const panelEdit = document.getElementById('panel-edit');
+                if(panelEdit) panelEdit.style.display = 'none';
+                
             } else if (val) {
-                // Logica para carregar dados do modelo (Redirecionar ou AJAX)
-                // Exemplo visual apenas:
-                panelEdit.classList.remove('hidden');
-                document.getElementById('edit-model-title').innerText = "Editando: " + select.options[select.selectedIndex].text;
+                // Recarrega a página passando o ID na URL para o Backend popular os dados
+                window.location.href = "{{ url_for('gerenciar_modelos') }}?modelo_id=" + val;
             }
         }
+
+        // Inicialização: Verifica se o select está em 'Create' ao carregar
+        document.addEventListener("DOMContentLoaded", function() {
+            const select = document.getElementById('modelSelect');
+            if (select.value === 'new_model_action') {
+                document.getElementById('panel-create').classList.remove('hidden');
+            }
+        });
     </script>
 </body>
 </html>
