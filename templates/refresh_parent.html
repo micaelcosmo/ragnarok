@@ -1,22 +1,68 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-br">
 <head>
-    <title>A atualizar...</title>
+    <meta charset="UTF-8">
+    <title>Atualizando Grimório...</title>
+    <style>
+        body {
+            background-color: #f4e4bc; /* Cor do pergaminho */
+            color: #5c4033;
+            font-family: 'Cinzel', serif; /* Tenta usar a fonte do tema se carregada */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        .loader-container {
+            text-align: center;
+            border: 4px double #8a6d3b;
+            padding: 20px 40px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.4);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            animation: pulse 1.5s infinite;
+        }
+
+        h2 { margin: 0 0 10px 0; text-transform: uppercase; }
+        p { margin: 0; font-family: sans-serif; font-size: 0.9rem; }
+
+        @keyframes pulse {
+            0% { opacity: 0.8; transform: scale(0.98); }
+            50% { opacity: 1; transform: scale(1); }
+            100% { opacity: 0.8; transform: scale(0.98); }
+        }
+    </style>
 </head>
 <body>
-    <script>
-        // Em vez de forçar o window.top (que causa o erro de segurança),
-        // enviamos uma mensagem educada à janela pai a pedir para atualizar.
-        window.parent.postMessage('refresh_sidebar', '*');
 
-        // Redireciona o próprio iframe para o sítio correto
-        {% if id %}
-            // Se acabámos de salvar/editar, vamos para a ficha
-            window.location.href = "{{ url_for('ver_ficha', id=id) }}";
-        {% else %}
-            // Se apagámos, voltamos para o ecrã de criação
-            window.location.href = "{{ url_for('novo_personagem') }}";
-        {% endif %}
+    <div class="loader-container">
+        <h2>Grimório Atualizado</h2>
+        <p>Reorganizando os registros...</p>
+    </div>
+
+    <script>
+        // Este script roda automaticamente assim que o Flask devolve esta página (após salvar)
+        window.onload = function() {
+            setTimeout(function() {
+                // Verifica se a página está dentro de um Iframe
+                if (window.top !== window.self) {
+                    
+                    // AÇÃO PRINCIPAL: Recarrega a página PAI (onde está o Navbar)
+                    // Isso faz com que o 'index.html' seja renderizado novamente pelo Flask,
+                    // trazendo a lista de personagens atualizada do banco de dados.
+                    window.top.location.reload();
+
+                } else {
+                    // Fallback de segurança: se não estiver em iframe, volta para a home
+                    window.location.href = "/";
+                }
+            }, 800); // Pequeno delay de 800ms para o usuário ver a confirmação visual "sutil"
+        };
     </script>
+
 </body>
 </html>
