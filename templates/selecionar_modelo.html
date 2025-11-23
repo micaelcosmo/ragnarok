@@ -3,71 +3,45 @@
 <head>
     <meta charset="UTF-8">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <title>Selecionar Grimório</title>
 </head>
 <body class="sheet-body">
-    <div class="sheet-header">
-        <h1>Configuração de Modelos</h1>
-        <a href="{{ url_for('index') }}" target="_top" class="btn">Voltar</a>
-    </div>
 
-    <!-- Criar Novo Modelo -->
-    <div style="background: rgba(0,0,0,0.1); padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #8a6d3b;">
-        <h3>Criar Novo Modelo</h3>
-            <form method="POST" action="{{ url_for('gerenciar_modelos') }}" style="display: flex; gap: 10px;">
-            <input type="text" name="nome_modelo" placeholder="Ex: D&D 5e, Call of Cthulhu..." required>
-            <button type="submit" name="novo_modelo" class="btn btn-new" style="width: auto; margin:0;">Criar</button>
-        </form>
-    </div>
-
-    <!-- Listar Modelos -->
-    {% for m in modelos %}
-    <div style="margin-bottom: 30px; border: 2px solid #5c4033; padding: 15px; background: rgba(255,255,255,0.2); border-radius: 8px;">
-        <h2 style="color: #5c4033; margin-top: 0; border-bottom: 1px dashed #8a6d3b;">{{ m.nome }}</h2>
+    <div class="models-page-wrapper" style="margin-top: 50px;">
         
-        <!-- Tabela de Campos -->
-        <table style="width: 100%; text-align: left; margin-bottom: 15px; border-collapse: collapse;">
-            <thead>
-                <tr style="color: #8a6d3b;">
-                    <th>Nome do Campo</th>
-                    <th>Tipo</th>
-                    <th>Ação</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for campo in m.campos %}
-                <tr style="border-bottom: 1px solid rgba(138, 109, 59, 0.2);">
-                    <td style="padding: 5px;">{{ campo.nome }}</td>
-                    <td style="padding: 5px;"><code>{{ campo.tipo }}</code></td>
-                    <td style="padding: 5px;">
-                        <form method="POST" style="display:inline;">
-                            <input type="hidden" name="campo_id" value="{{ campo.id }}">
-                            <button type="submit" name="deletar_campo" style="background:none; border:none; color:darkred; cursor:pointer; font-weight:bold;">X</button>
-                        </form>
-                    </td>
-                </tr>
-                {% else %}
-                <tr><td colspan="3" style="padding:10px; font-style:italic;">Nenhum campo definido.</td></tr>
-                {% endfor %}
-            </tbody>
-        </table>
+        <div class="models-header-center">
+            <h1>Novo Herói</h1>
+            <p style="color: #555; font-style: italic;">"Toda lenda começa com uma escolha..."</p>
+        </div>
 
-        <!-- Adicionar Campo -->
-        <form method="POST" class="form-grid" style="align-items: end;">
-            <input type="hidden" name="modelo_id" value="{{ m.id }}">
-            <div class="form-group" style="margin:0;">
-                <input type="text" name="nome_campo" placeholder="Nome do Campo (ex: Destreza)" required>
-            </div>
-            <div class="form-group" style="margin:0;">
-                <select name="tipo_campo" style="width: 100%; padding: 8px; background: rgba(255,255,255,0.5); border: none; border-bottom: 2px solid #8a6d3b; font-family: var(--font-body);">
-                    <option value="texto">Texto Livre</option>
-                    <option value="inteiro">Número Inteiro</option>
-                    <option value="booleano">Sim/Não (Check)</option>
+        <div class="model-selector-container">
+            <form action="{{ url_for('novo_personagem') }}" method="GET">
+                
+                <label for="modelo_id" class="selector-label">ESCOLHA O MODELO DE FICHA</label>
+                
+                <select name="modelo_id" id="modelo_id" required>
+                    <option value="" selected disabled>-- Selecione um Grimório --</option>
+                    {% for modelo in modelos %}
+                        <option value="{{ modelo.id }}">{{ modelo.nome }}</option>
+                    {% endfor %}
                 </select>
-            </div>
-            <button type="submit" name="novo_campo" class="btn btn-save" style="width: 100%; min-width: auto;">+ Add Campo</button>
-        </form>
+
+                <div style="margin-top: 30px;">
+                    <button type="submit" class="btn btn-success" style="font-size: 1rem; padding: 12px 24px;">
+                        Confirmar e Preencher ➔
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        {% if not modelos %}
+        <div style="text-align: center; margin-top: 20px; color: #8b0000;">
+            <p><strong>Atenção:</strong> Nenhum modelo de ficha foi criado ainda.</p>
+            <p>Vá em "Configurar Modelos" no menu lateral primeiro.</p>
+        </div>
+        {% endif %}
+
     </div>
-    {% endfor %}
 
 </body>
 </html>

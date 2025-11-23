@@ -155,37 +155,41 @@ def deletar_campo():
 
 @app.route('/novo', methods=['GET', 'POST'])
 def novo_personagem():
-    # Passo 1: Selecionar Modelo (GET inicial)
+    # ---------------------------------------------------------
+    # PASSO 1: SELEÇÃO DE MODELO
+    # Se for GET e não tiver 'modelo_id' na URL, mostra a seleção
+    # ---------------------------------------------------------
     if request.method == 'GET' and not request.args.get('modelo_id'):
         modelos = Modelo.query.all()
         return render_template('selecionar_modelo.html', modelos=modelos)
 
-    # Se já tem modelo_id na URL ou é POST
+    # ---------------------------------------------------------
+    # PASSO 2: PREENCHIMENTO OU SALVAMENTO
+    # Se chegou aqui, temos um modelo_id (via GET url ou POST form)
+    # ---------------------------------------------------------
     modelo_id = request.args.get('modelo_id') or request.form.get('modelo_id')
     
-    # Segurança: Se não tiver modelo_id, volta pro inicio
+    # Segurança: se por acaso vier vazio, manda voltar pra seleção
     if not modelo_id:
         return redirect(url_for('novo_personagem'))
         
     modelo = Modelo.query.get_or_404(modelo_id)
 
-    # Passo 2: Salvar Ficha (POST)
+    # Lógica de SALVAR (POST vindo do form.html)
     if request.method == 'POST' and 'salvar_ficha' in request.form:
-        # --- CORREÇÃO AQUI: TRATAMENTO DE NOME NULO ---
         nome_form = request.form.get('nome')
         nivel_form = request.form.get('nivel')
 
-        # Se o nome vier vazio ou None, define um padrão
+        # Fallback para nome vazio
         if not nome_form or nome_form.strip() == "":
             nome_form = "Herói Sem Nome"
         
-        # Garante que nível seja um inteiro
         try:
             nivel_int = int(nivel_form)
         except (ValueError, TypeError):
             nivel_int = 1
 
-        # Cria o objeto Personagem
+        # Cria Personagem
         p = Personagem(
             nome=nome_form,
             nivel=nivel_int,
@@ -193,9 +197,9 @@ def novo_personagem():
         )
         
         db.session.add(p)
-        db.session.flush() # Gera o ID do personagem
+        db.session.flush()
 
-        # Salvar Valores Dinâmicos
+        # Salva Campos Dinâmicos
         for campo in modelo.campos:
             chave_form = f'campo_{campo.id}'
             valor_bruto = request.form.get(chave_form)
@@ -203,7 +207,6 @@ def novo_personagem():
             if campo.tipo == 'booleano':
                 valor_bruto = 'Sim' if valor_bruto == 'on' else 'Não'
             
-            # Salva mesmo que vazio (já que valor_texto é nullable=True no seu model)
             v = Valor(personagem_id=p.id, campo_id=campo.id, valor_texto=valor_bruto)
             db.session.add(v)
         
@@ -212,10 +215,12 @@ def novo_personagem():
             return render_template('refresh_parent.html', id=p.id)
         except Exception as e:
             db.session.rollback()
-            print(f"ERRO AO SALVAR: {e}")
-            return "Erro ao salvar no banco de dados.", 500
+            print(f"ERRO: {e}")
+            return "Erro ao salvar ficha.", 500
     
-    return render_template('form.html', p=None, modelo=modelo)
+    # Lógica de VISUALIZAR FORMULÁRIO (GET com modelo_id)
+    # Renderiza form.html vazio, pronto para preencher
+    return render_template('form.html', p=None, modelo=modelo, valores={})
 
 @app.route('/ficha/<int:id>')
 def ver_ficha(id):
