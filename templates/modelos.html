@@ -1,73 +1,70 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-</head>
-<body class="sheet-body">
-    <div class="sheet-header">
-        <h1>Configuração de Modelos</h1>
-        <a href="{{ url_for('index') }}" target="_top" class="btn">Voltar</a>
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="models-page-wrapper">
+    
+    <div class="models-header">
+        <div class="header-left">
+            <h1>Configuração de Modelos</h1>
+            <p>Gerencie os templates de ficha (D&D, Tormenta, etc)</p>
+        </div>
+        <a href="{{ url_for('index') }}" class="btn btn-secondary">Voltar</a>
     </div>
 
-    <!-- Criar Novo Modelo -->
-    <div style="background: rgba(0,0,0,0.1); padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #8a6d3b;">
+    <div class="create-model-bar">
         <h3>Criar Novo Modelo</h3>
-        <form method="POST" style="display: flex; gap: 10px;">
-            <input type="text" name="nome_modelo" placeholder="Ex: D&D 5e, Call of Cthulhu..." required>
-            <button type="submit" name="novo_modelo" class="btn btn-new" style="width: auto; margin:0;">Criar</button>
+        <form method="POST" action="{{ url_for('gerenciar_modelos') }}" class="inline-form">
+            <input type="text" name="nome_modelo" placeholder="Nome do Sistema (ex: D&D 5e)" required>
+            <button type="submit" name="novo_modelo" class="btn btn-new">CRIAR</button>
         </form>
     </div>
 
-    <!-- Listar Modelos -->
-    {% for m in modelos %}
-    <div style="margin-bottom: 30px; border: 2px solid #5c4033; padding: 15px; background: rgba(255,255,255,0.2); border-radius: 8px;">
-        <h2 style="color: #5c4033; margin-top: 0; border-bottom: 1px dashed #8a6d3b;">{{ m.nome }}</h2>
-        
-        <!-- Tabela de Campos -->
-        <table style="width: 100%; text-align: left; margin-bottom: 15px; border-collapse: collapse;">
-            <thead>
-                <tr style="color: #8a6d3b;">
-                    <th>Nome do Campo</th>
-                    <th>Tipo</th>
-                    <th>Ação</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for campo in m.campos %}
-                <tr style="border-bottom: 1px solid rgba(138, 109, 59, 0.2);">
-                    <td style="padding: 5px;">{{ campo.nome }}</td>
-                    <td style="padding: 5px;"><code>{{ campo.tipo }}</code></td>
-                    <td style="padding: 5px;">
-                        <form method="POST" style="display:inline;">
-                            <input type="hidden" name="campo_id" value="{{ campo.id }}">
-                            <button type="submit" name="deletar_campo" style="background:none; border:none; color:darkred; cursor:pointer; font-weight:bold;">X</button>
-                        </form>
-                    </td>
-                </tr>
-                {% else %}
-                <tr><td colspan="3" style="padding:10px; font-style:italic;">Nenhum campo definido.</td></tr>
-                {% endfor %}
-            </tbody>
-        </table>
+    <div class="models-grid">
+        {% for modelo in modelos %}
+        <div class="model-card">
+            <div class="card-header">
+                <h3>{{ modelo.nome }}</h3>
+                </div>
 
-        <!-- Adicionar Campo -->
-        <form method="POST" class="form-grid" style="align-items: end;">
-            <input type="hidden" name="modelo_id" value="{{ m.id }}">
-            <div class="form-group" style="margin:0;">
-                <input type="text" name="nome_campo" placeholder="Nome do Campo (ex: Destreza)" required>
+            <div class="fields-list">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Nome do Campo</th>
+                            <th>Tipo</th>
+                            <th style="width: 40px;"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for campo in modelo.campos %}
+                        <tr>
+                            <td>{{ campo.nome }}</td>
+                            <td><span class="badge">{{ campo.tipo }}</span></td>
+                            <td>
+                                <form method="POST" action="{{ url_for('gerenciar_modelos') }}" style="margin:0;">
+                                    <input type="hidden" name="campo_id" value="{{ campo.id }}">
+                                    <button type="submit" name="deletar_campo" class="btn-icon">X</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
             </div>
-            <div class="form-group" style="margin:0;">
-                <select name="tipo_campo" style="width: 100%; padding: 8px; background: rgba(255,255,255,0.5); border: none; border-bottom: 2px solid #8a6d3b; font-family: var(--font-body);">
-                    <option value="texto">Texto Livre</option>
-                    <option value="inteiro">Número Inteiro</option>
-                    <option value="booleano">Sim/Não (Check)</option>
+
+            <form method="POST" action="{{ url_for('gerenciar_modelos') }}" class="add-field-form">
+                <input type="hidden" name="modelo_id" value="{{ modelo.id }}">
+                <input type="text" name="nome_campo" placeholder="Novo Campo (ex: Destreza)" required>
+                <select name="tipo_campo">
+                    <option value="texto">Texto</option>
+                    <option value="inteiro">Número</option>
+                    <option value="booleano">Sim/Não</option>
                 </select>
-            </div>
-            <button type="submit" name="novo_campo" class="btn btn-save" style="width: 100%; min-width: auto;">+ Add Campo</button>
-        </form>
+                <button type="submit" name="novo_campo" class="btn btn-primary">+ Add</button>
+            </form>
+        </div>
+        {% endfor %}
     </div>
-    {% endfor %}
 
-</body>
-</html>
+</div>
+{% endblock %}
