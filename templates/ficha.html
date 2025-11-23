@@ -2,35 +2,60 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body class="sheet-body">
 
+    <!-- Barra de Ações -->
     <div class="actions-bar">
         <a href="{{ url_for('editar_personagem', id=p.id) }}" class="btn btn-edit">Editar</a>
-        <a href="{{ url_for('deletar_personagem', id=p.id) }}" class="btn btn-delete" onclick="return confirm('Tem certeza que deseja apagar este herói da existência?')">Apagar</a>
+        <a href="{{ url_for('deletar_personagem', id=p.id) }}" class="btn btn-delete" onclick="return confirm('Apagar para sempre?')">Apagar</a>
     </div>
 
+    <!-- Cabeçalho -->
     <div class="sheet-header">
         <h1>{{ p.nome }}</h1>
         <div style="text-align: right;">
             <span style="font-size: 1.2rem; font-weight: bold; color: #8a6d3b;">Nível {{ p.nivel }}</span><br>
-            <span style="font-style: italic;">{{ p.raca }} - {{ p.classe }}</span>
+            <span style="font-style: italic; font-size: 0.9rem;">Modelo: {{ p.modelo.nome }}</span>
         </div>
     </div>
 
+    <!-- 1. Renderiza Números Inteiros (Stats) no Grid -->
     <div class="stats-grid">
-        <div class="stat-box"><span class="stat-label">FOR</span><span class="stat-value">{{ p.forca }}</span></div>
-        <div class="stat-box"><span class="stat-label">DES</span><span class="stat-value">{{ p.destreza }}</span></div>
-        <div class="stat-box"><span class="stat-label">CON</span><span class="stat-value">{{ p.constituicao }}</span></div>
-        <div class="stat-box"><span class="stat-label">INT</span><span class="stat-value">{{ p.inteligencia }}</span></div>
-        <div class="stat-box"><span class="stat-label">SAB</span><span class="stat-value">{{ p.sabedoria }}</span></div>
-        <div class="stat-box"><span class="stat-label">CAR</span><span class="stat-value">{{ p.carisma }}</span></div>
+        {% for campo in p.modelo.campos %}
+            {% if campo.tipo == 'inteiro' %}
+                <div class="stat-box">
+                    <span class="stat-label">{{ campo.nome }}</span>
+                    <span class="stat-value">{{ valores.get(campo.id, '-') }}</span>
+                </div>
+            {% endif %}
+        {% endfor %}
     </div>
 
+    <!-- 2. Renderiza Booleanos (Status) -->
+    <div style="display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 20px;">
+        {% for campo in p.modelo.campos %}
+            {% if campo.tipo == 'booleano' %}
+                {% set val = valores.get(campo.id, 'Não') %}
+                <div style="background: rgba(255,255,255,0.4); padding: 5px 10px; border-radius: 15px; border: 1px solid #8a6d3b; font-size: 0.9rem;">
+                    <strong>{{ campo.nome }}:</strong> 
+                    <span style="color: {{ 'green' if val == 'Sim' else 'darkred' }}; font-weight: bold;">{{ val }}</span>
+                </div>
+            {% endif %}
+        {% endfor %}
+    </div>
+
+    <!-- 3. Renderiza Textos (Bio, Classe, etc) -->
     <div class="bio-section">
-        <h3>Crônicas</h3>
-        <p style="white-space: pre-line;">{{ p.historia }}</p>
+        {% for campo in p.modelo.campos %}
+            {% if campo.tipo == 'texto' %}
+                <div style="margin-bottom: 15px;">
+                    <h3 style="margin-bottom: 5px; font-size: 1rem; border-bottom: 1px dotted #8a6d3b; display: inline-block;">{{ campo.nome }}</h3>
+                    <p style="margin-top: 0; white-space: pre-line;">{{ valores.get(campo.id, '...') }}</p>
+                </div>
+            {% endif %}
+        {% endfor %}
     </div>
 
 </body>

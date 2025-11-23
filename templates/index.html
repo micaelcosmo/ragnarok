@@ -13,6 +13,11 @@
             + Novo Herói
         </a>
 
+        <!-- NOVO: Botão de Configuração -->
+        <a href="{{ url_for('gerenciar_modelos') }}" target="char_frame" class="btn" style="width:100%; margin-bottom: 20px; background: #4a3b2a; font-size: 0.8rem;">
+            ⚙️ Configurar Modelos
+        </a>
+
         <nav>
             {% for p in personagens %}
                 <a href="{{ url_for('ver_ficha', id=p.id) }}" target="char_frame" class="char-link">
@@ -26,8 +31,15 @@
 
     <div class="main-content">
         <div class="frame-container">
-            <iframe name="char_frame" src="{{ url_for('novo_personagem') }}" title="Ficha"></iframe>
+            <!-- CORREÇÃO: O endpoint correto é 'novo_personagem', que renderiza a seleção de modelos por padrão -->
+            <iframe name="char_frame" src="{{ url_for('novo_personagem') if not personagens else 'about:blank' }}" title="Ficha"></iframe>
         </div>
     </div>
+
+    <script>
+        // Pequeno script para melhorar UX se não tiver ninguém na lista
+        // Como não tenho uma rota dedicada "home_iframe", criei uma lógica inline no src acima
+        // mas para garantir, se quiser uma rota limpa:
+    </script>
 </body>
 </html>

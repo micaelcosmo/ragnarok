@@ -1,25 +1,39 @@
+/* ==========================================================================
+   1. CONFIGURAÇÕES GLOBAIS E VARIÁVEIS
+   (Afetam todo o projeto)
+   ========================================================================== */
+
 /* Importando fontes do Google */
 @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Lato:wght@400;700&display=swap');
 
 :root {
-    --bg-dark: #1a1a1a;
-    --bg-panel: #2c241b;
-    --text-gold: #d4af37;
-    --text-light: #e0e0e0;
+    /* Paleta de Cores Dark/Medieval */
+    --bg-dark: #1a1a1a;       /* Fundo geral da aplicação */
+    --bg-panel: #2c241b;      /* Fundo de painéis (madeira escura) */
+    --text-gold: #d4af37;     /* Dourado para títulos */
+    --text-light: #e0e0e0;    /* Texto comum claro */
+    
+    /* Paleta do Pergaminho (Interior do Iframe) */
     --parchment: #f4e4bc;
     --parchment-dark: #e6d2a0;
+    
+    /* Cores de Ação (Botões) */
     --btn-danger: #8b0000;
     --btn-primary: #2e4053;
-    --border-style: 3px double #8a6d3b; /* Faltava essa variável */
-    --font-main: 'Cinzel', serif;
-    --font-body: 'Lato', sans-serif;
+    
+    /* Elementos Visuais e Tipografia */
+    --border-style: 3px double #8a6d3b; /* Borda dupla estilo moldura */
+    --font-main: 'Cinzel', serif;       /* Fonte de Títulos (Medieval) */
+    --font-body: 'Lato', sans-serif;    /* Fonte de Leitura (Legibilidade) */
 }
 
-/* Reset básico para evitar quebras de layout */
+/* Reset básico: Essencial para evitar quebras de layout com padding */
 * {
     box-sizing: border-box;
 }
 
+/* O Body aplica-se tanto ao index.html quanto ao ficha.html.
+   O overflow: hidden previne barras de rolagem duplas na janela principal. */
 body {
     margin: 0;
     padding: 0;
@@ -28,12 +42,17 @@ body {
     color: var(--text-light);
     height: 100vh;
     display: flex;
-    overflow: hidden;
+    overflow: hidden; 
 }
 
-/* === SIDEBAR (Menu) === */
+/* ==========================================================================
+   2. JANELA PRINCIPAL (PAI / INDEX.HTML)
+   (Sidebar e container do Iframe)
+   ========================================================================== */
+
+/* --- MENU LATERAL (LISTA DE AVENTUREIROS) --- */
 .sidebar {
-    width: 280px; /* Levemente mais largo */
+    width: 280px; /* Largura fixa para o menu */
     background-color: var(--bg-panel);
     border-right: var(--border-style);
     display: flex;
@@ -41,7 +60,7 @@ body {
     padding: 20px;
     box-shadow: 5px 0 15px rgba(0,0,0,0.5);
     z-index: 10;
-    overflow-y: auto; /* Caso tenha muitos chars */
+    overflow-y: auto; /* Scroll apenas se a lista de chars for grande */
 }
 
 .sidebar h2 {
@@ -53,6 +72,7 @@ body {
     padding-bottom: 10px;
 }
 
+/* Links da lista de personagens */
 .char-link {
     display: block;
     padding: 12px;
@@ -74,29 +94,31 @@ body {
     transform: translateX(5px);
 }
 
-/* === MAIN CONTENT (Container Pai) === */
+/* --- ÁREA CENTRAL (MOLDURA DO IFRAME) --- */
 .main-content {
-    flex-grow: 1;
+    flex-grow: 1; /* Ocupa todo o espaço restante */
     padding: 40px;
+    /* Gradiente radial para foco no centro */
     background-image: radial-gradient(circle at center, #2b2b2b 0%, #1a1a1a 100%);
     display: flex;
     justify-content: center;
     align-items: center;
 }
 
+/* A "Caixa Física" que segura a ficha */
 .frame-container {
     width: 100%;
     max-width: 900px;
-    height: 90vh; /* Ocupa 90% da altura da view */
-    border: 5px solid #5c4033;
+    height: 90vh; /* 90% da altura da viewport */
+    border: 5px solid #5c4033; /* Moldura grossa de madeira */
     border-radius: 8px;
     box-shadow: 0 0 30px rgba(0,0,0,0.8);
     background: var(--bg-panel);
-    overflow: hidden; /* Importante para o iframe não vazar */
+    overflow: hidden; /* Garante que o iframe não vaze as bordas arredondadas */
     position: relative;
 }
 
-/* Correção crucial: Faz o iframe preencher o container */
+/* O elemento HTML <iframe> em si (visto pelo pai) */
 iframe {
     width: 100%;
     height: 100%;
@@ -105,21 +127,26 @@ iframe {
     background-color: var(--parchment);
 }
 
-/* === ESTILOS INTERNOS (Dentro do Iframe - Ficha e Form) === */
+/* ==========================================================================
+   3. CONTEÚDO DA FICHA (FILHO / FICHA.HTML & FORM.HTML)
+   (Tudo que aparece DENTRO do frame)
+   ========================================================================== */
 
-/* O body dentro do iframe usa esta classe */
+/* Classe aplicada ao <body> do iframe para mudar o fundo e rolagem */
 .sheet-body {
     background-color: var(--parchment);
-    color: #2c241b;
+    color: #2c241b; /* Texto escuro para contraste com papel */
     font-family: var(--font-body);
     padding: 30px;
     height: 100%;
-    overflow-y: auto; /* Scroll interno na ficha */
-    /* Textura sutil de papel */
+    overflow-y: auto; /* A rolagem acontece aqui dentro, não na janela principal */
+    
+    /* Textura de papel envelhecido */
     background-image: linear-gradient(rgba(255,255,255,0.5), rgba(255,255,255,0.5)), 
                       url('https://www.transparenttextures.com/patterns/aged-paper.png');
 }
 
+/* Cabeçalho interno da ficha (Nome, Raça, Nível) */
 .sheet-header {
     border-bottom: 2px solid #5c4033;
     margin-bottom: 20px;
@@ -136,7 +163,9 @@ iframe {
     margin: 0;
 }
 
-/* === MODE: READ (Visualização dos Stats) === */
+/* --- MODO LEITURA (FICHA.HTML) --- */
+
+/* Grid dos atributos (quadrados responsivos) */
 .stats-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
@@ -168,6 +197,7 @@ iframe {
     color: #2c241b;
 }
 
+/* Área de texto da história */
 .bio-section {
     border-top: 1px solid #8a6d3b;
     padding-top: 15px;
@@ -182,7 +212,9 @@ iframe {
     margin-top: 0;
 }
 
-/* === MODE: EDIT (Formulários) === */
+/* --- MODO EDIÇÃO (FORM.HTML) --- */
+
+/* Grid para inputs principais (Nome/Nível, Raça/Classe) */
 .form-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -202,6 +234,7 @@ iframe {
     margin-bottom: 5px;
 }
 
+/* Estilo dos Inputs (Linhas de caderno invisíveis) */
 input[type="text"], 
 input[type="number"], 
 textarea {
@@ -223,12 +256,13 @@ input:focus, textarea:focus {
     background: rgba(255,255,255,0.6);
 }
 
+/* Grid específica para os 6 atributos na edição (todos na mesma linha) */
 .stats-inputs {
     display: grid;
-    grid-template-columns: repeat(6, 1fr); /* 6 colunas para os 6 atributos */
+    grid-template-columns: repeat(6, 1fr);
     gap: 10px;
     margin-top: 10px;
-    background: rgba(92, 64, 51, 0.1); /* Fundo sutil na área de stats */
+    background: rgba(92, 64, 51, 0.1);
     padding: 15px;
     border-radius: 8px;
     border: 1px solid #8a6d3b;
@@ -245,7 +279,11 @@ input:focus, textarea:focus {
     font-weight: bold;
 }
 
-/* === BOTÕES === */
+/* ==========================================================================
+   4. COMPONENTES UI (BOTÕES E SCROLL)
+   (Usados tanto na Sidebar quanto na Ficha)
+   ========================================================================== */
+
 .actions-bar {
     display: flex;
     justify-content: flex-end;
@@ -276,6 +314,7 @@ input:focus, textarea:focus {
     filter: brightness(1.2);
 }
 
+/* Variações de Cores dos Botões */
 .btn-new { 
     background-color: #27ae60; 
     border-color: #1e8449; 
@@ -289,7 +328,7 @@ input:focus, textarea:focus {
 .btn-delete { background-color: var(--btn-danger); border-color: #580000; }
 .btn-save { background-color: #27ae60; font-size: 1rem; min-width: 150px; }
 
-/* Scrollbar personalizada para Webkit (Chrome, Safari) */
+/* Scrollbar Personalizada (Estilo Webkit - Chrome/Safari/Edge) */
 ::-webkit-scrollbar {
     width: 10px;
 }

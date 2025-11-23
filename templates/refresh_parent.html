@@ -1,8 +1,22 @@
 <!DOCTYPE html>
-<script>
-    // Recarrega a página "pai" (index) para atualizar a lista lateral
-    window.top.location.href = "/";
-    
-    // Opcional: Se quiser apenas ir para a ficha sem reload total (mas a lista ficaria desatualizada), use:
-    // window.location.href = "{{ url_for('ver_ficha', id=id) if id else url_for('novo_personagem') }}";
-</script>
+<html>
+<head>
+    <title>A atualizar...</title>
+</head>
+<body>
+    <script>
+        // Em vez de forçar o window.top (que causa o erro de segurança),
+        // enviamos uma mensagem educada à janela pai a pedir para atualizar.
+        window.parent.postMessage('refresh_sidebar', '*');
+
+        // Redireciona o próprio iframe para o sítio correto
+        {% if id %}
+            // Se acabámos de salvar/editar, vamos para a ficha
+            window.location.href = "{{ url_for('ver_ficha', id=id) }}";
+        {% else %}
+            // Se apagámos, voltamos para o ecrã de criação
+            window.location.href = "{{ url_for('novo_personagem') }}";
+        {% endif %}
+    </script>
+</body>
+</html>
