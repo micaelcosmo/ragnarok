@@ -2,61 +2,103 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
+    <title>Ficha de Personagem</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body class="sheet-body">
 
-    <!-- Barra de Ações -->
-    <div class="actions-bar">
-        <a href="{{ url_for('editar_personagem', id=p.id) }}" class="btn btn-edit">Editar</a>
-        <a href="{{ url_for('deletar_personagem', id=p.id) }}" class="btn btn-delete" onclick="return confirm('Apagar para sempre?')">Apagar</a>
-    </div>
+    <div class="sheet-paper">
+        <form id="formFicha" method="POST" action="{{ url_for('editar_personagem', id=p.id) }}">
+            
+            <div class="sheet-header">
+                <input type="text" value="{{ p.nome }}" readonly 
+                       class="char-name" style="width: 100%; text-align: center; border: none; background: transparent; pointer-events: none;">
+                
+                <p class="char-meta">Grimório: {{ p.modelo.nome }}</p>
+            </div>
 
-    <!-- Cabeçalho -->
-    <div class="sheet-header">
-        <h1>{{ p.nome }}</h1>
-        <div style="text-align: right;">
-            <span style="font-size: 1.2rem; font-weight: bold; color: #8a6d3b;">Nível {{ p.nivel }}</span><br>
-            <span style="font-style: italic; font-size: 0.9rem;">Modelo: {{ p.modelo.nome }}</span>
-        </div>
-    </div>
+            <div class="separator"></div>
 
-    <!-- 1. Renderiza Números Inteiros (Stats) no Grid -->
-    <div class="stats-grid">
-        {% for campo in p.modelo.campos %}
-            {% if campo.tipo == 'inteiro' %}
-                <div class="stat-box">
-                    <span class="stat-label">{{ campo.nome }}</span>
-                    <span class="stat-value">{{ valores.get(campo.id, '-') }}</span>
+            <div style="text-align: right; margin-bottom: 10px;">
+                <button type="button" id="btnEdit" onclick="toggleEditMode()" class="btn btn-primary">
+                    ✏️ Editar Ficha
+                </button>
+                <button type="submit" id="btnSave" class="btn btn-success hidden">
+                    💾 Salvar Alterações
+                </button>
+            </div>
+
+            <div style="text-align: center; margin-bottom: 20px;">
+                <label class="text-xs uppercase font-bold text-yellow-900">Nível</label>
+                <input type="number" name="nivel" value="{{ p.nivel }}" 
+                       class="edit-input toggle-field read-only-mode" readonly style="width: 60px; margin: 0 auto;">
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {% for campo in p.modelo.campos %}
+                <div class="attribute-box" style="text-align: left; padding: 15px;">
+                    <label style="color: #8b0000; font-weight: bold; display: block; margin-bottom: 5px;">{{ campo.nome }}</label>
+                    
+                    {% set valor_atual = valores.get(campo.id, '') %}
+
+                    {% if campo.tipo == 'textarea' %}
+                        <textarea name="campo_{{ campo.id }}" class="edit-textarea toggle-field read-only-mode" readonly>{{ valor_atual }}</textarea>
+                    
+                    {% elif campo.tipo == 'booleano' %}
+                        <div style="display: flex; align-items: center; gap: 10px; height: 30px;">
+                            <input type="checkbox" name="campo_{{ campo.id }}" class="toggle-check" disabled
+                                   {% if valor_atual == 'Sim' %}checked{% endif %}>
+                            <span>Ativo/Sim</span>
+                        </div>
+
+                    {% elif campo.tipo == 'inteiro' %}
+                        <input type="number" name="campo_{{ campo.id }}" value="{{ valor_atual }}" 
+                               class="edit-input toggle-field read-only-mode" readonly>
+
+                    {% else %}
+                        <input type="text" name="campo_{{ campo.id }}" value="{{ valor_atual }}" 
+                               class="edit-input toggle-field read-only-mode" readonly>
+                    {% endif %}
                 </div>
-            {% endif %}
-        {% endfor %}
+                {% endfor %}
+            </div>
+            
+            <div style="margin-top: 40px; border-top: 1px dashed #8a6d3b; padding-top: 10px; text-align: center;">
+                <a href="{{ url_for('deletar_personagem', id=p.id) }}" class="btn-icon" style="font-size: 0.9rem; text-decoration: none;" onclick="return confirm('Tem certeza? Isso não pode ser desfeito.');">
+                    🗑️ Excluir este Herói
+                </a>
+            </div>
+
+        </form>
     </div>
 
-    <!-- 2. Renderiza Booleanos (Status) -->
-    <div style="display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 20px;">
-        {% for campo in p.modelo.campos %}
-            {% if campo.tipo == 'booleano' %}
-                {% set val = valores.get(campo.id, 'Não') %}
-                <div style="background: rgba(255,255,255,0.4); padding: 5px 10px; border-radius: 15px; border: 1px solid #8a6d3b; font-size: 0.9rem;">
-                    <strong>{{ campo.nome }}:</strong> 
-                    <span style="color: {{ 'green' if val == 'Sim' else 'darkred' }}; font-weight: bold;">{{ val }}</span>
-                </div>
-            {% endif %}
-        {% endfor %}
-    </div>
+    <script>
+        function toggleEditMode() {
+            const btnEdit = document.getElementById('btnEdit');
+            const btnSave = document.getElementById('btnSave');
+            
+            // Campos de Texto/Numero/Textarea
+            const inputs = document.querySelectorAll('.toggle-field');
+            // Checkboxes
+            const checks = document.querySelectorAll('.toggle-check');
 
-    <!-- 3. Renderiza Textos (Bio, Classe, etc) -->
-    <div class="bio-section">
-        {% for campo in p.modelo.campos %}
-            {% if campo.tipo == 'texto' %}
-                <div style="margin-bottom: 15px;">
-                    <h3 style="margin-bottom: 5px; font-size: 1rem; border-bottom: 1px dotted #8a6d3b; display: inline-block;">{{ campo.nome }}</h3>
-                    <p style="margin-top: 0; white-space: pre-line;">{{ valores.get(campo.id, '...') }}</p>
-                </div>
-            {% endif %}
-        {% endfor %}
-    </div>
+            // Verifica se estamos entrando ou saindo do modo edição
+            const isEditing = btnSave.classList.contains('hidden');
+
+            if (isEditing) {
+                // ATIVAR EDIÇÃO
+                inputs.forEach(el => {
+                    el.removeAttribute('readonly');
+                    el.classList.remove('read-only-mode');
+                    el.classList.add('editable-mode');
+                });
+                checks.forEach(el => el.removeAttribute('disabled'));
+                
+                btnEdit.classList.add('hidden'); // Esconde botão editar
+                btnSave.classList.remove('hidden'); // Mostra botão salvar
+            }
+        }
+    </script>
 
 </body>
 </html>

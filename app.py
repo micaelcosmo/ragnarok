@@ -233,10 +233,16 @@ def editar_personagem(id):
     p = Personagem.query.get_or_404(id)
     modelo = p.modelo
 
+    # --- LÓGICA DE SALVAR (POST) ---
     if request.method == 'POST':
-        p.nome = request.form['nome']
-        p.nivel = request.form['nivel']
+        # O nome não é atualizado conforme solicitado (input readonly/ignorado)
+        # p.nome = request.form['nome'] 
         
+        # O nível pode ser atualizado se você permitiu no HTML
+        if 'nivel' in request.form:
+            p.nivel = request.form['nivel']
+        
+        # Atualizar valores dinâmicos
         for campo in modelo.campos:
             chave_form = f'campo_{campo.id}'
             valor_bruto = request.form.get(chave_form)
@@ -244,18 +250,25 @@ def editar_personagem(id):
             if campo.tipo == 'booleano':
                 valor_bruto = 'Sim' if valor_bruto == 'on' else 'Não'
             
+            # Busca se já existe valor salvo para esse campo
             v = Valor.query.filter_by(personagem_id=p.id, campo_id=campo.id).first()
+            
             if v:
                 v.valor_texto = valor_bruto
             else:
+                # Se não existia (campo novo adicionado ao modelo depois), cria agora
                 v = Valor(personagem_id=p.id, campo_id=campo.id, valor_texto=valor_bruto)
                 db.session.add(v)
 
         db.session.commit()
+        
+        # IMPORTANTE: Retorna o arquivo que dá refresh no navbar
         return render_template('refresh_parent.html', id=p.id)
 
+    # --- LÓGICA DE VISUALIZAR (GET) ---
     valores_map = {v.campo_id: v.valor_texto for v in p.valores}
-    return render_template('form.html', p=p, modelo=modelo, valores=valores_map)
+    # Apontamos para o novo 'ficha.html' unificado
+    return render_template('ficha.html', p=p, valores=valores_map)
 
 @app.route('/deletar/<int:id>')
 def deletar_personagem(id):
