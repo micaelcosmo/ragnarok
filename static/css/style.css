@@ -1,71 +1,76 @@
 /* ==========================================================================
-   1. CONFIGURAÇÕES GLOBAIS E VARIÁVEIS
+   RAGNAROK GRIMÓRIO - ESTILO COMPLETO
    ========================================================================== */
-@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Lato:wght@400;700&display=swap');
+
+/* 1. IMPORTAÇÕES E VARIÁVEIS */
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Lato:wght@400;700&display=swap');
 
 :root {
-    /* Paleta Dark/Medieval (Interface Principal) */
+    /* Paleta Interface Dark (Menu/Exterior) */
     --bg-dark: #1a1a1a;
     --bg-panel: #2c241b;
+    --border-gold: #8a6d3b;
     --text-gold: #d4af37;
     --text-light: #e0e0e0;
-    
-    /* Paleta Pergaminho (Interior da Ficha/Modelos) */
-    --parchment: #f4e4bc;
+
+    /* Paleta Pergaminho (Interior/Fichas) */
+    --parchment-bg: #f4e4bc;
     --parchment-dark: #e6d2a0;
-    --text-ink: #2c241b;
+    --ink-color: #2c241b;
     
     /* Ações */
-    --btn-danger: #8b0000;
     --btn-primary: #2e4053;
     --btn-success: #27ae60;
+    --btn-danger: #8b0000;
     
-    /* Tipografia e Bordas */
-    --border-style: 3px double #8a6d3b;
-    --font-main: 'Cinzel', serif;
+    /* Fontes */
+    --font-title: 'Cinzel', serif;
     --font-body: 'Lato', sans-serif;
 }
 
 * {
-    box-sizing: border-box; /* Essencial para layout não quebrar */
+    box-sizing: border-box;
 }
 
-/* Scrollbar Customizada (Estilo Medieval) */
-::-webkit-scrollbar { width: 10px; height: 10px; }
-::-webkit-scrollbar-track { background: #1a1a1a; }
-::-webkit-scrollbar-thumb { background: #8a6d3b; border-radius: 5px; border: 2px solid #1a1a1a; }
-::-webkit-scrollbar-thumb:hover { background: #d4af37; }
-
-/* ==========================================================================
-   2. ESTRUTURA PRINCIPAL (PAI / SIDEBAR)
-   ========================================================================== */
 body {
     margin: 0;
     padding: 0;
-    background-color: var(--bg-dark);
     font-family: var(--font-body);
+}
+
+/* Scrollbar Personalizada */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); }
+::-webkit-scrollbar-thumb { background: var(--border-gold); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-gold); }
+
+/* ==========================================================================
+   2. LAYOUT PRINCIPAL (SIDEBAR + CONTAINER)
+   ========================================================================== */
+
+/* Se o body tiver essa classe (ou for o index), aplica o layout flex */
+body:not(.sheet-body) {
+    background-color: var(--bg-dark);
     color: var(--text-light);
     height: 100vh;
     display: flex;
-    overflow: hidden; /* Scroll apenas nos containers internos */
+    overflow: hidden;
 }
 
-/* --- Menu Lateral --- */
 .sidebar {
     width: 280px;
     min-width: 280px;
     background-color: var(--bg-panel);
-    border-right: var(--border-style);
+    border-right: 3px double var(--border-gold);
     display: flex;
     flex-direction: column;
     padding: 20px;
     box-shadow: 5px 0 15px rgba(0,0,0,0.5);
     z-index: 10;
-    overflow-y: auto;
 }
 
 .sidebar h2 {
-    font-family: var(--font-main);
+    font-family: var(--font-title);
     color: var(--text-gold);
     text-align: center;
     border-bottom: 1px solid var(--text-gold);
@@ -73,27 +78,40 @@ body {
     margin-top: 0;
 }
 
+/* Navegação da Sidebar */
+.sidebar-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 20px;
+    border-bottom: 1px dashed var(--border-gold);
+    padding-bottom: 20px;
+}
+
+.sidebar-list {
+    flex-grow: 1;
+    overflow-y: auto;
+}
+
 .char-link {
     display: block;
-    padding: 12px;
-    margin-bottom: 8px;
+    padding: 10px;
+    margin-bottom: 5px;
     text-decoration: none;
-    color: var(--parchment);
-    background: rgba(0,0,0,0.3);
-    border: 1px solid #4a3b2a;
+    color: var(--parchment-bg);
+    background: rgba(0,0,0,0.2);
+    border: 1px solid transparent;
     border-radius: 4px;
-    font-family: var(--font-main);
-    transition: all 0.3s ease;
-    text-align: center;
+    transition: all 0.3s;
 }
 
 .char-link:hover {
-    background: var(--text-gold);
-    color: var(--bg-panel);
+    border-color: var(--text-gold);
+    background: rgba(212, 175, 55, 0.1);
     transform: translateX(5px);
 }
 
-/* --- Área Central (Container do Iframe ou Conteúdo) --- */
+/* Área Principal */
 .main-content {
     flex-grow: 1;
     padding: 20px;
@@ -101,17 +119,16 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    position: relative;
 }
 
 .frame-container {
     width: 100%;
-    max-width: 1100px;
+    max-width: 1200px;
     height: 95%;
     border: 5px solid #5c4033;
     border-radius: 8px;
     box-shadow: 0 0 30px rgba(0,0,0,0.8);
-    background: var(--parchment); /* Fundo padrão caso iframe demore */
+    background: var(--parchment-bg);
     overflow: hidden;
 }
 
@@ -123,160 +140,36 @@ iframe {
 }
 
 /* ==========================================================================
-   3. ESTILOS INTERNOS (DENTRO DO IFRAME / FICHA / PAGINAS CLARAS)
+   3. ESTILOS INTERNOS (DENTRO DO IFRAME / FICHA)
    ========================================================================== */
 
-/* Use esta classe no <body> das páginas internas (ficha.html, modelos.html) */
 .sheet-body {
-    background-color: var(--parchment);
-    color: var(--text-ink);
-    font-family: var(--font-body);
+    background-color: var(--parchment-bg);
+    color: var(--ink-color);
     padding: 30px;
-    height: 100vh; /* Garante altura total */
-    overflow-y: auto; /* Scroll acontece aqui dentro */
-    
-    /* Textura de papel */
-    background-image: linear-gradient(rgba(255,255,255,0.5), rgba(255,255,255,0.5)), 
+    height: 100vh;
+    overflow-y: auto;
+    /* Textura de papel opcional */
+    background-image: linear-gradient(rgba(255,255,255,0.6), rgba(255,255,255,0.6)), 
                       url('https://www.transparenttextures.com/patterns/aged-paper.png');
 }
 
-/* Títulos Internos */
+/* Títulos internos */
 h1, h2, h3 {
-    font-family: var(--font-main);
+    font-family: var(--font-title);
     color: #5c4033;
 }
 
-/* --- Inputs e Formulários Genéricos --- */
-input[type="text"], 
-input[type="number"], 
-select,
-textarea {
-    width: 100%;
-    background: rgba(255, 255, 255, 0.4);
-    border: 1px solid #8a6d3b;
-    border-radius: 4px;
-    font-family: var(--font-body);
-    font-size: 1rem;
-    color: #2c241b;
-    padding: 8px 10px;
-    outline: none;
-    transition: 0.3s;
-}
-
-input:focus, textarea:focus, select:focus {
-    border-color: #d4af37;
-    background: rgba(255,255,255,0.8);
-    box-shadow: 0 0 5px rgba(212, 175, 55, 0.5);
-}
-
 /* ==========================================================================
-   4. PÁGINA DE MODELOS (O FIX DO LAYOUT)
+   4. COMPONENTES DE UI (BOTÕES E INPUTS)
    ========================================================================== */
 
-/* Container Principal da página de modelos - Layout Vertical */
-.models-page-wrapper {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    height: 100%; /* Ocupa altura total para permitir scroll se necessário */
-}
-
-/* 4.1 Cabeçalho (Título + Botão Voltar) */
-.models-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 2px solid #8a6d3b;
-    padding-bottom: 10px;
-    flex-shrink: 0; /* Não deixa encolher */
-}
-
-.models-header h1 { margin: 0; font-size: 2rem; }
-.models-header p { margin: 0; color: #666; font-size: 0.9rem;}
-
-/* 4.2 Barra de Criação Horizontal */
-.create-model-bar {
-    background: rgba(92, 64, 51, 0.1); /* Fundo sutil */
-    border: 1px solid #8a6d3b;
-    padding: 15px 20px;
-    border-radius: 6px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 20px;
-    flex-shrink: 0;
-}
-
-.create-model-bar h3 { margin: 0; white-space: nowrap; font-size: 1.1rem; }
-
-.inline-form {
-    display: flex;
-    flex-grow: 1;
-    gap: 10px;
-    margin: 0;
-}
-
-/* 4.3 Grid de Cards */
-.models-grid {
-    display: grid;
-    /* Colunas responsivas: mínimo 320px. Preenche a largura disponível */
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    gap: 20px;
-    padding-bottom: 40px; /* Espaço no final para scroll */
-}
-
-/* Card Individual do Modelo */
-.model-card {
-    background: rgba(255,255,255,0.5);
-    border: 2px solid #5c4033;
-    border-radius: 6px;
-    padding: 15px;
-    display: flex;
-    flex-direction: column;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-}
-
-.card-header h3 {
-    margin: 0 0 10px 0;
-    color: #8b0000;
-    border-bottom: 1px dotted #8a6d3b;
-    padding-bottom: 5px;
-}
-
-/* Tabela dentro do Card */
-.fields-list {
-    flex-grow: 1;
-    margin-bottom: 15px;
-    max-height: 250px;
-    overflow-y: auto;
-    border: 1px solid #ddd;
-    background: rgba(255,255,255,0.3);
-}
-
-.fields-list table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
-.fields-list th { text-align: left; padding: 5px; background: rgba(0,0,0,0.05); color: #555; }
-.fields-list td { padding: 5px; border-bottom: 1px solid #eee; }
-
-/* Formulário Pequeno dentro do Card (Adicionar Campo) */
-.add-field-form {
-    background: rgba(0,0,0,0.05);
-    padding: 10px;
-    border-radius: 4px;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-.add-field-form input, .add-field-form select { margin: 0; background: #fff; }
-
-/* ==========================================================================
-   5. BOTÕES
-   ========================================================================== */
 .btn {
     padding: 8px 16px;
     border: none;
     border-radius: 4px;
     cursor: pointer;
-    font-family: var(--font-main);
+    font-family: var(--font-title);
     font-weight: bold;
     text-decoration: none;
     display: inline-flex;
@@ -284,36 +177,238 @@ input:focus, textarea:focus, select:focus {
     justify-content: center;
     transition: 0.2s;
     text-transform: uppercase;
-    font-size: 0.85rem;
+    font-size: 0.8rem;
+    color: white;
 }
 
 .btn:hover { filter: brightness(1.15); transform: translateY(-1px); }
+.btn:disabled { opacity: 0.6; cursor: not-allowed; filter: grayscale(1); }
 
-.btn-primary { background-color: var(--btn-primary); color: #fff; border: 1px solid #1a252f; }
-.btn-secondary { background-color: #7f8c8d; color: #fff; border: 1px solid #616a6b; }
-.btn-success { background-color: var(--btn-success); color: #fff; border: 1px solid #1e8449; }
-.btn-new { background-color: var(--btn-success); color: white; border: 1px solid #1e8449; } /* Botão verde */
-.btn-delete { background-color: var(--btn-danger); color: white; }
+.btn-primary { background-color: var(--btn-primary); border: 1px solid #1a252f; }
+.btn-success, .btn-new { background-color: var(--btn-success); border: 1px solid #1e8449; }
+.btn-delete, .btn-danger { background-color: var(--btn-danger); border: 1px solid #641e16; }
 
-/* Botão "X" pequeno na tabela */
 .btn-icon {
-    background: none;
-    border: none;
-    color: #cc0000;
-    font-weight: bold;
-    cursor: pointer;
-    font-size: 1rem;
-    padding: 0 5px;
+    background: none; border: none; color: var(--btn-danger);
+    font-weight: bold; cursor: pointer; font-size: 1rem;
 }
-.btn-icon:hover { color: red; transform: scale(1.2); }
+.btn-icon:hover { transform: scale(1.2); }
 
-/* Badge de Tipo (Texto, Int, Bool) */
-.badge {
-    display: inline-block;
-    padding: 2px 5px;
-    font-size: 0.7rem;
-    border-radius: 3px;
-    background: #dcdcdc;
-    color: #333;
-    font-weight: bold;
+/* Inputs Genéricos */
+input[type="text"], input[type="number"], select, textarea {
+    background: rgba(255, 255, 255, 0.5);
+    border: 1px solid var(--border-gold);
+    padding: 8px;
+    font-family: var(--font-body);
+    color: var(--ink-color);
+    border-radius: 4px;
+    outline: none;
 }
+input:focus, select:focus, textarea:focus {
+    background: rgba(255,255,255,0.8);
+    border-color: var(--text-gold);
+    box-shadow: 0 0 5px rgba(138, 109, 59, 0.3);
+}
+
+/* ==========================================================================
+   5. PÁGINA DE MODELOS (modelos.html)
+   ========================================================================== */
+
+.models-page-wrapper {
+    max-width: 800px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    padding-bottom: 50px;
+}
+
+.models-header-center {
+    text-align: center;
+    border-bottom: 2px solid var(--border-gold);
+    padding-bottom: 15px;
+}
+
+.model-selector-container {
+    background: rgba(255, 255, 255, 0.4);
+    padding: 20px;
+    border: 1px solid var(--border-gold);
+    border-radius: 8px;
+    text-align: center;
+    box-shadow: inset 0 0 10px rgba(138, 109, 59, 0.1);
+}
+
+.selector-label {
+    display: block;
+    font-family: var(--font-title);
+    font-weight: bold;
+    color: var(--btn-danger);
+    margin-bottom: 10px;
+    font-size: 1.2rem;
+}
+
+.model-selector-container select {
+    width: 100%;
+    max-width: 400px;
+    padding: 10px;
+    font-size: 1.1rem;
+    text-align: center;
+    border: 2px solid #5c4033;
+    cursor: pointer;
+}
+
+/* Painéis de Ação (Modelos) */
+.action-panel {
+    background: rgba(255, 255, 255, 0.6);
+    border: 2px solid #5c4033;
+    border-radius: 6px;
+    padding: 25px;
+    animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+.edit-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px dashed var(--border-gold);
+    padding-bottom: 15px;
+    margin-bottom: 20px;
+}
+
+/* Tabela de Campos */
+.fields-list {
+    max-height: 300px;
+    overflow-y: auto;
+    border: 1px solid #ccc;
+    margin-bottom: 20px;
+    background: #fff;
+}
+.fields-list table { width: 100%; border-collapse: collapse; }
+.fields-list th {
+    background: #2c241b;
+    color: var(--text-gold);
+    padding: 8px;
+    text-align: left;
+    position: sticky;
+    top: 0;
+}
+.fields-list td { padding: 8px; border-bottom: 1px solid #eee; }
+
+/* Badge de Tipo */
+.badge {
+    background: #ddd; color: #333; padding: 2px 6px;
+    border-radius: 4px; font-size: 0.75rem; font-weight: bold;
+    text-transform: uppercase;
+}
+
+/* Formulário Add Campo */
+.add-field-form {
+    display: flex;
+    gap: 10px;
+    padding: 15px;
+    background: rgba(0,0,0,0.05);
+    border-radius: 4px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+.add-field-form input { flex: 2; min-width: 150px; }
+.add-field-form select { flex: 1; min-width: 120px; }
+
+/* ==========================================================================
+   6. FICHA DO PERSONAGEM (Visual usado pelo JS)
+   ========================================================================== */
+
+/* Container da Ficha (Papel dentro do papel) */
+.sheet-paper {
+    border: 3px double var(--border-gold);
+    padding: 30px;
+    background: rgba(255,255,255,0.2);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    margin: 0 auto;
+    max-width: 1000px;
+}
+
+/* Headers da Ficha */
+.sheet-header { text-align: center; margin-bottom: 20px; }
+.char-name { font-size: 2.5rem; font-family: var(--font-title); margin: 0; color: #2c241b; }
+.char-meta { font-style: italic; color: #555; margin-top: 5px; }
+
+/* Caixas de Atributos */
+.attribute-box {
+    background: rgba(255,255,255,0.4);
+    border: 1px solid var(--border-gold);
+    padding: 10px;
+    border-radius: 6px;
+    text-align: center;
+    transition: transform 0.2s;
+}
+.attribute-box:hover {
+    border-color: var(--text-gold);
+    background: rgba(255,255,255,0.7);
+}
+.attribute-box label {
+    font-size: 0.7rem; text-transform: uppercase; font-weight: bold; display: block; color: #8b0000;
+}
+.attribute-val { font-family: var(--font-title); font-size: 1.5rem; font-weight: bold; display: block; }
+
+/* Inputs Específicos da Ficha (Modo Edição) */
+.edit-input {
+    border: none;
+    border-bottom: 2px solid var(--border-gold);
+    background: transparent;
+    text-align: center;
+    font-family: var(--font-title);
+    color: #2c241b;
+    border-radius: 0;
+    width: 100%;
+}
+.edit-input:focus { background: rgba(255,255,255,0.5); border-bottom-color: #2ecc71; box-shadow: none; }
+
+.edit-textarea {
+    width: 100%;
+    min-height: 100px;
+    background: rgba(255,255,255,0.3);
+    border: 1px solid var(--border-gold);
+}
+
+/* Separador Visual */
+.separator {
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--border-gold), transparent);
+    margin: 20px 0;
+    opacity: 0.5;
+}
+
+/* ==========================================================================
+   7. GRID UTILITY (Substituindo necessidade do Tailwind no seu JS)
+   ========================================================================== */
+/* Estas classes garantem que o layout da ficha funcione mesmo sem Tailwind */
+
+.grid { display: grid; gap: 15px; }
+.grid-cols-1 { grid-template-columns: 1fr; }
+.grid-cols-2 { grid-template-columns: repeat(2, 1fr); }
+.grid-cols-3 { grid-template-columns: repeat(3, 1fr); }
+
+@media (min-width: 768px) {
+    .md\:grid-cols-2 { grid-template-columns: repeat(2, 1fr); }
+    .md\:grid-cols-3 { grid-template-columns: repeat(3, 1fr); }
+}
+
+@media (min-width: 1024px) {
+    .lg\:grid-cols-6 { grid-template-columns: repeat(6, 1fr); }
+}
+
+.text-center { text-align: center; }
+.text-2xl { font-size: 1.5rem; }
+.text-3xl { font-size: 1.875rem; }
+.font-bold { font-weight: bold; }
+.w-full { width: 100%; }
+.flex { display: flex; }
+.justify-between { justify-content: space-between; }
+.gap-4 { gap: 1rem; }
+.mb-4 { margin-bottom: 1rem; }
+
+/* Helper genérico */
+.hidden { display: none !important; }

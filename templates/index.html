@@ -4,42 +4,84 @@
     <meta charset="UTF-8">
     <title>Ragnarok - Grimório</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        /* Pequenos ajustes específicos para a Sidebar neste arquivo, 
+           ou mova para o style.css se preferir */
+        .sidebar-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--text-gold);
+            padding-bottom: 20px;
+        }
+        
+        .sidebar-list {
+            flex-grow: 1;
+            overflow-y: auto;
+        }
+
+        .btn-block {
+            width: 100%;
+            justify-content: center; /* Centraliza texto flex */
+            text-align: center;
+        }
+
+        /* Estilo específico para o botão de config para diferenciar */
+        .btn-config {
+            background-color: #4a3b2a;
+            color: var(--text-light);
+            border: 1px solid #5c4033;
+            font-size: 0.85rem;
+        }
+        .btn-config:hover {
+            background-color: #5c4033;
+            border-color: var(--text-gold);
+        }
+    </style>
 </head>
 <body>
+
     <div class="sidebar">
         <h2>Grimório</h2>
         
-        <a href="{{ url_for('novo_personagem') }}" target="char_frame" class="btn btn-new">
-            + Novo Herói
-        </a>
+        <div class="sidebar-actions">
+            <a href="{{ url_for('novo_personagem') }}" target="char_frame" class="btn btn-new btn-block">
+                + Novo Herói
+            </a>
 
-        <!-- NOVO: Botão de Configuração -->
-        <a href="{{ url_for('gerenciar_modelos') }}" target="char_frame" class="btn" style="width:100%; margin-bottom: 20px; background: #4a3b2a; font-size: 0.8rem;">
-            ⚙️ Configurar Modelos
-        </a>
+            <a href="{{ url_for('gerenciar_modelos') }}" target="char_frame" class="btn btn-config btn-block">
+                ⚙️ Configurar Modelos
+            </a>
+        </div>
 
-        <nav>
-            {% for p in personagens %}
-                <a href="{{ url_for('ver_ficha', id=p.id) }}" target="char_frame" class="char-link">
-                    {{ p.nome }}
-                </a>
-            {% else %}
-                <p style="text-align:center; font-style:italic; color:#888;">Nenhum registro.</p>
-            {% endfor %}
-        </nav>
+        <div class="sidebar-list">
+            <nav>
+                {% for p in personagens %}
+                    <a href="{{ url_for('ver_ficha', id=p.id) }}" target="char_frame" class="char-link">
+                        {{ p.nome }}
+                    </a>
+                {% else %}
+                    <div style="padding: 20px; text-align: center; opacity: 0.6;">
+                        <p>Nenhum herói encontrado.</p>
+                        <small>Crie um novo grimório acima.</small>
+                    </div>
+                {% endfor %}
+            </nav>
+        </div>
     </div>
 
     <div class="main-content">
         <div class="frame-container">
-            <!-- CORREÇÃO: O endpoint correto é 'novo_personagem', que renderiza a seleção de modelos por padrão -->
-            <iframe name="char_frame" src="{{ url_for('novo_personagem') if not personagens else 'about:blank' }}" title="Ficha"></iframe>
+            {% set inicial_url = url_for('ver_ficha', id=personagens[0].id) if personagens else url_for('novo_personagem') %}
+            
+            <iframe 
+                name="char_frame" 
+                src="{{ inicial_url }}" 
+                title="Painel Principal">
+            </iframe>
         </div>
     </div>
 
-    <script>
-        // Pequeno script para melhorar UX se não tiver ninguém na lista
-        // Como não tenho uma rota dedicada "home_iframe", criei uma lógica inline no src acima
-        // mas para garantir, se quiser uma rota limpa:
-    </script>
 </body>
 </html>

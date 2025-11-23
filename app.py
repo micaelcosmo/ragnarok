@@ -1,8 +1,9 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
 import os
 
 app = Flask(__name__)
+app.secret_key = 'chave_secreta_para_flash_messages' # Necessário para feedback visual
 
 # Configuração do SQLite
 basedir = os.path.abspath(os.path.dirname(__file__))
@@ -11,14 +12,17 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
 
-# --- NOVOS MODELOS DE BANCO DE DADOS ---
+# ==============================================================================
+# MODELOS DE BANCO DE DADOS (COM CASCADES CORRIGIDOS)
+# ==============================================================================
 
 class Modelo(db.Model):
     """Define um template de ficha (ex: D&D, Tormenta, Call of Cthulhu)"""
     id = db.Column(db.Integer, primary_key=True)
     nome = db.Column(db.String(100), nullable=False)
+    # Se deletar o modelo, deleta os campos e os personagens associados
     campos = db.relationship('Campo', backref='modelo', cascade="all, delete-orphan")
-    personagens = db.relationship('Personagem', backref='modelo', lazy=True)
+    personagens = db.relationship('Personagem', backref='modelo', cascade="all, delete-orphan")
 
 class Campo(db.Model):
     """Define os campos disponíveis em um modelo"""
@@ -26,13 +30,15 @@ class Campo(db.Model):
     modelo_id = db.Column(db.Integer, db.ForeignKey('modelo.id'), nullable=False)
     nome = db.Column(db.String(100), nullable=False)
     tipo = db.Column(db.String(20), nullable=False) # 'texto', 'inteiro', 'booleano'
+    # FIX: Se deletar o campo, deleta os valores preenchidos nas fichas
+    valores = db.relationship('Valor', backref='campo', cascade="all, delete-orphan")
 
 class Personagem(db.Model):
     """O personagem em si, vinculado a um modelo"""
     id = db.Column(db.Integer, primary_key=True)
     modelo_id = db.Column(db.Integer, db.ForeignKey('modelo.id'), nullable=False)
     nome = db.Column(db.String(100), nullable=False)
-    nivel = db.Column(db.Integer, default=1) # Mantive nível como padrão universal
+    nivel = db.Column(db.Integer, default=1)
     valores = db.relationship('Valor', backref='personagem', cascade="all, delete-orphan")
 
 class Valor(db.Model):
@@ -40,102 +46,149 @@ class Valor(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     personagem_id = db.Column(db.Integer, db.ForeignKey('personagem.id'), nullable=False)
     campo_id = db.Column(db.Integer, db.ForeignKey('campo.id'), nullable=False)
-    valor_texto = db.Column(db.String(500), nullable=True) # Armazenamos tudo como string e convertemos na view
+    valor_texto = db.Column(db.String(500), nullable=True)
 
-    @property
-    def valor_real(self):
-        # Helper para retornar o tipo correto se necessário
-        return self.valor_texto
-
-# Cria o banco se não existir
+# Inicialização do Banco
 with app.app_context():
     db.create_all()
-    # Cria um modelo padrão se não houver nenhum
     if not Modelo.query.first():
+        # Seed inicial para não abrir vazio
         m = Modelo(nome="Aventureiro Padrão")
         db.session.add(m)
         db.session.flush()
         db.session.add(Campo(modelo_id=m.id, nome="Classe", tipo="texto"))
-        db.session.add(Campo(modelo_id=m.id, nome="Raça", tipo="texto"))
         db.session.add(Campo(modelo_id=m.id, nome="Força", tipo="inteiro"))
-        db.session.add(Campo(modelo_id=m.id, nome="Vivo?", tipo="booleano"))
-        db.session.add(Campo(modelo_id=m.id, nome="História", tipo="texto"))
+        db.session.add(Campo(modelo_id=m.id, nome="História", tipo="textarea")) # Mudei para textarea
         db.session.commit()
 
-# --- ROTAS ---
+# ==============================================================================
+# ROTAS GERAIS
+# ==============================================================================
 
 @app.route('/')
 def index():
     personagens = Personagem.query.with_entities(Personagem.id, Personagem.nome).all()
     return render_template('index.html', personagens=personagens)
 
-# --- GERENCIAMENTO DE MODELOS ---
-@app.route('/modelos', methods=['GET', 'POST'])
+# ==============================================================================
+# ROTAS DE GERENCIAMENTO DE MODELOS (CORRIGIDAS)
+# ==============================================================================
+
+@app.route('/configurar_modelos')
 def gerenciar_modelos():
-    if request.method == 'POST':
-        if 'novo_modelo' in request.form:
-            novo = Modelo(nome=request.form['nome_modelo'])
-            db.session.add(novo)
+    """Renderiza a tela principal de configuração."""
+    modelos = Modelo.query.all()
+    
+    # Captura o ID da query string para manter o modelo aberto após edição
+    # Ex: /configurar_modelos?modelo_id=5
+    selected_id = request.args.get('modelo_id')
+    modelo_selecionado = None
+    
+    if selected_id:
+        modelo_selecionado = Modelo.query.get(selected_id)
+
+    return render_template('modelos.html', modelos=modelos, modelo_selecionado=modelo_selecionado, selected_id=selected_id)
+
+@app.route('/criar_modelo', methods=['POST'])
+def criar_modelo():
+    """Cria um novo grimório (modelo)."""
+    nome = request.form.get('nome_modelo')
+    if nome:
+        novo = Modelo(nome=nome)
+        db.session.add(novo)
+        db.session.commit()
+        # Redireciona já abrindo o novo modelo criado
+        return redirect(url_for('gerenciar_modelos', modelo_id=novo.id))
+    return redirect(url_for('gerenciar_modelos'))
+
+@app.route('/deletar_modelo', methods=['POST'])
+def deletar_modelo():
+    """Exclui um modelo e todos os dados associados."""
+    id_modelo = request.form.get('id_modelo')
+    if id_modelo:
+        modelo = Modelo.query.get(id_modelo)
+        if modelo:
+            db.session.delete(modelo)
             db.session.commit()
-        elif 'novo_campo' in request.form:
-            modelo_id = request.form['modelo_id']
-            campo = Campo(
-                modelo_id=modelo_id,
-                nome=request.form['nome_campo'],
-                tipo=request.form['tipo_campo']
-            )
-            db.session.add(campo)
-            db.session.commit()
-        elif 'deletar_campo' in request.form:
-            Campo.query.filter_by(id=request.form['campo_id']).delete()
+    return redirect(url_for('gerenciar_modelos'))
+
+@app.route('/adicionar_campo', methods=['POST'])
+def adicionar_campo():
+    """Adiciona um campo a um modelo existente."""
+    # Nota: Você precisará ajustar seu HTML 'modelos.html' para postar para cá
+    # ou manter a lógica antiga. Recomendo usar esta rota dedicada.
+    modelo_id = request.form.get('modelo_id') # Certifique-se de ter um input hidden com isso
+    nome = request.form.get('nome_campo') # Ou ajustar conforme seu form
+    tipo = request.form.get('tipo_campo')
+    
+    if modelo_id and nome and tipo:
+        campo = Campo(modelo_id=modelo_id, nome=nome, tipo=tipo)
+        db.session.add(campo)
+        db.session.commit()
+        return redirect(url_for('gerenciar_modelos', modelo_id=modelo_id))
+        
+    return redirect(url_for('gerenciar_modelos'))
+
+@app.route('/deletar_campo', methods=['POST'])
+def deletar_campo():
+    """Rota que estava faltando: Exclui um campo específico."""
+    id_modelo = request.form.get('id_modelo')
+    nome_campo = request.form.get('nome_campo')
+    
+    # Tenta buscar pelo ID se vier, ou pelo nome e modelo_id
+    if id_modelo and nome_campo:
+        campo = Campo.query.filter_by(modelo_id=id_modelo, nome=nome_campo).first()
+        if campo:
+            db.session.delete(campo)
             db.session.commit()
             
-    modelos = Modelo.query.all()
-    return render_template('modelos.html', modelos=modelos)
+    # Retorna para a tela de configuração mantendo o modelo aberto
+    return redirect(url_for('gerenciar_modelos', modelo_id=id_modelo))
 
-# --- PERSONAGENS ---
+# ==============================================================================
+# ROTAS DE PERSONAGEM
+# ==============================================================================
 
 @app.route('/novo', methods=['GET', 'POST'])
 def novo_personagem():
-    # Passo 1: Selecionar Modelo
-    if request.method == 'GET' and not request.args.get('modelo_id'):
+    # Se for GET, apenas mostra seleção
+    if request.method == 'GET':
         modelos = Modelo.query.all()
+        # Verifica se já escolheu o modelo na URL
+        modelo_id = request.args.get('modelo_id')
+        if modelo_id:
+            modelo = Modelo.query.get_or_404(modelo_id)
+            return render_template('form.html', p=None, modelo=modelo)
         return render_template('selecionar_modelo.html', modelos=modelos)
 
-    # Passo 2: Preencher Ficha
-    modelo_id = request.args.get('modelo_id') or request.form.get('modelo_id')
+    # Se for POST (Salvando a ficha)
+    modelo_id = request.form.get('modelo_id')
     modelo = Modelo.query.get_or_404(modelo_id)
 
-    if request.method == 'POST' and 'salvar_ficha' in request.form:
-        # Criar Personagem
-        p = Personagem(
-            nome=request.form['nome'],
-            nivel=request.form['nivel'],
-            modelo_id=modelo.id
-        )
-        db.session.add(p)
-        db.session.flush() # Pega o ID do p
+    p = Personagem(
+        nome=request.form['nome'],
+        nivel=request.form['nivel'],
+        modelo_id=modelo.id
+    )
+    db.session.add(p)
+    db.session.flush()
 
-        # Salvar Valores Dinâmicos
-        for campo in modelo.campos:
-            chave_form = f'campo_{campo.id}'
-            valor_bruto = request.form.get(chave_form)
-            
-            if campo.tipo == 'booleano':
-                valor_bruto = 'Sim' if valor_bruto == 'on' else 'Não'
-            
-            v = Valor(personagem_id=p.id, campo_id=campo.id, valor_texto=valor_bruto)
-            db.session.add(v)
+    for campo in modelo.campos:
+        chave_form = f'campo_{campo.id}'
+        valor_bruto = request.form.get(chave_form)
         
-        db.session.commit()
-        return render_template('refresh_parent.html', id=p.id)
+        if campo.tipo == 'booleano':
+            valor_bruto = 'Sim' if valor_bruto == 'on' else 'Não'
+        
+        v = Valor(personagem_id=p.id, campo_id=campo.id, valor_texto=valor_bruto)
+        db.session.add(v)
     
-    return render_template('form.html', p=None, modelo=modelo)
+    db.session.commit()
+    return render_template('refresh_parent.html', id=p.id)
 
 @app.route('/ficha/<int:id>')
 def ver_ficha(id):
     p = Personagem.query.get_or_404(id)
-    # Dicionário para facilitar acesso no template: { 'Força': '18', 'Classe': 'Ranger' }
     valores_map = {v.campo_id: v.valor_texto for v in p.valores}
     return render_template('ficha.html', p=p, valores=valores_map)
 
@@ -148,7 +201,6 @@ def editar_personagem(id):
         p.nome = request.form['nome']
         p.nivel = request.form['nivel']
         
-        # Atualizar valores
         for campo in modelo.campos:
             chave_form = f'campo_{campo.id}'
             valor_bruto = request.form.get(chave_form)
@@ -156,7 +208,6 @@ def editar_personagem(id):
             if campo.tipo == 'booleano':
                 valor_bruto = 'Sim' if valor_bruto == 'on' else 'Não'
             
-            # Procura valor existente ou cria novo
             v = Valor.query.filter_by(personagem_id=p.id, campo_id=campo.id).first()
             if v:
                 v.valor_texto = valor_bruto
@@ -167,7 +218,6 @@ def editar_personagem(id):
         db.session.commit()
         return render_template('refresh_parent.html', id=p.id)
 
-    # Mapeia valores existentes para pré-preencher form
     valores_map = {v.campo_id: v.valor_texto for v in p.valores}
     return render_template('form.html', p=p, modelo=modelo, valores=valores_map)
 
