@@ -101,4 +101,4 @@ Tipografia: Cinzel (Títulos Medievais) e Lato (Legibilidade).
 🤝 Contribuição
 Contribuições são bem-vindas! Sinta-se à vontade para abrir issues ou pull requests para adicionar novos tipos de campos (ex: Select Box, Rolagem de Dados) ou melhorar a interface.
 
-<div align="center"> <small>Desenvolvido por <strong>Micael Cosmo</strong></small> </div>
+Desenvolvido por Micael Cosmo
