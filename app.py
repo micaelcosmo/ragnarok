@@ -70,57 +70,59 @@ def index():
     personagens = Personagem.query.with_entities(Personagem.id, Personagem.nome).all()
     return render_template('index.html', personagens=personagens)
 
-# ==============================================================================
-# ROTAS DE GERENCIAMENTO DE MODELOS (CORRIGIDAS)
-# ==============================================================================
+# --- GERENCIAMENTO DE MODELOS (CORRIGIDO E ROBUSTO) ---
 
 @app.route('/configurar_modelos')
 def gerenciar_modelos():
     """Renderiza a tela principal de configuração."""
     modelos = Modelo.query.all()
-    
-    # Captura o ID da query string para manter o modelo aberto após edição
-    # Ex: /configurar_modelos?modelo_id=5
     selected_id = request.args.get('modelo_id')
     modelo_selecionado = None
     
     if selected_id:
         modelo_selecionado = Modelo.query.get(selected_id)
 
-    return render_template('modelos.html', modelos=modelos, modelo_selecionado=modelo_selecionado, selected_id=selected_id)
+    return render_template('modelos.html', modelos=modelos, modelo_selecionado=modelo_selecionado)
 
 @app.route('/criar_modelo', methods=['POST'])
 def criar_modelo():
-    """Cria um novo grimório (modelo)."""
     nome = request.form.get('nome_modelo')
     if nome:
+        print(f"DEBUG: Criando modelo '{nome}'")
         novo = Modelo(nome=nome)
         db.session.add(novo)
         db.session.commit()
-        # Redireciona já abrindo o novo modelo criado
         return redirect(url_for('gerenciar_modelos', modelo_id=novo.id))
     return redirect(url_for('gerenciar_modelos'))
 
 @app.route('/deletar_modelo', methods=['POST'])
 def deletar_modelo():
-    """Exclui um modelo e todos os dados associados."""
     id_modelo = request.form.get('id_modelo')
+    print(f"DEBUG: Tentando deletar modelo ID {id_modelo}")
+    
     if id_modelo:
         modelo = Modelo.query.get(id_modelo)
         if modelo:
-            db.session.delete(modelo)
-            db.session.commit()
+            try:
+                db.session.delete(modelo)
+                db.session.commit()
+                print("DEBUG: Modelo deletado com sucesso.")
+            except Exception as e:
+                print(f"ERRO AO DELETAR: {e}")
+                db.session.rollback()
+        else:
+            print("DEBUG: Modelo não encontrado no banco.")
+            
     return redirect(url_for('gerenciar_modelos'))
 
 @app.route('/adicionar_campo', methods=['POST'])
 def adicionar_campo():
-    """Adiciona um campo a um modelo existente."""
-    # Nota: Você precisará ajustar seu HTML 'modelos.html' para postar para cá
-    # ou manter a lógica antiga. Recomendo usar esta rota dedicada.
-    modelo_id = request.form.get('modelo_id') # Certifique-se de ter um input hidden com isso
-    nome = request.form.get('nome_campo') # Ou ajustar conforme seu form
+    modelo_id = request.form.get('modelo_id')
+    nome = request.form.get('nome_campo')
     tipo = request.form.get('tipo_campo')
     
+    print(f"DEBUG: Add Campo '{nome}' ao modelo {modelo_id}")
+
     if modelo_id and nome and tipo:
         campo = Campo(modelo_id=modelo_id, nome=nome, tipo=tipo)
         db.session.add(campo)
@@ -131,19 +133,21 @@ def adicionar_campo():
 
 @app.route('/deletar_campo', methods=['POST'])
 def deletar_campo():
-    """Rota que estava faltando: Exclui um campo específico."""
-    id_modelo = request.form.get('id_modelo')
-    nome_campo = request.form.get('nome_campo')
+    # MUDANÇA PRINCIPAL: Usamos o ID do campo, não o nome + modelo
+    campo_id = request.form.get('campo_id')
+    modelo_id = request.form.get('modelo_id') # Apenas para redirecionar de volta
     
-    # Tenta buscar pelo ID se vier, ou pelo nome e modelo_id
-    if id_modelo and nome_campo:
-        campo = Campo.query.filter_by(modelo_id=id_modelo, nome=nome_campo).first()
+    print(f"DEBUG: Deletando campo ID {campo_id}")
+    
+    if campo_id:
+        campo = Campo.query.get(campo_id)
         if campo:
             db.session.delete(campo)
             db.session.commit()
+            print("DEBUG: Campo deletado.")
             
-    # Retorna para a tela de configuração mantendo o modelo aberto
-    return redirect(url_for('gerenciar_modelos', modelo_id=id_modelo))
+    # Retorna para o modelo aberto
+    return redirect(url_for('gerenciar_modelos', modelo_id=modelo_id))
 
 # ==============================================================================
 # ROTAS DE PERSONAGEM
@@ -151,40 +155,67 @@ def deletar_campo():
 
 @app.route('/novo', methods=['GET', 'POST'])
 def novo_personagem():
-    # Se for GET, apenas mostra seleção
-    if request.method == 'GET':
+    # Passo 1: Selecionar Modelo (GET inicial)
+    if request.method == 'GET' and not request.args.get('modelo_id'):
         modelos = Modelo.query.all()
-        # Verifica se já escolheu o modelo na URL
-        modelo_id = request.args.get('modelo_id')
-        if modelo_id:
-            modelo = Modelo.query.get_or_404(modelo_id)
-            return render_template('form.html', p=None, modelo=modelo)
         return render_template('selecionar_modelo.html', modelos=modelos)
 
-    # Se for POST (Salvando a ficha)
-    modelo_id = request.form.get('modelo_id')
+    # Se já tem modelo_id na URL ou é POST
+    modelo_id = request.args.get('modelo_id') or request.form.get('modelo_id')
+    
+    # Segurança: Se não tiver modelo_id, volta pro inicio
+    if not modelo_id:
+        return redirect(url_for('novo_personagem'))
+        
     modelo = Modelo.query.get_or_404(modelo_id)
 
-    p = Personagem(
-        nome=request.form['nome'],
-        nivel=request.form['nivel'],
-        modelo_id=modelo.id
-    )
-    db.session.add(p)
-    db.session.flush()
+    # Passo 2: Salvar Ficha (POST)
+    if request.method == 'POST' and 'salvar_ficha' in request.form:
+        # --- CORREÇÃO AQUI: TRATAMENTO DE NOME NULO ---
+        nome_form = request.form.get('nome')
+        nivel_form = request.form.get('nivel')
 
-    for campo in modelo.campos:
-        chave_form = f'campo_{campo.id}'
-        valor_bruto = request.form.get(chave_form)
+        # Se o nome vier vazio ou None, define um padrão
+        if not nome_form or nome_form.strip() == "":
+            nome_form = "Herói Sem Nome"
         
-        if campo.tipo == 'booleano':
-            valor_bruto = 'Sim' if valor_bruto == 'on' else 'Não'
+        # Garante que nível seja um inteiro
+        try:
+            nivel_int = int(nivel_form)
+        except (ValueError, TypeError):
+            nivel_int = 1
+
+        # Cria o objeto Personagem
+        p = Personagem(
+            nome=nome_form,
+            nivel=nivel_int,
+            modelo_id=modelo.id
+        )
         
-        v = Valor(personagem_id=p.id, campo_id=campo.id, valor_texto=valor_bruto)
-        db.session.add(v)
+        db.session.add(p)
+        db.session.flush() # Gera o ID do personagem
+
+        # Salvar Valores Dinâmicos
+        for campo in modelo.campos:
+            chave_form = f'campo_{campo.id}'
+            valor_bruto = request.form.get(chave_form)
+            
+            if campo.tipo == 'booleano':
+                valor_bruto = 'Sim' if valor_bruto == 'on' else 'Não'
+            
+            # Salva mesmo que vazio (já que valor_texto é nullable=True no seu model)
+            v = Valor(personagem_id=p.id, campo_id=campo.id, valor_texto=valor_bruto)
+            db.session.add(v)
+        
+        try:
+            db.session.commit()
+            return render_template('refresh_parent.html', id=p.id)
+        except Exception as e:
+            db.session.rollback()
+            print(f"ERRO AO SALVAR: {e}")
+            return "Erro ao salvar no banco de dados.", 500
     
-    db.session.commit()
-    return render_template('refresh_parent.html', id=p.id)
+    return render_template('form.html', p=None, modelo=modelo)
 
 @app.route('/ficha/<int:id>')
 def ver_ficha(id):

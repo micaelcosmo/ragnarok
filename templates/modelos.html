@@ -38,10 +38,11 @@
 
         <div id="panel-edit" class="action-panel hidden">
             <div class="edit-header">
-                <h2 id="edit-model-title">Editando: Nome do Modelo</h2>
-                <form action="/deletar_modelo" method="POST" onsubmit="return confirm('Tem certeza?')">
-                    <input type="hidden" name="id_modelo" id="delete-id">
-                    <button class="btn btn-delete">Excluir Modelo</button>
+                <h2 id="edit-model-title" style="color: #8b0000;">Editando: {{ modelo_selecionado.nome }}</h2>
+                
+                <form action="{{ url_for('deletar_modelo') }}" method="POST" onsubmit="return confirm('Tem certeza absoluta? Isso apagará todas as fichas deste modelo.');">
+                    <input type="hidden" name="id_modelo" value="{{ modelo_selecionado.id }}">
+                    <button type="submit" class="btn btn-delete">Excluir Grimório</button>
                 </form>
             </div>
 
@@ -56,13 +57,24 @@
                                 <th>Ação</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            <tr>
-                                <td>Força</td>
-                                <td><span class="badge">Inteiro</span></td>
-                                <td><button class="btn-icon">X</button></td>
-                            </tr>
-                        </tbody>
+                    <tbody>
+                        {% for campo in modelo_selecionado.campos %}
+                        <tr>
+                            <td>{{ campo.nome }}</td>
+                            <td><span class="badge">{{ campo.tipo }}</span></td>
+                            <td style="text-align: center;">
+                                <form action="{{ url_for('deletar_campo') }}" method="POST">
+                                    <input type="hidden" name="campo_id" value="{{ campo.id }}">
+                                    <input type="hidden" name="modelo_id" value="{{ modelo_selecionado.id }}">
+                                    
+                                    <button type="submit" class="btn-icon" title="Remover Campo">X</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr><td colspan="3" style="text-align:center">Nenhum campo ainda.</td></tr>
+                        {% endfor %}
+                    </tbody>
                     </table>
                 </div>
 

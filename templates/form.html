@@ -2,80 +2,80 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
+    <title>Ficha de Personagem</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body class="sheet-body">
 
-    <form method="POST">
-        <input type="hidden" name="modelo_id" value="{{ modelo.id }}">
-        
-        <div class="sheet-header" style="border:none;">
-            <h1 style="font-size: 1.8rem;">
-                {% if p %}Editando {{ p.nome }}{% else %}Novo: {{ modelo.nome }}{% endif %}
-            </h1>
+    <div class="sheet-paper">
+        <div class="sheet-header">
+            <h1>{{ 'Novo Herói' if not p else p.nome }}</h1>
+            <p class="char-meta">Modelo: {{ modelo.nome }}</p>
         </div>
 
-        <!-- Dados Fixos (Todo personagem tem) -->
-        <div class="form-grid">
-            <div class="form-group">
-                <label>Nome do Personagem</label>
-                <input type="text" name="nome" value="{{ p.nome if p else '' }}" required autocomplete="off">
-            </div>
-            <div class="form-group">
-                <label>Nível Global</label>
-                <input type="number" name="nivel" value="{{ p.nivel if p else 1 }}" style="width: 80px;">
-            </div>
-        </div>
+        <form method="POST">
+            
+            <input type="hidden" name="salvar_ficha" value="true">
+            
+            <input type="hidden" name="modelo_id" value="{{ modelo.id }}">
 
-        <hr style="border: 0; border-top: 1px solid #8a6d3b; margin: 20px 0;">
+            <div class="grid grid-cols-2 gap-4 mb-4">
+                <div>
+                    <label class="text-xs uppercase font-bold text-yellow-900">Nome do Personagem</label>
+                    <input type="text" name="nome" class="edit-input" required 
+                           value="{{ p.nome if p else '' }}" placeholder="Digite o nome...">
+                </div>
+                <div>
+                    <label class="text-xs uppercase font-bold text-yellow-900">Nível</label>
+                    <input type="number" name="nivel" class="edit-input" required 
+                           value="{{ p.nivel if p else 1 }}">
+                </div>
+            </div>
 
-        <!-- CAMPOS DINÂMICOS DO MODELO -->
-        <!-- Lógica: Divide inteiros (stats) de textos para organização visual -->
-        
-        <h3 style="font-family: var(--font-main); color: #5c4033;">Atributos & Status</h3>
-        <div class="stats-inputs" style="grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));">
-            {% for campo in modelo.campos %}
-                {% if campo.tipo == 'inteiro' %}
-                    <div class="form-group">
-                        <label>{{ campo.nome }}</label>
-                        <!-- Recupera valor do dicionário 'valores' usando o ID do campo -->
-                        <input type="number" name="campo_{{ campo.id }}" 
+            <div class="separator"></div>
+
+            <h3 class="section-title text-center mb-4">Atributos & Detalhes</h3>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {% for campo in modelo.campos %}
+                <div class="attribute-box" style="text-align: left; padding: 15px;">
+                    <label style="margin-bottom: 5px;">{{ campo.nome }}</label>
+                    
+                    {% if campo.tipo == 'textarea' %}
+                        <textarea name="campo_{{ campo.id }}" class="edit-textarea">{{ valores.get(campo.id, '') if valores else '' }}</textarea>
+                    
+                    {% elif campo.tipo == 'booleano' %}
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <input type="checkbox" name="campo_{{ campo.id }}" 
+                                   {% if valores and valores.get(campo.id) == 'Sim' %}checked{% endif %}>
+                            <span>Sim</span>
+                        </div>
+
+                    {% elif campo.tipo == 'inteiro' %}
+                        <input type="number" name="campo_{{ campo.id }}" class="edit-input" 
                                value="{{ valores.get(campo.id, '') if valores else '' }}">
-                    </div>
-                {% endif %}
-            {% endfor %}
-        </div>
+                    
+                    {% else %} <input type="text" name="campo_{{ campo.id }}" class="edit-input" 
+                               value="{{ valores.get(campo.id, '') if valores else '' }}">
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
 
-        <div style="margin-top: 20px;">
-            {% for campo in modelo.campos %}
+            <div style="margin-top: 30px; text-align: center; display: flex; gap: 10px; justify-content: center;">
+                <button type="submit" class="save-button btn">
+                    Salvar Ficha
+                </button>
                 
-                <!-- Booleanos -->
-                {% if campo.tipo == 'booleano' %}
-                    <div class="form-group" style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
-                        {% set val = valores.get(campo.id, 'Não') if valores else 'Não' %}
-                        <input type="checkbox" name="campo_{{ campo.id }}" style="width: auto;" 
-                               {% if val == 'Sim' %}checked{% endif %}>
-                        <label style="margin:0; cursor: pointer;">{{ campo.nome }}</label>
-                    </div>
+                {% if p %}
+                <a href="{{ url_for('deletar_personagem', id=p.id) }}" class="delete-button btn" onclick="return confirm('Tem certeza que deseja excluir este personagem?');">
+                    Excluir
+                </a>
                 {% endif %}
+            </div>
 
-                <!-- Textos -->
-                {% if campo.tipo == 'texto' %}
-                    <div class="form-group">
-                        <label>{{ campo.nome }}</label>
-                        <textarea name="campo_{{ campo.id }}" rows="2">{{ valores.get(campo.id, '') if valores else '' }}</textarea>
-                    </div>
-                {% endif %}
-
-            {% endfor %}
-        </div>
-
-        <!-- Botões de Ação -->
-        <div style="text-align: center; margin-top: 30px;">
-            <button type="submit" name="salvar_ficha" class="btn btn-save">Gravar na Pedra</button>
-            <a href="{{ url_for('index') }}" target="_top" class="btn" style="background: #7f8c8d;">Cancelar</a>
-        </div>
-    </form>
+        </form>
+    </div>
 
 </body>
 </html>
