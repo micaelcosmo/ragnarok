@@ -2,7 +2,7 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Ficha de Personagem</title>
+    <title>Ficha: {{ p.nome }}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body class="sheet-body">
@@ -10,30 +10,49 @@
     <div class="sheet-paper">
         <form id="formFicha" method="POST" action="{{ url_for('editar_personagem', id=p.id) }}">
             
+            <!-- CABEÇALHO DE NOME (Ainda Fixo) -->
             <div class="sheet-header">
                 <input type="text" value="{{ p.nome }}" readonly 
                        class="char-name" style="width: 100%; text-align: center; border: none; background: transparent; pointer-events: none;">
-                
                 <p class="char-meta">Grimório: {{ p.modelo.nome }}</p>
             </div>
 
             <div class="separator"></div>
 
-            <div style="text-align: right; margin-bottom: 10px;">
-                <button type="button" id="btnEdit" onclick="toggleEditMode()" class="btn btn-primary">
-                    ✏️ Editar Ficha
-                </button>
-                <button type="submit" id="btnSave" class="btn btn-success hidden">
-                    💾 Salvar Alterações
-                </button>
+            <!-- Botões -->
+            <div style="text-align: right; margin-bottom: 15px;">
+                <button type="button" id="btnEdit" onclick="toggleEditMode()" class="btn btn-primary">✏️ Editar Ficha</button>
+                <button type="submit" id="btnSave" class="btn btn-success hidden">💾 Salvar Alterações</button>
             </div>
 
-            <div style="text-align: center; margin-bottom: 20px;">
-                <label class="text-xs uppercase font-bold text-yellow-900">Nível</label>
-                <input type="number" name="nivel" value="{{ p.nivel }}" 
-                       class="edit-input toggle-field read-only-mode" readonly style="width: 60px; margin: 0 auto;">
+            <!-- DADOS PRINCIPAIS (FIXOS DO CABEÇALHO) -->
+            <div class="grid grid-cols-2 gap-4 mb-6 p-4" style="background: rgba(0,0,0,0.05); border-radius: 8px;">
+                <div>
+                    <label class="text-xs uppercase font-bold text-yellow-900">Jogador</label>
+                    <input type="text" name="nome_jogador" value="{{ p.nome_jogador or '' }}" 
+                           class="edit-input toggle-field read-only-mode" readonly>
+                </div>
+                <div style="display:flex; gap:10px;">
+                    <div style="flex:2;">
+                        <label class="text-xs uppercase font-bold text-yellow-900">Raça</label>
+                        <input type="text" name="raca" value="{{ p.raca or '' }}" 
+                               class="edit-input toggle-field read-only-mode" readonly>
+                    </div>
+                    <div style="flex:2;">
+                        <label class="text-xs uppercase font-bold text-yellow-900">Classe</label>
+                        <input type="text" name="classe" value="{{ p.classe or '' }}" 
+                               class="edit-input toggle-field read-only-mode" readonly>
+                    </div>
+                    <div style="flex:1;">
+                        <label class="text-xs uppercase font-bold text-yellow-900">Nível</label>
+                        <input type="number" name="nivel" value="{{ p.nivel }}" 
+                               class="edit-input toggle-field read-only-mode" readonly>
+                    </div>
+                </div>
             </div>
 
+            <!-- CAMPOS DINÂMICOS -->
+            <h3 class="section-title text-center mb-4">Atributos & Detalhes</h3>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {% for campo in p.modelo.campos %}
                 <div class="attribute-box" style="text-align: left; padding: 15px;">
@@ -43,18 +62,15 @@
 
                     {% if campo.tipo == 'textarea' %}
                         <textarea name="campo_{{ campo.id }}" class="edit-textarea toggle-field read-only-mode" readonly>{{ valor_atual }}</textarea>
-                    
                     {% elif campo.tipo == 'booleano' %}
-                        <div style="display: flex; align-items: center; gap: 10px; height: 30px;">
+                        <div style="display: flex; align-items: center; gap: 10px;">
                             <input type="checkbox" name="campo_{{ campo.id }}" class="toggle-check" disabled
                                    {% if valor_atual == 'Sim' %}checked{% endif %}>
-                            <span>Ativo/Sim</span>
+                            <span>Sim</span>
                         </div>
-
                     {% elif campo.tipo == 'inteiro' %}
                         <input type="number" name="campo_{{ campo.id }}" value="{{ valor_atual }}" 
                                class="edit-input toggle-field read-only-mode" readonly>
-
                     {% else %}
                         <input type="text" name="campo_{{ campo.id }}" value="{{ valor_atual }}" 
                                class="edit-input toggle-field read-only-mode" readonly>
@@ -63,12 +79,12 @@
                 {% endfor %}
             </div>
             
+            <!-- Rodapé Excluir -->
             <div style="margin-top: 40px; border-top: 1px dashed #8a6d3b; padding-top: 10px; text-align: center;">
-                <a href="{{ url_for('deletar_personagem', id=p.id) }}" class="btn-icon" style="font-size: 0.9rem; text-decoration: none;" onclick="return confirm('Tem certeza? Isso não pode ser desfeito.');">
+                <a href="{{ url_for('deletar_personagem', id=p.id) }}" class="btn-icon" style="font-size: 0.9rem; text-decoration: none;" onclick="return confirm('Tem certeza?');">
                     🗑️ Excluir este Herói
                 </a>
             </div>
-
         </form>
     </div>
 
@@ -76,29 +92,19 @@
         function toggleEditMode() {
             const btnEdit = document.getElementById('btnEdit');
             const btnSave = document.getElementById('btnSave');
-            
-            // Campos de Texto/Numero/Textarea
             const inputs = document.querySelectorAll('.toggle-field');
-            // Checkboxes
             const checks = document.querySelectorAll('.toggle-check');
 
-            // Verifica se estamos entrando ou saindo do modo edição
-            const isEditing = btnSave.classList.contains('hidden');
-
-            if (isEditing) {
-                // ATIVAR EDIÇÃO
-                inputs.forEach(el => {
-                    el.removeAttribute('readonly');
-                    el.classList.remove('read-only-mode');
-                    el.classList.add('editable-mode');
-                });
-                checks.forEach(el => el.removeAttribute('disabled'));
-                
-                btnEdit.classList.add('hidden'); // Esconde botão editar
-                btnSave.classList.remove('hidden'); // Mostra botão salvar
-            }
+            inputs.forEach(el => {
+                el.removeAttribute('readonly');
+                el.classList.remove('read-only-mode');
+                el.classList.add('editable-mode');
+            });
+            checks.forEach(el => el.removeAttribute('disabled'));
+            
+            btnEdit.classList.add('hidden');
+            btnSave.classList.remove('hidden');
         }
     </script>
-
 </body>
 </html>

@@ -5,8 +5,6 @@
     <title>Ragnarok - Grimório</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <style>
-        /* Pequenos ajustes específicos para a Sidebar neste arquivo, 
-           ou mova para o style.css se preferir */
         .sidebar-actions {
             display: flex;
             flex-direction: column;
@@ -23,11 +21,10 @@
 
         .btn-block {
             width: 100%;
-            justify-content: center; /* Centraliza texto flex */
+            justify-content: center;
             text-align: center;
         }
 
-        /* Estilo específico para o botão de config para diferenciar */
         .btn-config {
             background-color: #4a3b2a;
             color: var(--text-light);
@@ -42,9 +39,11 @@
 </head>
 <body>
 
+    <!-- MENU LATERAL -->
     <div class="sidebar">
         <h2>Grimório</h2>
         
+        <!-- AÇÕES GERAIS -->
         <div class="sidebar-actions">
             <a href="{{ url_for('novo_personagem') }}" target="char_frame" class="btn btn-new btn-block">
                 + Novo Herói
@@ -55,11 +54,16 @@
             </a>
         </div>
 
+        <!-- LISTAGEM DE FICHAS -->
         <div class="sidebar-list">
             <nav>
                 {% for p in personagens %}
-                    <a href="{{ url_for('ver_ficha', id=p.id) }}" target="char_frame" class="char-link">
-                        {{ p.nome }}
+                    <a href="{{ url_for('ver_ficha', id=p.id) }}" target="char_frame" class="char-link" 
+                       style="display: flex; justify-content: space-between; align-items: center;">
+                        <span>{{ p.nome }}</span>
+                        <span style="font-size: 0.75rem; background: rgba(0,0,0,0.3); padding: 2px 6px; border-radius: 4px; color: #d4af37;">
+                            Nv. {{ p.nivel }}
+                        </span>
                     </a>
                 {% else %}
                     <div style="padding: 20px; text-align: center; opacity: 0.6;">
@@ -71,6 +75,7 @@
         </div>
     </div>
 
+    <!-- ÁREA PRINCIPAL (IFRAME) -->
     <div class="main-content">
         <div class="frame-container">
             {% set inicial_url = url_for('ver_ficha', id=personagens[0].id) if personagens else url_for('novo_personagem') %}

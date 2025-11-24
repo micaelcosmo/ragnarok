@@ -1,6 +1,8 @@
 from flask import Flask, render_template, request, redirect, url_for, flash
-from flask_sqlalchemy import SQLAlchemy
 import os
+
+# Importa o objeto db e as classes do arquivo models.py
+from models import db, Modelo, Campo, Personagem, Valor
 
 app = Flask(__name__)
 app.secret_key = 'chave_secreta_ragnarok_rpg'
@@ -10,78 +12,37 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'ragnarok.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-db = SQLAlchemy(app)
+# Conecta o objeto db ao app
+db.init_app(app)
 
-# ==============================================================================
-# MODELOS DE BANCO DE DADOS (COM CASCATA CONFIGURADA)
-# ==============================================================================
-
-class Modelo(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    nome = db.Column(db.String(100), nullable=False)
-    
-    # CASCATA: Deletar Modelo -> Deleta Campos e Personagens (Fichas)
-    campos = db.relationship('Campo', backref='modelo', cascade="all, delete-orphan")
-    personagens = db.relationship('Personagem', backref='modelo', cascade="all, delete-orphan")
-
-class Campo(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    modelo_id = db.Column(db.Integer, db.ForeignKey('modelo.id'), nullable=False)
-    nome = db.Column(db.String(100), nullable=False)
-    tipo = db.Column(db.String(20), nullable=False)
-    
-    # CASCATA: Deletar Campo -> Deleta Valores nas fichas
-    valores = db.relationship('Valor', backref='campo', cascade="all, delete-orphan")
-
-class Personagem(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    modelo_id = db.Column(db.Integer, db.ForeignKey('modelo.id'), nullable=False)
-    nome = db.Column(db.String(100), nullable=False)
-    nivel = db.Column(db.Integer, default=1)
-    
-    # CASCATA: Deletar Personagem -> Deleta seus Valores
-    valores = db.relationship('Valor', backref='personagem', cascade="all, delete-orphan")
-
-class Valor(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    personagem_id = db.Column(db.Integer, db.ForeignKey('personagem.id'), nullable=False)
-    campo_id = db.Column(db.Integer, db.ForeignKey('campo.id'), nullable=False)
-    valor_texto = db.Column(db.String(500), nullable=True)
-
-# Inicialização do Banco
+# Inicialização do Banco e Seed
 with app.app_context():
     db.create_all()
     if not Modelo.query.first():
         m = Modelo(nome="Aventureiro Padrão")
         db.session.add(m)
         db.session.commit()
-        db.session.add(Campo(modelo_id=m.id, nome="Classe", tipo="texto"))
+        # Removido "Classe" daqui, pois agora é fixo na tabela Personagem
+        db.session.add(Campo(modelo_id=m.id, nome="História", tipo="textarea"))
         db.session.add(Campo(modelo_id=m.id, nome="Força", tipo="inteiro"))
         db.session.commit()
 
 # ==============================================================================
-# ROTAS GERAIS
+# ROTAS GERAIS E MODELOS
 # ==============================================================================
 
 @app.route('/')
 def index():
-    personagens = Personagem.query.with_entities(Personagem.id, Personagem.nome).all()
+    personagens = Personagem.query.with_entities(Personagem.id, Personagem.nome, Personagem.nivel).all()
     return render_template('index.html', personagens=personagens)
-
-# ==============================================================================
-# ROTAS DE MODELOS (CONFIGURAÇÃO)
-# ==============================================================================
 
 @app.route('/configurar_modelos')
 def gerenciar_modelos():
     modelos = Modelo.query.all()
     selected_id = request.args.get('modelo_id')
     modelo_selecionado = None
-    
     if selected_id:
-        # Pequena proteção caso o ID não exista
         modelo_selecionado = Modelo.query.filter_by(id=selected_id).first()
-
     return render_template('modelos.html', modelos=modelos, modelo_selecionado=modelo_selecionado)
 
 @app.route('/criar_modelo', methods=['POST'])
@@ -94,33 +55,19 @@ def criar_modelo():
         return redirect(url_for('gerenciar_modelos', modelo_id=novo.id))
     return redirect(url_for('gerenciar_modelos'))
 
-# --- SUA FUNÇÃO ATUALIZADA ---
 @app.route('/deletar_modelo', methods=['POST'])
 def deletar_modelo():
     id_modelo = request.form.get('id_modelo')
-    print(f"DEBUG: Tentando deletar modelo ID: {id_modelo}") 
-
     if id_modelo:
         modelo = Modelo.query.get(id_modelo)
         if modelo:
             try:
-                # O SQLAlchemy deleta o modelo E as fichas (devido ao cascade configurado lá em cima)
                 db.session.delete(modelo)
                 db.session.commit()
-                print("DEBUG: Modelo e fichas associadas deletados com sucesso!") 
-                
-                # SUCESSO: Renderiza o refresh para limpar o iframe e atualizar a sidebar
                 return render_template('refresh_parent.html')
-            
             except Exception as e:
                 db.session.rollback()
-                print(f"DEBUG ERRO FATAL AO DELETAR: {e}")
-        else:
-            print("DEBUG: Modelo não encontrado no banco de dados.")
-    else:
-        print("DEBUG: ID do modelo veio vazio.")
-    
-    # Se falhar, volta para a tela de modelos
+                print(f"Erro ao deletar: {e}")
     return redirect(url_for('gerenciar_modelos'))
 
 @app.route('/adicionar_campo', methods=['POST'])
@@ -129,8 +76,7 @@ def adicionar_campo():
     nome = request.form.get('nome_campo')
     tipo = request.form.get('tipo_campo')
     if modelo_id and nome and tipo:
-        campo = Campo(modelo_id=modelo_id, nome=nome, tipo=tipo)
-        db.session.add(campo)
+        db.session.add(Campo(modelo_id=modelo_id, nome=nome, tipo=tipo))
         db.session.commit()
         return redirect(url_for('gerenciar_modelos', modelo_id=modelo_id))
     return redirect(url_for('gerenciar_modelos'))
@@ -170,7 +116,15 @@ def novo_personagem():
         try: nivel = int(request.form.get('nivel', 1))
         except: nivel = 1
 
-        p = Personagem(nome=nome_form, nivel=nivel, modelo_id=modelo.id)
+        # Criação com os NOVOS CAMPOS FIXOS
+        p = Personagem(
+            nome=nome_form,
+            nome_jogador=request.form.get('nome_jogador'),
+            raca=request.form.get('raca'),
+            classe=request.form.get('classe'),
+            nivel=nivel,
+            modelo_id=modelo.id
+        )
         db.session.add(p)
         db.session.flush()
 
@@ -184,7 +138,6 @@ def novo_personagem():
     
     return render_template('form.html', p=None, modelo=modelo, valores={})
 
-# Ponte para links antigos
 @app.route('/ficha/<int:id>')
 def ver_ficha(id):
     return redirect(url_for('editar_personagem', id=id))
@@ -194,10 +147,16 @@ def editar_personagem(id):
     p = Personagem.query.get_or_404(id)
     
     if request.method == 'POST':
+        # Atualiza CAMPOS FIXOS
         if 'nivel' in request.form:
             try: p.nivel = int(request.form['nivel'])
             except: pass
         
+        if 'nome_jogador' in request.form: p.nome_jogador = request.form['nome_jogador']
+        if 'raca' in request.form: p.raca = request.form['raca']
+        if 'classe' in request.form: p.classe = request.form['classe']
+        
+        # Atualiza CAMPOS DINÂMICOS
         for campo in p.modelo.campos:
             val = request.form.get(f'campo_{campo.id}')
             if campo.tipo == 'booleano': val = 'Sim' if val == 'on' else 'Não'
