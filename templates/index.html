@@ -35,50 +35,103 @@
             background-color: #5c4033;
             border-color: var(--text-gold);
         }
+        
+        /* Estilos adicionais para autenticação */
+        .user-panel {
+            margin-bottom: 15px;
+            padding: 10px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 4px;
+            text-align: center;
+        }
+        .user-name {
+            color: var(--text-gold);
+            font-weight: bold;
+            display: block;
+            margin-bottom: 5px;
+        }
+        .btn-logout {
+            color: #ff6b6b;
+            font-size: 0.8rem;
+            text-decoration: none;
+            border: 1px solid #ff6b6b;
+            padding: 2px 8px;
+            border-radius: 4px;
+            transition: all 0.3s;
+        }
+        .btn-logout:hover {
+            background: #ff6b6b;
+            color: white;
+        }
+        .auth-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 20px;
+        }
     </style>
 </head>
 <body>
 
-    <!-- MENU LATERAL -->
     <div class="sidebar">
         <h2>Grimório</h2>
         
-        <!-- AÇÕES GERAIS -->
-        <div class="sidebar-actions">
-            <a href="{{ url_for('novo_personagem') }}" target="char_frame" class="btn btn-new btn-block">
-                + Novo Herói
-            </a>
+        {% if current_user.is_authenticated %}
+            <div class="user-panel">
+                <span class="user-name">Olá, {{ current_user.name }}</span>
+                <a href="{{ url_for('logout') }}" class="btn-logout">Sair</a>
+            </div>
 
-            <a href="{{ url_for('gerenciar_modelos') }}" target="char_frame" class="btn btn-config btn-block">
-                ⚙️ Configurar Modelos
-            </a>
-        </div>
+            <div class="sidebar-actions">
+                <a href="{{ url_for('novo_personagem') }}" target="char_frame" class="btn btn-new btn-block">
+                    + Novo Herói
+                </a>
 
-        <!-- LISTAGEM DE FICHAS -->
-        <div class="sidebar-list">
-            <nav>
-                {% for p in personagens %}
-                    <a href="{{ url_for('ver_ficha', id=p.id) }}" target="char_frame" class="char-link" 
-                       style="display: flex; justify-content: space-between; align-items: center;">
-                        <span>{{ p.nome }}</span>
-                        <span style="font-size: 0.75rem; background: rgba(0,0,0,0.3); padding: 2px 6px; border-radius: 4px; color: #d4af37;">
-                            Nv. {{ p.nivel }}
-                        </span>
-                    </a>
-                {% else %}
-                    <div style="padding: 20px; text-align: center; opacity: 0.6;">
-                        <p>Nenhum herói encontrado.</p>
-                        <small>Crie um novo grimório acima.</small>
-                    </div>
-                {% endfor %}
-            </nav>
-        </div>
+                <a href="{{ url_for('gerenciar_modelos') }}" target="char_frame" class="btn btn-config btn-block">
+                    ⚙️ Configurar Modelos
+                </a>
+            </div>
+
+            <div class="sidebar-list">
+                <nav>
+                    {% for p in personagens %}
+                        <a href="{{ url_for('ver_ficha', id=p.id) }}" target="char_frame" class="char-link" 
+                           style="display: flex; justify-content: space-between; align-items: center;">
+                            <span>{{ p.nome }}</span>
+                            <span style="font-size: 0.75rem; background: rgba(0,0,0,0.3); padding: 2px 6px; border-radius: 4px; color: #d4af37;">
+                                Nv. {{ p.nivel }}
+                            </span>
+                        </a>
+                    {% else %}
+                        <div style="padding: 20px; text-align: center; opacity: 0.6;">
+                            <p>Nenhum herói encontrado.</p>
+                            <small>Crie um novo grimório acima.</small>
+                        </div>
+                    {% endfor %}
+                </nav>
+            </div>
+        
+        {% else %}
+            <div class="sidebar-actions auth-buttons">
+                <p style="text-align: center; font-size: 0.9rem; opacity: 0.8;">Faça login para acessar seu grimório.</p>
+                <a href="{{ url_for('login') }}" target="char_frame" class="btn btn-config btn-block">
+                    Entrar
+                </a>
+                <a href="{{ url_for('register') }}" target="char_frame" class="btn btn-new btn-block">
+                    Registrar
+                </a>
+            </div>
+        {% endif %}
     </div>
 
-    <!-- ÁREA PRINCIPAL (IFRAME) -->
     <div class="main-content">
         <div class="frame-container">
-            {% set inicial_url = url_for('ver_ficha', id=personagens[0].id) if personagens else url_for('novo_personagem') %}
+            {# Define qual URL abrir no iframe: Ficha 1 > Novo Personagem > Login #}
+            {% if current_user.is_authenticated %}
+                {% set inicial_url = url_for('ver_ficha', id=personagens[0].id) if personagens else url_for('novo_personagem') %}
+            {% else %}
+                {% set inicial_url = url_for('login') %}
+            {% endif %}
             
             <iframe 
                 name="char_frame" 

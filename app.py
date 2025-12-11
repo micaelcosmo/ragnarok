@@ -1,40 +1,101 @@
 from flask import Flask, render_template, request, redirect, url_for, flash
-import os
-
-# Importa o objeto db e as classes do arquivo models.py
-from models import db, Modelo, Campo, Personagem, Valor
+from flask_login import LoginManager, login_user, logout_user, login_required, current_user
+from models import db, User, Modelo, Campo, Personagem, Valor
 
 app = Flask(__name__)
-app.secret_key = 'chave_secreta_ragnarok_rpg'
 
-# Configuração do SQLite
-basedir = os.path.abspath(os.path.dirname(__file__))
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'ragnarok.db')
+# CONFIGURAÇÕES
+app.config['SECRET_KEY'] = 'uma_chave_secreta_muito_segura_aqui' # Necessário para sessões
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///ragnarok.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-# Conecta o objeto db ao app
+# INICIALIZAÇÃO
 db.init_app(app)
 
-# Inicialização do Banco e Seed
-with app.app_context():
-    db.create_all()
-    if not Modelo.query.first():
-        m = Modelo(nome="Aventureiro Padrão")
-        db.session.add(m)
-        db.session.commit()
-        # Removido "Classe" daqui, pois agora é fixo na tabela Personagem
-        db.session.add(Campo(modelo_id=m.id, nome="História", tipo="textarea"))
-        db.session.add(Campo(modelo_id=m.id, nome="Força", tipo="inteiro"))
-        db.session.commit()
+login_manager = LoginManager()
+login_manager.login_view = 'login' # Nome da função da rota de login
+login_manager.init_app(app)
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
 
 # ==============================================================================
-# ROTAS GERAIS E MODELOS
+# ROTAS DE AUTENTICAÇÃO
+# ==============================================================================
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if current_user.is_authenticated:
+        return redirect(url_for('index'))
+    
+    if request.method == 'POST':
+        email = request.form.get('email')
+        name = request.form.get('name')
+        password = request.form.get('password')
+        
+        user_exists = User.query.filter_by(email=email).first()
+        if user_exists:
+            flash('Email já cadastrado!')
+            return redirect(url_for('register'))
+        
+        new_user = User(email=email, name=name)
+        new_user.set_password(password)
+        
+        db.session.add(new_user)
+        db.session.commit()
+        
+        flash('Registro realizado com sucesso! Faça login.')
+        return redirect(url_for('login'))
+        
+    return render_template('register.html')
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if current_user.is_authenticated:
+        return redirect(url_for('index'))
+        
+    if request.method == 'POST':
+        email = request.form.get('email')
+        password = request.form.get('password')
+        
+        user = User.query.filter_by(email=email).first()
+        
+        if not user or not user.check_password(password):
+            flash('Verifique seus dados e tente novamente.')
+            return redirect(url_for('login'))
+            
+        login_user(user)
+        return redirect(url_for('index'))
+        
+    return render_template('login.html')
+
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for('login'))
+
+# --- SUAS ROTAS EXISTENTES (Index, Fichas, etc) ---
+
+# @app.route('/')
+# @login_required # Opcional: Exige login para ver a home
+# def index():
+#     return render_template('index.html', user=current_user)
+
+# ==============================================================================
+# ROTAS DE INDEX
 # ==============================================================================
 
 @app.route('/')
 def index():
+    # ATUALIZAÇÃO AQUI: Adicionado Personagem.nivel na consulta
     personagens = Personagem.query.with_entities(Personagem.id, Personagem.nome, Personagem.nivel).all()
     return render_template('index.html', personagens=personagens)
+
+# ==============================================================================
+# ROTAS DE MODELOS (FICHAS)
+# ==============================================================================
 
 @app.route('/configurar_modelos')
 def gerenciar_modelos():
@@ -58,16 +119,27 @@ def criar_modelo():
 @app.route('/deletar_modelo', methods=['POST'])
 def deletar_modelo():
     id_modelo = request.form.get('id_modelo')
+    print(f"DEBUG: Tentando deletar modelo ID: {id_modelo}") 
+
     if id_modelo:
         modelo = Modelo.query.get(id_modelo)
         if modelo:
             try:
+                # O SQLAlchemy deleta o modelo E as fichas (devido ao cascade configurado no models.py)
                 db.session.delete(modelo)
                 db.session.commit()
+                print("DEBUG: Modelo e fichas associadas deletados com sucesso!") 
+                
                 return render_template('refresh_parent.html')
+            
             except Exception as e:
                 db.session.rollback()
-                print(f"Erro ao deletar: {e}")
+                print(f"DEBUG ERRO FATAL AO DELETAR: {e}")
+        else:
+            print("DEBUG: Modelo não encontrado no banco de dados.")
+    else:
+        print("DEBUG: ID do modelo veio vazio.")
+    
     return redirect(url_for('gerenciar_modelos'))
 
 @app.route('/adicionar_campo', methods=['POST'])
@@ -178,5 +250,10 @@ def deletar_personagem(id):
     db.session.commit()
     return render_template('refresh_parent.html', deleted=True)
 
+# Lembre-se de passar `user=current_user` ou usar `current_user` direto no Jinja2
+# para mostrar/esconder elementos na barra lateral.
+
 if __name__ == '__main__':
+    with app.app_context():
+        db.create_all() # Cria a tabela users se não existir
     app.run(debug=True)

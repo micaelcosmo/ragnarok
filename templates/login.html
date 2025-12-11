@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Login - Ragnarok</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        /* Estilo rápido para centralizar, mova para seu style.css se preferir */
+        body { display: flex; justify-content: center; align-items: center; height: 100vh; background-color: #1a1a1a; color: white; font-family: sans-serif; }
+        .auth-container { background: #2c241b; padding: 2rem; border-radius: 8px; width: 300px; border: 1px solid #8a6d3b; }
+        input { width: 100%; padding: 10px; margin: 10px 0; background: #1a1a1a; border: 1px solid #8a6d3b; color: white; }
+        button { width: 100%; padding: 10px; background: #8a6d3b; border: none; color: white; cursor: pointer; font-weight: bold; }
+        button:hover { background: #6b542c; }
+        .flash { color: #ff6b6b; margin-bottom: 10px; text-align: center; }
+        a { color: #d4af37; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <h2 style="text-align: center; font-family: 'Cinzel', serif;">Acesso ao Grimório</h2>
+        
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <div class="flash">{{ messages[0] }}</div>
+            {% endif %}
+        {% endwith %}
+
+        <form method="POST" action="/login">
+            <input type="email" name="email" placeholder="Seu E-mail" required>
+            <input type="password" name="password" placeholder="Sua Senha" required>
+            <button type="submit">Entrar</button>
+        </form>
+        
+        <p style="text-align: center; margin-top: 15px;">
+            Ainda não tem conta? <a href="{{ url_for('register') }}">Criar conta</a>
+        </p>
+    </div>
+</body>
+</html>
