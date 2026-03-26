@@ -10,79 +10,192 @@
     <div class="sheet-paper">
         <form id="formFicha" method="POST" action="{{ url_for('editar_personagem', id=p.id) }}">
             
-            <!-- CABEÇALHO DE NOME (Ainda Fixo) -->
-            <div class="sheet-header">
-                <input type="text" value="{{ p.nome }}" readonly 
-                       class="char-name" style="width: 100%; text-align: center; border: none; background: transparent; pointer-events: none;">
-                <p class="char-meta">Grimório: {{ p.modelo.nome }}</p>
-            </div>
-
-            <div class="separator"></div>
-
-            <!-- Botões -->
-            <div style="text-align: right; margin-bottom: 15px;">
+            <div class="text-right mb-15px">
                 <button type="button" id="btnEdit" onclick="toggleEditMode()" class="btn btn-primary">✏️ Editar Ficha</button>
-                <button type="submit" id="btnSave" class="btn btn-success hidden">💾 Salvar Alterações</button>
+                <button type="submit" id="btnSave" class="btn btn-success hidden" onclick="prepararEnvioFicha()">💾 Salvar Alterações</button>
             </div>
 
-            <!-- DADOS PRINCIPAIS (FIXOS DO CABEÇALHO) -->
-            <div class="grid grid-cols-2 gap-4 mb-6 p-4" style="background: rgba(0,0,0,0.05); border-radius: 8px;">
-                <div>
-                    <label class="text-xs uppercase font-bold text-yellow-900">Jogador</label>
-                    <input type="text" name="nome_jogador" value="{{ p.nome_jogador or '' }}" 
-                           class="edit-input toggle-field read-only-mode" readonly>
+            <div class="dnd-header-container">
+                <div class="dnd-header-left">
+                    <input type="text" name="nome" value="{{ p.nome }}" class="dnd-name-input toggle-field read-only-mode" readonly>
+                    <label class="dnd-label">Nome do Personagem</label>
                 </div>
-                <div style="display:flex; gap:10px;">
-                    <div style="flex:2;">
-                        <label class="text-xs uppercase font-bold text-yellow-900">Raça</label>
-                        <input type="text" name="raca" value="{{ p.raca or '' }}" 
-                               class="edit-input toggle-field read-only-mode" readonly>
-                    </div>
-                    <div style="flex:2;">
-                        <label class="text-xs uppercase font-bold text-yellow-900">Classe</label>
-                        <input type="text" name="classe" value="{{ p.classe or '' }}" 
-                               class="edit-input toggle-field read-only-mode" readonly>
-                    </div>
-                    <div style="flex:1;">
-                        <label class="text-xs uppercase font-bold text-yellow-900">Nível</label>
-                        <input type="number" name="nivel" value="{{ p.nivel }}" 
-                               class="edit-input toggle-field read-only-mode" readonly>
-                    </div>
-                </div>
-            </div>
-
-            <!-- CAMPOS DINÂMICOS -->
-            <h3 class="section-title text-center mb-4">Atributos & Detalhes</h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {% for campo in p.modelo.campos %}
-                <div class="attribute-box" style="text-align: left; padding: 15px;">
-                    <label style="color: #8b0000; font-weight: bold; display: block; margin-bottom: 5px;">{{ campo.nome }}</label>
-                    
-                    {% set valor_atual = valores.get(campo.id, '') %}
-
-                    {% if campo.tipo == 'textarea' %}
-                        <textarea name="campo_{{ campo.id }}" class="edit-textarea toggle-field read-only-mode" readonly>{{ valor_atual }}</textarea>
-                    {% elif campo.tipo == 'booleano' %}
-                        <div style="display: flex; align-items: center; gap: 10px;">
-                            <input type="checkbox" name="campo_{{ campo.id }}" class="toggle-check" disabled
-                                   {% if valor_atual == 'Sim' %}checked{% endif %}>
-                            <span>Sim</span>
+                
+                <div class="dnd-header-right">
+                    <div class="dnd-field dnd-field-row">
+                        <div style="flex: 2;">
+                            <input type="text" name="classe" value="{{ p.classe or '' }}" class="dnd-input toggle-field read-only-mode" readonly placeholder="Classes">
                         </div>
-                    {% elif campo.tipo == 'inteiro' %}
-                        <input type="number" name="campo_{{ campo.id }}" value="{{ valor_atual }}" 
-                               class="edit-input toggle-field read-only-mode" readonly>
-                    {% else %}
-                        <input type="text" name="campo_{{ campo.id }}" value="{{ valor_atual }}" 
-                               class="edit-input toggle-field read-only-mode" readonly>
-                    {% endif %}
+                        <div style="flex: 1; border-left: 1px solid #ccc; padding-left: 5px;">
+                            <input type="number" name="nivel" id="nivel_input" value="{{ p.nivel }}" class="dnd-input toggle-field read-only-mode" readonly min="1" max="20">
+                        </div>
+                        <label class="dnd-label" style="width: 100%;">Classes & Nível Total</label>
+                    </div>
+                    <div class="dnd-field">
+                        <input type="text" name="antecedente" value="{{ p.antecedente or '' }}" class="dnd-input toggle-field read-only-mode" readonly placeholder="Antecedente">
+                        <label class="dnd-label">Antecedente</label>
+                    </div>
+                    <div class="dnd-field">
+                        <input type="text" name="nome_jogador" value="{{ p.nome_jogador or '' }}" class="dnd-input toggle-field read-only-mode" readonly placeholder="Nome do Jogador">
+                        <label class="dnd-label">Nome do Jogador</label>
+                    </div>
+                    <div class="dnd-field">
+                        <input type="text" name="raca" value="{{ p.raca or '' }}" class="dnd-input toggle-field read-only-mode" readonly placeholder="Raça">
+                        <label class="dnd-label">Raça</label>
+                    </div>
+                    <div class="dnd-field">
+                        <input type="text" name="tendencia" value="{{ p.tendencia or '' }}" class="dnd-input toggle-field read-only-mode" readonly placeholder="Tendência">
+                        <label class="dnd-label">Tendência</label>
+                    </div>
+                    <div class="dnd-field">
+                        <input type="number" name="xp" id="xp_input" value="{{ p.xp }}" class="dnd-input toggle-field read-only-mode" readonly min="0">
+                        <label class="dnd-label">Pontos de Experiência (XP)</label>
+                    </div>
                 </div>
-                {% endfor %}
+            </div>
+
+            <div class="dnd-mosaic-grid">
+
+                <div class="dnd-left-column-group">
+                    
+                    <div class="attr-column-wrapper">
+                        {% for campo in p.modelo_base.campos %}
+                            {% if campo.categoria == 'Atributos' %}
+                                {% set valor_atual = valores.get(campo.id, '') %}
+                                <div class="attr-vertical-container" data-campo-id="{{ campo.id }}" data-nome="{{ campo.nome }}" data-raw-json='{{ valor_atual }}'>
+                                    <label class="field-label">{{ campo.nome.split(' ')[0] }}</label>
+                                    <input type="hidden" name="campo_{{ campo.id }}" id="hidden_campo_{{ campo.id }}">
+                                    
+                                    <div class="attr-total-mod">
+                                        <span id="mod_{{ campo.id }}">+0</span>
+                                    </div>
+                                    <div style="font-size:0.7rem; color:#888; margin-bottom: 5px;">
+                                        (Total: <span id="total_{{ campo.id }}">10</span>)
+                                    </div>
+                                    
+                                    <div class="base-bonus-group">
+                                        <div style="flex:1;">
+                                            <label class="attr-label-small">Base</label>
+                                            <input type="number" class="edit-input toggle-field read-only-mode attr-base" data-target="{{ campo.id }}" value="10" readonly>
+                                        </div>
+                                        <div style="flex:1;">
+                                            <label class="attr-label-small">Bônus</label>
+                                            <input type="number" class="edit-input toggle-field read-only-mode attr-bonus" data-target="{{ campo.id }}" value="0" readonly>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+
+                    <div>
+                        <div class="attribute-box" style="display:flex; justify-content:space-between; align-items:center; padding: 10px;">
+                            <label class="field-label" style="margin:0;">Bônus de Prof.</label>
+                            {% for campo in p.modelo_base.campos %}
+                                {% if campo.nome == 'Bônus de Proficiência' %}
+                                    <input type="number" name="campo_{{ campo.id }}" id="pb_input" class="edit-input toggle-field read-only-pb editable-pb" value="{{ valores.get(campo.id, '2') }}" readonly>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+
+                        <div class="attribute-box" style="display:flex; justify-content:space-between; align-items:center; padding: 10px;">
+                            <label class="field-label" style="margin:0;">Inspiração</label>
+                            {% for campo in p.modelo_base.campos %}
+                                {% if campo.nome == 'Inspiração' %}
+                                    <input type="checkbox" name="campo_{{ campo.id }}" class="toggle-check" disabled {% if valores.get(campo.id) == 'Sim' %}checked{% endif %}>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+
+                        <div class="attribute-box" style="padding: 10px 5px;">
+                            <h4 class="category-header" style="margin-top:0;">Salvaguardas</h4>
+                            {% for campo in p.modelo_base.campos %}
+                                {% if campo.categoria == 'Salvaguardas (Saving Throws)' %}
+                                    {% set valor_atual = valores.get(campo.id, '') %}
+                                    <div class="attribute-box-compact calc-skill" data-campo-id="{{ campo.id }}" data-nome="{{ campo.nome }}" data-raw-json='{{ valor_atual }}'>
+                                        <input type="checkbox" class="prof-checkbox toggle-field read-only-mode" data-target="{{ campo.id }}" disabled>
+                                        <label class="field-label" style="flex:1; margin-left: 5px;">{{ campo.nome.split(': ')[1] if ':' in campo.nome else campo.nome }}</label>
+                                        <div class="skill-total" id="skill_total_{{ campo.id }}">+0</div>
+                                        <input type="hidden" name="campo_{{ campo.id }}" id="hidden_campo_{{ campo.id }}">
+                                    </div>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+
+                        <div class="attribute-box" style="padding: 10px 5px;">
+                            <h4 class="category-header" style="margin-top:0;">Perícias</h4>
+                            {% for campo in p.modelo_base.campos %}
+                                {% if campo.categoria == 'Perícias (Skills)' %}
+                                    {% set valor_atual = valores.get(campo.id, '') %}
+                                    <div class="attribute-box-compact calc-skill" data-campo-id="{{ campo.id }}" data-nome="{{ campo.nome }}" data-raw-json='{{ valor_atual }}'>
+                                        <input type="checkbox" class="prof-checkbox toggle-field read-only-mode" data-target="{{ campo.id }}" disabled>
+                                        <label class="field-label" style="flex:1; margin-left: 5px; font-size: 0.65rem;">{{ campo.nome }}</label>
+                                        <div class="skill-total" id="skill_total_{{ campo.id }}">+0</div>
+                                        <input type="hidden" name="campo_{{ campo.id }}" id="hidden_campo_{{ campo.id }}">
+                                    </div>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dnd-center-column">
+                    <div class="top-status-group">
+                        {% for campo in p.modelo_base.campos %}
+                            {% if campo.nome in ['Classe de Armadura (CA)', 'Iniciativa', 'Deslocamento (Speed)'] %}
+                                <div class="attribute-box" style="text-align: center; margin-bottom: 0;">
+                                    <label class="field-label" style="font-size: 0.65rem;">{{ campo.nome.split(' ')[0] }}</label>
+                                    <input type="text" name="campo_{{ campo.id }}" class="edit-input toggle-field read-only-mode" value="{{ valores.get(campo.id, '') }}" style="font-size: 1.2rem;" {% if campo.nome == 'Iniciativa' %}id="iniciativa_input"{% endif %} readonly>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+
+                    <div class="attribute-box">
+                        <h4 class="category-header" style="margin-top:0;">Pontos de Vida</h4>
+                        {% for campo in p.modelo_base.campos %}
+                            {% if 'Pontos de Vida' in campo.nome or 'Hit Dice' in campo.nome %}
+                                <div style="margin-bottom: 10px;">
+                                    <label class="field-label">{{ campo.nome }}</label>
+                                    <input type="text" name="campo_{{ campo.id }}" class="edit-input toggle-field read-only-mode" value="{{ valores.get(campo.id, '') }}" readonly>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+
+                    {% for campo in p.modelo_base.campos %}
+                        {% if campo.categoria == 'Combate e Equipamento' %}
+                            <div class="attribute-box">
+                                <label class="field-label">{{ campo.nome }}</label>
+                                {% if campo.tipo == 'texto_longo' %}
+                                    <textarea name="campo_{{ campo.id }}" class="edit-textarea toggle-field read-only-mode" rows="5" readonly>{{ valores.get(campo.id, '') }}</textarea>
+                                {% else %}
+                                    <input type="text" name="campo_{{ campo.id }}" class="edit-input toggle-field read-only-mode" value="{{ valores.get(campo.id, '') }}" readonly>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+
+                <div class="dnd-right-column">
+                    <div class="attribute-box" style="height: 100%; display: flex; flex-direction: column; gap: 10px;">
+                        <h4 class="category-header" style="margin-top:0;">Características e Traços</h4>
+                        {% for campo in p.modelo_base.campos %}
+                            {% if campo.categoria == 'Características e Traços' %}
+                                <div style="flex: 1; display: flex; flex-direction: column;">
+                                    <label class="field-label">{{ campo.nome }}</label>
+                                    <textarea name="campo_{{ campo.id }}" class="edit-textarea toggle-field read-only-mode" style="flex: 1;" readonly>{{ valores.get(campo.id, '') }}</textarea>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+
             </div>
             
-            <!-- Rodapé Excluir -->
-            <div style="margin-top: 40px; border-top: 1px dashed #8a6d3b; padding-top: 10px; text-align: center;">
-                <a href="{{ url_for('deletar_personagem', id=p.id) }}" class="btn-icon" style="font-size: 0.9rem; text-decoration: none;" onclick="return confirm('Tem certeza?');">
-                    🗑️ Excluir este Herói
+            <div class="delete-footer">
+                <a href="{{ url_for('deletar_personagem', id=p.id) }}" class="btn-icon delete-btn-text" onclick="return confirm('Esta ação destruirá este grimório para sempre. Tem certeza?');">
+                    🗑️ Destruir Ficha
                 </a>
             </div>
         </form>
@@ -90,21 +203,156 @@
 
     <script>
         function toggleEditMode() {
-            const btnEdit = document.getElementById('btnEdit');
-            const btnSave = document.getElementById('btnSave');
-            const inputs = document.querySelectorAll('.toggle-field');
-            const checks = document.querySelectorAll('.toggle-check');
-
-            inputs.forEach(el => {
-                el.removeAttribute('readonly');
-                el.classList.remove('read-only-mode');
-                el.classList.add('editable-mode');
-            });
-            checks.forEach(el => el.removeAttribute('disabled'));
-            
-            btnEdit.classList.add('hidden');
-            btnSave.classList.remove('hidden');
+            document.getElementById('btnEdit').classList.add('hidden');
+            document.getElementById('btnSave').classList.remove('hidden');
+            document.querySelectorAll('.toggle-field').forEach(el => { el.removeAttribute('readonly'); el.classList.remove('read-only-mode'); el.classList.add('editable-mode'); });
+            document.querySelectorAll('.toggle-check').forEach(el => el.removeAttribute('disabled'));
         }
+
+        const mapaPericias = {
+            "Acrobacia (Dex)": "Destreza (DEX)",
+            "Arcanismo (Int)": "Inteligência (INT)",
+            "Atletismo (Str)": "Força (STR)",
+            "Atuação (Cha)": "Carisma (CHA)",
+            "Enganação (Cha)": "Carisma (CHA)",
+            "Furtividade (Dex)": "Destreza (DEX)",
+            "História (Int)": "Inteligência (INT)",
+            "Intimidação (Cha)": "Carisma (CHA)",
+            "Intuição (Wis)": "Sabedoria (WIS)",
+            "Investigação (Int)": "Inteligência (INT)",
+            "Lidar com Animais (Wis)": "Sabedoria (WIS)",
+            "Medicina (Wis)": "Sabedoria (WIS)",
+            "Natureza (Int)": "Inteligência (INT)",
+            "Percepção (Wis)": "Sabedoria (WIS)",
+            "Persuasão (Cha)": "Carisma (CHA)",
+            "Prestidigitação (Dex)": "Destreza (DEX)",
+            "Religião (Int)": "Inteligência (INT)",
+            "Sobrevivência (Wis)": "Sabedoria (WIS)",
+            "Salvaguarda: Força": "Força (STR)",
+            "Salvaguarda: Destreza": "Destreza (DEX)",
+            "Salvaguarda: Constituição": "Constituição (CON)",
+            "Salvaguarda: Inteligência": "Inteligência (INT)",
+            "Salvaguarda: Sabedoria": "Sabedoria (WIS)",
+            "Salvaguarda: Carisma": "Carisma (CHA)"
+        };
+
+        const xpThresholds = { 1: 0, 2: 300, 3: 900, 4: 2700, 5: 6500, 6: 14000, 7: 23000, 8: 34000, 9: 48000, 10: 64000, 11: 85000, 12: 100000, 13: 120000, 14: 140000, 15: 165000, 16: 195000, 17: 225000, 18: 265000, 19: 305000, 20: 355000 };
+        function calcularPB(nivel) { if (nivel >= 17) return 6; if (nivel >= 13) return 5; if (nivel >= 9) return 4; if (nivel >= 5) return 3; return 2; }
+
+        const nivelInput = document.getElementById('nivel_input');
+        const xpInput = document.getElementById('xp_input');
+        const pbInput = document.getElementById('pb_input');
+        const iniciativaInput = document.getElementById('iniciativa_input');
+        
+        nivelInput.addEventListener('input', function() {
+            let nivel = parseInt(this.value);
+            if (nivel >= 1 && nivel <= 20) { xpInput.value = xpThresholds[nivel]; pbInput.value = calcularPB(nivel); atualizarTodasAsPericias(); }
+        });
+
+        xpInput.addEventListener('input', function() {
+            let xp = parseInt(this.value) || 0;
+            let novoNivel = 1;
+            for (let n = 1; n <= 20; n++) { if (xp >= xpThresholds[n]) novoNivel = n; else break; }
+            if (parseInt(nivelInput.value) !== novoNivel) { nivelInput.value = novoNivel; pbInput.value = calcularPB(novoNivel); atualizarTodasAsPericias(); }
+        });
+
+        function calcularModificador(valorTotal) {
+            let mod = Math.floor((valorTotal - 10) / 2);
+            return mod >= 0 ? "+" + mod : mod;
+        }
+
+        function extrairModificadorAtributo(nomeAtributo) {
+            const container = document.querySelector(`.attr-vertical-container[data-nome="${nomeAtributo}"]`);
+            if (!container) return 0;
+            const text = container.querySelector('.attr-total-mod span').innerText;
+            return parseInt(text) || 0;
+        }
+
+        function atualizarVisualAtributo(campoId) {
+            const container = document.querySelector(`.attr-vertical-container[data-campo-id="${campoId}"]`);
+            const base = parseInt(container.querySelector('.attr-base').value) || 0;
+            const bonus = parseInt(container.querySelector('.attr-bonus').value) || 0;
+            const total = base + bonus;
+            const mod = calcularModificador(total);
+            
+            document.getElementById(`total_${campoId}`).innerText = total;
+            document.getElementById(`mod_${campoId}`).innerText = mod;
+            document.getElementById(`hidden_campo_${campoId}`).value = JSON.stringify({ base: base, bonus: bonus, total: total });
+
+            const attrNome = container.getAttribute('data-nome');
+            if (attrNome === "Destreza (DEX)" && iniciativaInput) {
+                iniciativaInput.value = mod;
+            }
+
+            atualizarTodasAsPericias();
+        }
+
+        function atualizarPericia(container) {
+            const campoId = container.getAttribute('data-campo-id');
+            const nomePericia = container.getAttribute('data-nome');
+            const atributoAlvo = mapaPericias[nomePericia];
+            
+            if (!atributoAlvo) return;
+
+            const modAtributo = extrairModificadorAtributo(atributoAlvo);
+            const pb = parseInt(pbInput.value) || 0;
+            const isProficiente = container.querySelector('.prof-checkbox').checked;
+            
+            const total = modAtributo + (isProficiente ? pb : 0);
+            const textTotal = total >= 0 ? "+" + total : total;
+            
+            document.getElementById(`skill_total_${campoId}`).innerText = textTotal;
+            document.getElementById(`hidden_campo_${campoId}`).value = JSON.stringify({ proficiente: isProficiente, total: total });
+        }
+
+        function atualizarTodasAsPericias() {
+            document.querySelectorAll('.calc-skill').forEach(container => atualizarPericia(container));
+        }
+
+        document.querySelectorAll('.attr-base, .attr-bonus').forEach(input => {
+            input.addEventListener('input', function() { atualizarVisualAtributo(this.getAttribute('data-target')); });
+        });
+
+        document.querySelectorAll('.prof-checkbox').forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                const container = this.closest('.calc-skill');
+                atualizarPericia(container);
+            });
+        });
+
+        function prepararEnvioFicha() {
+            document.querySelectorAll('.attr-vertical-container').forEach(container => { atualizarVisualAtributo(container.getAttribute('data-campo-id')); });
+            atualizarTodasAsPericias();
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.attr-vertical-container').forEach(container => {
+                const rawJson = container.getAttribute('data-raw-json');
+                if (rawJson) {
+                    try {
+                        const data = JSON.parse(rawJson);
+                        container.querySelector('.attr-base').value = data.base || 10;
+                        container.querySelector('.attr-bonus').value = data.bonus || 0;
+                    } catch (e) { console.error(e); }
+                }
+                atualizarVisualAtributo(container.getAttribute('data-campo-id'));
+            });
+
+            document.querySelectorAll('.calc-skill').forEach(container => {
+                const rawJson = container.getAttribute('data-raw-json');
+                if (rawJson) {
+                    try {
+                        const data = JSON.parse(rawJson);
+                        if (data.proficiente) {
+                            container.querySelector('.prof-checkbox').checked = true;
+                        }
+                    } catch (e) { console.error(e); }
+                }
+            });
+
+            pbInput.value = calcularPB(parseInt(nivelInput.value));
+            atualizarTodasAsPericias();
+        });
     </script>
 </body>
 </html>

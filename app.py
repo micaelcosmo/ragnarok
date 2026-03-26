@@ -1,31 +1,32 @@
+import json
+
 from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from models import db, User, Modelo, Campo, Personagem, Valor
 
+
 app = Flask(__name__)
 
-# CONFIGURAÇÕES
-app.config['SECRET_KEY'] = 'uma_chave_secreta_muito_segura_aqui' # Necessário para sessões
+app.config['SECRET_KEY'] = 'uma_chave_secreta_muito_segura_aqui'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///ragnarok.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-# INICIALIZAÇÃO
 db.init_app(app)
 
 login_manager = LoginManager()
-login_manager.login_view = 'login' # Nome da função da rota de login
+login_manager.login_view = 'login'
 login_manager.init_app(app)
+
 
 @login_manager.user_loader
 def load_user(user_id):
+    """Carrega o usuario logado na sessao."""
     return User.query.get(int(user_id))
 
-# ==============================================================================
-# ROTAS DE AUTENTICAÇÃO
-# ==============================================================================
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
+    """Gerencia o registro de novos usuarios no sistema."""
     if current_user.is_authenticated:
         return redirect(url_for('index'))
     
@@ -50,8 +51,10 @@ def register():
         
     return render_template('register.html')
 
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    """Gerencia a autenticacao dos usuarios."""
     if current_user.is_authenticated:
         return redirect(url_for('index'))
         
@@ -70,139 +73,75 @@ def login():
         
     return render_template('login.html')
 
+
 @app.route('/logout')
 @login_required
 def logout():
+    """Encerra a sessao do usuario atual."""
     logout_user()
     return redirect(url_for('login'))
 
-# --- SUAS ROTAS EXISTENTES (Index, Fichas, etc) ---
-
-# @app.route('/')
-# @login_required # Opcional: Exige login para ver a home
-# def index():
-#     return render_template('index.html', user=current_user)
-
-# ==============================================================================
-# ROTAS DE INDEX
-# ==============================================================================
 
 @app.route('/')
 def index():
-    # ATUALIZAÇÃO AQUI: Adicionado Personagem.nivel na consulta
-    personagens = Personagem.query.with_entities(Personagem.id, Personagem.nome, Personagem.nivel).all()
+    """Renderiza o esqueleto principal da aplicacao e lista os personagens."""
+    personagens = []
+    if current_user.is_authenticated:
+        personagens = Personagem.query.filter_by(user_id=current_user.id)\
+            .with_entities(Personagem.id, Personagem.nome, Personagem.nivel)\
+            .all()
+            
     return render_template('index.html', personagens=personagens)
 
-# ==============================================================================
-# ROTAS DE MODELOS (FICHAS)
-# ==============================================================================
 
 @app.route('/configurar_modelos')
+@login_required
 def gerenciar_modelos():
+    """Lista e permite a visualizacao estrutural dos modelos dinamicos."""
     modelos = Modelo.query.all()
     selected_id = request.args.get('modelo_id')
-    modelo_selecionado = None
-    if selected_id:
-        modelo_selecionado = Modelo.query.filter_by(id=selected_id).first()
+    modelo_selecionado = Modelo.query.filter_by(id=selected_id).first() if selected_id else None
     return render_template('modelos.html', modelos=modelos, modelo_selecionado=modelo_selecionado)
 
-@app.route('/criar_modelo', methods=['POST'])
-def criar_modelo():
-    nome = request.form.get('nome_modelo')
-    if nome:
-        novo = Modelo(nome=nome)
-        db.session.add(novo)
-        db.session.commit()
-        return redirect(url_for('gerenciar_modelos', modelo_id=novo.id))
-    return redirect(url_for('gerenciar_modelos'))
-
-@app.route('/deletar_modelo', methods=['POST'])
-def deletar_modelo():
-    id_modelo = request.form.get('id_modelo')
-    print(f"DEBUG: Tentando deletar modelo ID: {id_modelo}") 
-
-    if id_modelo:
-        modelo = Modelo.query.get(id_modelo)
-        if modelo:
-            try:
-                # O SQLAlchemy deleta o modelo E as fichas (devido ao cascade configurado no models.py)
-                db.session.delete(modelo)
-                db.session.commit()
-                print("DEBUG: Modelo e fichas associadas deletados com sucesso!") 
-                
-                return render_template('refresh_parent.html')
-            
-            except Exception as e:
-                db.session.rollback()
-                print(f"DEBUG ERRO FATAL AO DELETAR: {e}")
-        else:
-            print("DEBUG: Modelo não encontrado no banco de dados.")
-    else:
-        print("DEBUG: ID do modelo veio vazio.")
-    
-    return redirect(url_for('gerenciar_modelos'))
-
-@app.route('/adicionar_campo', methods=['POST'])
-def adicionar_campo():
-    modelo_id = request.form.get('modelo_id')
-    nome = request.form.get('nome_campo')
-    tipo = request.form.get('tipo_campo')
-    if modelo_id and nome and tipo:
-        db.session.add(Campo(modelo_id=modelo_id, nome=nome, tipo=tipo))
-        db.session.commit()
-        return redirect(url_for('gerenciar_modelos', modelo_id=modelo_id))
-    return redirect(url_for('gerenciar_modelos'))
-
-@app.route('/deletar_campo', methods=['POST'])
-def deletar_campo():
-    campo_id = request.form.get('campo_id')
-    modelo_id = request.form.get('modelo_id')
-    if campo_id:
-        campo = Campo.query.get(campo_id)
-        if campo:
-            db.session.delete(campo)
-            db.session.commit()
-    return redirect(url_for('gerenciar_modelos', modelo_id=modelo_id))
-
-# ==============================================================================
-# ROTAS DE PERSONAGEM (FICHAS)
-# ==============================================================================
 
 @app.route('/novo', methods=['GET', 'POST'])
+@login_required
 def novo_personagem():
-    if request.method == 'GET' and not request.args.get('modelo_id'):
-        modelos = Modelo.query.all()
-        return render_template('selecionar_modelo.html', modelos=modelos)
-
-    modelo_id = request.args.get('modelo_id') or request.form.get('modelo_id')
-    if not modelo_id:
-        return redirect(url_for('novo_personagem'))
+    """Gerencia a criacao de uma nova ficha usando o modelo base injetado."""
+    modelo = Modelo.query.first()
     
-    modelo = Modelo.query.get_or_404(modelo_id)
+    if not modelo:
+        return "Erro: Nenhum modelo de ficha encontrado no banco de dados."
 
     if request.method == 'POST' and 'salvar_ficha' in request.form:
-        nome_form = request.form.get('nome')
-        if not nome_form or not nome_form.strip():
-            nome_form = "Herói Sem Nome"
+        nome_form = request.form.get('nome', '').strip()
+        nome_form = nome_form if nome_form else "Herói Sem Nome"
         
         try: nivel = int(request.form.get('nivel', 1))
-        except: nivel = 1
+        except ValueError: nivel = 1
+            
+        try: xp = int(request.form.get('xp', 0))
+        except ValueError: xp = 0
 
-        # Criação com os NOVOS CAMPOS FIXOS
         p = Personagem(
+            user_id=current_user.id,
+            modelo_id=modelo.id,
             nome=nome_form,
             nome_jogador=request.form.get('nome_jogador'),
             raca=request.form.get('raca'),
             classe=request.form.get('classe'),
             nivel=nivel,
-            modelo_id=modelo.id
+            antecedente=request.form.get('antecedente'),
+            tendencia=request.form.get('tendencia'),
+            xp=xp
         )
         db.session.add(p)
         db.session.flush()
 
         for campo in modelo.campos:
             val = request.form.get(f'campo_{campo.id}')
-            if campo.tipo == 'booleano': val = 'Sim' if val == 'on' else 'Não'
+            if campo.tipo == 'booleano': 
+                val = 'Sim' if val == 'on' else 'Não'
             db.session.add(Valor(personagem_id=p.id, campo_id=campo.id, valor_texto=val))
         
         db.session.commit()
@@ -210,32 +149,46 @@ def novo_personagem():
     
     return render_template('form.html', p=None, modelo=modelo, valores={})
 
+
 @app.route('/ficha/<int:id>')
+@login_required
 def ver_ficha(id):
+    """Redireciona a visualizacao para a interface de edicao."""
     return redirect(url_for('editar_personagem', id=id))
 
+
 @app.route('/editar/<int:id>', methods=['GET', 'POST'])
+@login_required
 def editar_personagem(id):
-    p = Personagem.query.get_or_404(id)
+    """Carrega e processa a atualizacao de uma ficha existente via EAV."""
+    p = Personagem.query.filter_by(id=id, user_id=current_user.id).first_or_404()
     
     if request.method == 'POST':
-        # Atualiza CAMPOS FIXOS
         if 'nivel' in request.form:
             try: p.nivel = int(request.form['nivel'])
-            except: pass
+            except ValueError: pass
+            
+        if 'xp' in request.form:
+            try: p.xp = int(request.form['xp'])
+            except ValueError: pass
         
         if 'nome_jogador' in request.form: p.nome_jogador = request.form['nome_jogador']
         if 'raca' in request.form: p.raca = request.form['raca']
         if 'classe' in request.form: p.classe = request.form['classe']
+        if 'nome' in request.form: p.nome = request.form['nome']
+        if 'antecedente' in request.form: p.antecedente = request.form['antecedente']
+        if 'tendencia' in request.form: p.tendencia = request.form['tendencia']
         
-        # Atualiza CAMPOS DINÂMICOS
-        for campo in p.modelo.campos:
+        for campo in p.modelo_base.campos:
             val = request.form.get(f'campo_{campo.id}')
-            if campo.tipo == 'booleano': val = 'Sim' if val == 'on' else 'Não'
+            if campo.tipo == 'booleano': 
+                val = 'Sim' if val == 'on' else 'Não'
             
             v = Valor.query.filter_by(personagem_id=p.id, campo_id=campo.id).first()
-            if v: v.valor_texto = val
-            else: db.session.add(Valor(personagem_id=p.id, campo_id=campo.id, valor_texto=val))
+            if v: 
+                v.valor_texto = val
+            else: 
+                db.session.add(Valor(personagem_id=p.id, campo_id=campo.id, valor_texto=val))
             
         db.session.commit()
         return render_template('refresh_parent.html', id=p.id)
@@ -243,17 +196,113 @@ def editar_personagem(id):
     valores_map = {v.campo_id: v.valor_texto for v in p.valores}
     return render_template('ficha.html', p=p, valores=valores_map)
 
+
 @app.route('/deletar/<int:id>')
+@login_required
 def deletar_personagem(id):
-    p = Personagem.query.get_or_404(id)
+    """Remove a ficha do banco de dados validando propriedade."""
+    p = Personagem.query.filter_by(id=id, user_id=current_user.id).first_or_404()
     db.session.delete(p)
     db.session.commit()
     return render_template('refresh_parent.html', deleted=True)
 
-# Lembre-se de passar `user=current_user` ou usar `current_user` direto no Jinja2
-# para mostrar/esconder elementos na barra lateral.
+
+def inicializar_banco():
+    """Injeta a estrutura unificada das regras de D&D 5e."""
+    db.create_all()
+    
+    modelo_existente = Modelo.query.filter_by(nome="D&D 5e - Livro do Jogador").first()
+    if modelo_existente:
+        return 
+
+    print("Gerando estrutura padrao do D&D 5e com logica interligada de atributos...")
+    novo_modelo = Modelo(
+        nome="D&D 5e - Livro do Jogador",
+        descricao="Ficha automatizada baseada nas regras oficiais da 5a Edicao."
+    )
+    db.session.add(novo_modelo)
+    db.session.flush()
+
+    estrutura_ficha = {
+        "Status Básicos": [
+            ("Classe de Armadura (CA)", "inteiro"),
+            ("Iniciativa", "inteiro"),
+            ("Deslocamento (Speed)", "texto_curto"),
+            ("Bônus de Proficiência", "inteiro"), 
+            ("Pontos de Vida Máximos", "inteiro"),
+            ("Pontos de Vida Atuais", "inteiro"),
+            ("Pontos de Vida Temporários", "inteiro"),
+            ("Dados de Vida (Hit Dice)", "texto_curto"),
+            ("Inspiração", "booleano")
+        ],
+        "Atributos": [
+            ("Força (STR)", "json_atributo"),
+            ("Destreza (DEX)", "json_atributo"),
+            ("Constituição (CON)", "json_atributo"),
+            ("Inteligência (INT)", "json_atributo"),
+            ("Sabedoria (WIS)", "json_atributo"),
+            ("Carisma (CHA)", "json_atributo")
+        ],
+        "Salvaguardas (Saving Throws)": [
+            ("Salvaguarda: Força", "json_calculado"),
+            ("Salvaguarda: Destreza", "json_calculado"),
+            ("Salvaguarda: Constituição", "json_calculado"),
+            ("Salvaguarda: Inteligência", "json_calculado"),
+            ("Salvaguarda: Sabedoria", "json_calculado"),
+            ("Salvaguarda: Carisma", "json_calculado")
+        ],
+        "Perícias (Skills)": [
+            ("Acrobacia (Dex)", "json_calculado"),
+            ("Arcanismo (Int)", "json_calculado"),
+            ("Atletismo (Str)", "json_calculado"),
+            ("Atuação (Cha)", "json_calculado"),
+            ("Enganação (Cha)", "json_calculado"),
+            ("Furtividade (Dex)", "json_calculado"),
+            ("História (Int)", "json_calculado"),
+            ("Intimidação (Cha)", "json_calculado"),
+            ("Intuição (Wis)", "json_calculado"),
+            ("Investigação (Int)", "json_calculado"),
+            ("Lidar com Animais (Wis)", "json_calculado"),
+            ("Medicina (Wis)", "json_calculado"),
+            ("Natureza (Int)", "json_calculado"),
+            ("Percepção (Wis)", "json_calculado"),
+            ("Persuasão (Cha)", "json_calculado"),
+            ("Prestidigitação (Dex)", "json_calculado"),
+            ("Religião (Int)", "json_calculado"),
+            ("Sobrevivência (Wis)", "json_calculado")
+        ],
+        "Características e Traços": [
+            ("Traços de Personalidade", "texto_longo"),
+            ("Ideais", "texto_longo"),
+            ("Vínculos (Bonds)", "texto_longo"),
+            ("Fraquezas (Flaws)", "texto_longo"),
+            ("História do Personagem (Backstory)", "texto_longo"),
+            ("Características e Talentos", "texto_longo"),
+            ("Outras Proficiências e Idiomas", "texto_longo")
+        ],
+        "Combate e Equipamento": [
+            ("Ataques e Magias", "texto_longo"),
+            ("Equipamento e Inventário", "texto_longo"),
+            ("Dinheiro", "texto_curto")
+        ]
+    }
+
+    for categoria, lista_campos in estrutura_ficha.items():
+        for index, (nome_campo, tipo_campo) in enumerate(lista_campos):
+            db.session.add(Campo(
+                modelo_id=novo_modelo.id,
+                nome=nome_campo,
+                tipo=tipo_campo,
+                categoria=categoria,
+                ordem=index
+            ))
+
+    db.session.commit()
+    print("Motor de regras do D&D 5e injetado com sucesso!")
+
 
 if __name__ == '__main__':
     with app.app_context():
-        db.create_all() # Cria a tabela users se não existir
+        inicializar_banco()
+    
     app.run(debug=True)

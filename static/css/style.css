@@ -2,456 +2,224 @@
    RAGNAROK GRIMÓRIO - ESTILO COMPLETO
    ========================================================================== */
 
-/* 1. IMPORTAÇÕES E VARIÁVEIS */
 @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Lato:wght@400;700&display=swap');
 
 :root {
-    /* Paleta Interface Dark (Menu/Exterior) */
     --bg-dark: #1a1a1a;
     --bg-panel: #2c241b;
     --border-gold: #8a6d3b;
     --text-gold: #d4af37;
     --text-light: #e0e0e0;
-
-    /* Paleta Pergaminho (Interior/Fichas) */
     --parchment-bg: #f4e4bc;
     --parchment-dark: #e6d2a0;
     --ink-color: #2c241b;
-    
-    /* Ações */
     --btn-primary: #2e4053;
     --btn-success: #27ae60;
     --btn-danger: #8b0000;
-    
-    /* Fontes */
     --font-title: 'Cinzel', serif;
     --font-body: 'Lato', sans-serif;
 }
 
-* {
-    box-sizing: border-box;
-}
+* { box-sizing: border-box; }
 
-body {
-    margin: 0;
-    padding: 0;
-    font-family: var(--font-body);
-}
+body { margin: 0; padding: 0; font-family: var(--font-body); }
 
-/* Scrollbar Personalizada */
 ::-webkit-scrollbar { width: 8px; height: 8px; }
 ::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); }
 ::-webkit-scrollbar-thumb { background: var(--border-gold); border-radius: 4px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--text-gold); }
 
 /* ==========================================================================
-   2. LAYOUT PRINCIPAL (SIDEBAR + CONTAINER)
+   LAYOUT PRINCIPAL
    ========================================================================== */
 
-/* Se o body tiver essa classe (ou for o index), aplica o layout flex */
 body:not(.sheet-body) {
-    background-color: var(--bg-dark);
-    color: var(--text-light);
-    height: 100vh;
-    display: flex;
-    overflow: hidden;
+    background-color: var(--bg-dark); color: var(--text-light);
+    height: 100vh; display: flex; overflow: hidden;
 }
 
 .sidebar {
-    width: 280px;
-    min-width: 280px;
-    background-color: var(--bg-panel);
-    border-right: 3px double var(--border-gold);
-    display: flex;
-    flex-direction: column;
-    padding: 20px;
-    box-shadow: 5px 0 15px rgba(0,0,0,0.5);
-    z-index: 10;
+    width: 280px; min-width: 280px; background-color: var(--bg-panel);
+    border-right: 3px double var(--border-gold); display: flex;
+    flex-direction: column; padding: 20px; box-shadow: 5px 0 15px rgba(0,0,0,0.5); z-index: 10;
 }
 
 .sidebar h2 {
-    font-family: var(--font-title);
-    color: var(--text-gold);
-    text-align: center;
-    border-bottom: 1px solid var(--text-gold);
-    padding-bottom: 10px;
-    margin-top: 0;
+    font-family: var(--font-title); color: var(--text-gold); text-align: center;
+    border-bottom: 1px solid var(--text-gold); padding-bottom: 10px; margin-top: 0;
 }
 
-/* Navegação da Sidebar */
-.sidebar-actions {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    margin-bottom: 20px;
-    border-bottom: 1px dashed var(--border-gold);
-    padding-bottom: 20px;
-}
-
-.sidebar-list {
-    flex-grow: 1;
-    overflow-y: auto;
-}
+.sidebar-actions { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; border-bottom: 1px dashed var(--border-gold); padding-bottom: 20px; }
+.sidebar-list { flex-grow: 1; overflow-y: auto; }
 
 .char-link {
-    display: block;
-    padding: 10px;
-    margin-bottom: 5px;
-    text-decoration: none;
-    color: var(--parchment-bg);
-    background: rgba(0,0,0,0.2);
-    border: 1px solid transparent;
-    border-radius: 4px;
-    transition: all 0.3s;
+    display: block; padding: 10px; margin-bottom: 5px; text-decoration: none;
+    color: var(--parchment-bg); background: rgba(0,0,0,0.2); border: 1px solid transparent;
+    border-radius: 4px; transition: all 0.3s;
 }
+.char-link:hover { border-color: var(--text-gold); background: rgba(212, 175, 55, 0.1); transform: translateX(5px); }
+.char-link-wrapper { display: flex; justify-content: space-between; align-items: center; }
+.char-level-badge { font-size: 0.75rem; background: rgba(0,0,0,0.3); padding: 2px 6px; border-radius: 4px; color: #d4af37; }
 
-.char-link:hover {
-    border-color: var(--text-gold);
-    background: rgba(212, 175, 55, 0.1);
-    transform: translateX(5px);
-}
+.empty-state { padding: 20px; text-align: center; opacity: 0.6; }
+.empty-state small { display: block; margin-top: 5px; }
 
-/* Área Principal */
 .main-content {
-    flex-grow: 1;
-    padding: 20px;
-    background-image: radial-gradient(circle at center, #2b2b2b 0%, #1a1a1a 100%);
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    flex-grow: 1; padding: 20px; background-image: radial-gradient(circle at center, #2b2b2b 0%, #1a1a1a 100%);
+    display: flex; justify-content: center; align-items: center;
 }
 
 .frame-container {
-    width: 100%;
-    max-width: 1200px;
-    height: 95%;
-    border: 5px solid #5c4033;
-    border-radius: 8px;
-    box-shadow: 0 0 30px rgba(0,0,0,0.8);
-    background: var(--parchment-bg);
-    overflow: hidden;
+    width: 100%; max-width: 1400px; height: 95%; border: 5px solid #5c4033;
+    border-radius: 8px; box-shadow: 0 0 30px rgba(0,0,0,0.8); background: var(--parchment-bg); overflow: hidden;
 }
 
-iframe {
-    width: 100%;
-    height: 100%;
-    border: none;
-    display: block;
-}
+iframe { width: 100%; height: 100%; border: none; display: block; }
+
+.user-panel { margin-bottom: 15px; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 4px; text-align: center; }
+.user-name { color: var(--text-gold); font-weight: bold; display: block; margin-bottom: 5px; }
+.auth-buttons { display: flex; flex-direction: column; gap: 10px; margin-top: 20px; }
+.auth-text { text-align: center; font-size: 0.9rem; opacity: 0.8; margin: 0; }
+.info-modelo { font-size: 0.75rem; color: var(--text-gold); text-align: center; opacity: 0.8; margin-top: 5px; font-style: italic; display: block; }
 
 /* ==========================================================================
-   3. ESTILOS INTERNOS (DENTRO DO IFRAME / FICHA)
+   ESTILOS INTERNOS DA FICHA E CABEÇALHO D&D
    ========================================================================== */
 
 .sheet-body {
-    background-color: var(--parchment-bg);
-    color: var(--ink-color);
-    padding: 30px;
-    height: 100vh;
-    overflow-y: auto;
-    /* Textura de papel opcional */
-    background-image: linear-gradient(rgba(255,255,255,0.6), rgba(255,255,255,0.6)), 
-                      url('https://www.transparenttextures.com/patterns/aged-paper.png');
+    background-color: var(--parchment-bg); color: var(--ink-color); padding: 30px; height: 100vh; overflow-y: auto;
+    background-image: linear-gradient(rgba(255,255,255,0.6), rgba(255,255,255,0.6)), url('https://www.transparenttextures.com/patterns/aged-paper.png');
 }
 
-/* Títulos internos */
-h1, h2, h3 {
-    font-family: var(--font-title);
-    color: #5c4033;
+h1, h2, h3 { font-family: var(--font-title); color: #5c4033; }
+
+.sheet-paper {
+    border: 3px double var(--border-gold); padding: 25px; background: rgba(255,255,255,0.2);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin: 0 auto; max-width: 1200px;
+}
+
+.dnd-header-container { display: flex; flex-wrap: wrap; gap: 20px; margin-bottom: 30px; align-items: stretch; }
+.dnd-header-left { flex: 1; min-width: 250px; display: flex; flex-direction: column; justify-content: flex-end; background: rgba(255,255,255,0.3); padding: 15px; border: 1px solid var(--border-gold); border-radius: 8px; border-bottom: 3px solid var(--ink-color); }
+.dnd-name-input { font-size: 2rem; font-family: var(--font-title); border: none; border-bottom: 2px solid #5c4033; background: transparent; width: 100%; color: var(--ink-color); outline: none; margin-bottom: 5px; font-weight: bold; }
+.dnd-header-right { flex: 2; min-width: 450px; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; background: rgba(255,255,255,0.5); padding: 15px; border: 1px solid var(--border-gold); border-radius: 8px; box-shadow: inset 0 0 10px rgba(0,0,0,0.05); }
+.dnd-field { display: flex; flex-direction: column; justify-content: flex-end; }
+.dnd-field-row { display: flex; gap: 8px; }
+.dnd-label { font-size: 0.65rem; font-weight: bold; text-transform: uppercase; color: #555; margin-top: 4px; border-top: 1px solid #ccc; padding-top: 2px; letter-spacing: 0.5px; }
+.dnd-input { border: none; background: transparent; font-family: var(--font-body); color: var(--ink-color); font-size: 0.95rem; padding: 2px 5px; outline: none; width: 100%; }
+.dnd-input:focus, .dnd-name-input:focus { background: rgba(255,255,255,0.7); border-radius: 4px; }
+
+/* ==========================================================================
+   ESTRUTURA MOSAICO D&D
+   ========================================================================== */
+
+.dnd-mosaic-grid {
+    display: grid;
+    grid-template-columns: 1fr 2fr 1fr; 
+    gap: 20px;
+    align-items: start;
+}
+
+.dnd-left-column-group {
+    display: grid;
+    grid-template-columns: 100px 1fr; 
+    gap: 15px;
+    grid-column: span 1;
+}
+
+.dnd-center-column { grid-column: span 1; display: flex; flex-direction: column; gap: 15px; }
+.dnd-right-column { grid-column: span 1; display: flex; flex-direction: column; gap: 15px; }
+
+@media (max-width: 1000px) {
+    .dnd-mosaic-grid { grid-template-columns: 1fr 1fr; }
+    .dnd-right-column { grid-column: span 2; }
+}
+@media (max-width: 700px) {
+    .dnd-mosaic-grid { grid-template-columns: 1fr; }
+    .dnd-left-column-group, .dnd-center-column, .dnd-right-column { grid-column: span 1; }
+    .dnd-left-column-group { grid-template-columns: 1fr; }
+}
+
+.category-header {
+    background-color: var(--bg-panel); color: var(--text-gold); padding: 4px 8px;
+    margin-top: 10px; margin-bottom: 8px; border-top: 2px solid var(--btn-danger);
+    border-bottom: 2px solid var(--btn-danger); font-family: var(--font-title);
+    text-transform: uppercase; letter-spacing: 1px; text-align: center; font-size: 0.9rem;
 }
 
 /* ==========================================================================
-   4. COMPONENTES DE UI (BOTÕES E INPUTS)
+   COMPONENTES E ATRIBUTOS
+   ========================================================================== */
+
+.attribute-box {
+    background: rgba(255,255,255,0.4); border: 1px solid var(--border-gold); padding: 8px;
+    border-radius: 6px; text-align: left; transition: transform 0.2s; margin-bottom: 10px;
+}
+
+.top-status-group { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 15px; }
+
+.attribute-box-compact {
+    background: rgba(255,255,255,0.4); border: 1px solid var(--border-gold); padding: 2px 6px;
+    border-radius: 4px; margin-bottom: 5px; display: flex; align-items: center; justify-content: flex-start;
+}
+.attribute-box-compact .field-label { margin: 0 0 0 5px; font-size: 0.70rem; flex: 1; color: var(--ink-color); font-weight: bold;}
+.skill-total { font-weight: bold; width: 35px; text-align: center; background: rgba(0,0,0,0.05); border-radius: 4px; padding: 2px; font-size: 0.9rem;}
+
+.field-label { margin-bottom: 4px; display: block; color: var(--btn-danger); font-weight: bold; font-size: 0.85rem; }
+
+.edit-input {
+    border: none; border-bottom: 2px solid var(--border-gold); background: transparent;
+    text-align: center; font-family: var(--font-title); color: var(--ink-color); width: 100%;
+}
+.edit-textarea { width: 100%; min-height: 80px; background: rgba(255,255,255,0.3); border: 1px solid var(--border-gold); font-family: var(--font-body); padding: 6px;}
+
+.attr-column-wrapper { display: flex; flex-direction: column; justify-content: space-between; height: 100%; gap: 10px; }
+
+.attr-vertical-container {
+    background: rgba(255,255,255,0.4); border: 1px solid var(--border-gold); border-radius: 8px;
+    padding: 10px 5px; text-align: center; box-shadow: inset 0 0 5px rgba(0,0,0,0.05);
+    flex: 1; display: flex; flex-direction: column; justify-content: center;
+}
+.attr-vertical-container .field-label { font-size: 0.7rem; margin-bottom: 2px; }
+.attr-vertical-container .attr-total-mod { font-size: 1.4rem; font-weight: bold; color: var(--bg-dark); margin-bottom: 5px; }
+.attr-vertical-container .base-bonus-group { display: flex; gap: 4px; border-top: 1px solid #ccc; padding-top: 4px; }
+.attr-vertical-container .attr-label-small { font-size: 0.55rem; color: #555; text-transform: uppercase; display: block; }
+.attr-vertical-container .edit-input { font-size: 0.8rem; padding: 1px; }
+
+.separator { height: 2px; background: linear-gradient(90deg, transparent, var(--border-gold), transparent); margin: 20px 0; opacity: 0.5; }
+
+/* ==========================================================================
+   BOTÕES E RODAPÉ
    ========================================================================== */
 
 .btn {
-    padding: 8px 16px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-family: var(--font-title);
-    font-weight: bold;
-    text-decoration: none;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    transition: 0.2s;
-    text-transform: uppercase;
-    font-size: 0.8rem;
-    color: white;
+    padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer; font-family: var(--font-title);
+    font-weight: bold; text-decoration: none; display: inline-flex; align-items: center; justify-content: center;
+    transition: 0.2s; text-transform: uppercase; font-size: 0.8rem; color: white;
 }
-
 .btn:hover { filter: brightness(1.15); transform: translateY(-1px); }
-.btn:disabled { opacity: 0.6; cursor: not-allowed; filter: grayscale(1); }
+.btn-primary { background-color: var(--btn-primary); }
+.btn-success { background-color: var(--btn-success); }
+.btn-block { width: 100%; justify-content: center; text-align: center; }
+.btn-config { background-color: #4a3b2a; color: var(--text-light); border: 1px solid #5c4033; font-size: 0.85rem; }
+.btn-logout { color: #ff6b6b; font-size: 0.8rem; text-decoration: none; border: 1px solid #ff6b6b; padding: 2px 8px; border-radius: 4px; }
+.btn-icon { background: none; border: none; color: var(--btn-danger); font-weight: bold; cursor: pointer; font-size: 1rem; }
 
-.btn-primary { background-color: var(--btn-primary); border: 1px solid #1a252f; }
-.btn-success, .btn-new { background-color: var(--btn-success); border: 1px solid #1e8449; }
-.btn-delete, .btn-danger { background-color: var(--btn-danger); border: 1px solid #641e16; }
-
-.btn-icon {
-    background: none; border: none; color: var(--btn-danger);
-    font-weight: bold; cursor: pointer; font-size: 1rem;
-}
-.btn-icon:hover { transform: scale(1.2); }
-
-/* Inputs Genéricos */
-input[type="text"], input[type="number"], select, textarea {
-    background: rgba(255, 255, 255, 0.5);
-    border: 1px solid var(--border-gold);
-    padding: 8px;
-    font-family: var(--font-body);
-    color: var(--ink-color);
-    border-radius: 4px;
-    outline: none;
-}
-input:focus, select:focus, textarea:focus {
-    background: rgba(255,255,255,0.8);
-    border-color: var(--text-gold);
-    box-shadow: 0 0 5px rgba(138, 109, 59, 0.3);
-}
+.save-footer { margin-top: 40px; text-align: center; }
+.delete-footer { margin-top: 40px; border-top: 1px dashed var(--border-gold); padding-top: 15px; text-align: center; }
+.delete-btn-text { font-size: 0.9rem; text-decoration: none; color: #ff6b6b; font-weight: bold; }
 
 /* ==========================================================================
-   5. PÁGINA DE MODELOS (modelos.html)
+   UTILITIES E MODOS DE LEITURA
    ========================================================================== */
 
-.models-page-wrapper {
-    max-width: 800px;
-    margin: 0 auto;
-    display: flex;
-    flex-direction: column;
-    gap: 30px;
-    padding-bottom: 50px;
-}
-
-.models-header-center {
-    text-align: center;
-    border-bottom: 2px solid var(--border-gold);
-    padding-bottom: 15px;
-}
-
-.model-selector-container {
-    background: rgba(255, 255, 255, 0.4);
-    padding: 20px;
-    border: 1px solid var(--border-gold);
-    border-radius: 8px;
-    text-align: center;
-    box-shadow: inset 0 0 10px rgba(138, 109, 59, 0.1);
-}
-
-.selector-label {
-    display: block;
-    font-family: var(--font-title);
-    font-weight: bold;
-    color: var(--btn-danger);
-    margin-bottom: 10px;
-    font-size: 1.2rem;
-}
-
-.model-selector-container select {
-    width: 100%;
-    max-width: 400px;
-    padding: 10px;
-    font-size: 1.1rem;
-    text-align: center;
-    border: 2px solid #5c4033;
-    cursor: pointer;
-}
-
-/* Painéis de Ação (Modelos) */
-.action-panel {
-    background: rgba(255, 255, 255, 0.6);
-    border: 2px solid #5c4033;
-    border-radius: 6px;
-    padding: 25px;
-    animation: fadeIn 0.5s ease;
-}
-
-@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-.edit-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 1px dashed var(--border-gold);
-    padding-bottom: 15px;
-    margin-bottom: 20px;
-}
-
-/* Tabela de Campos */
-.fields-list {
-    max-height: 300px;
-    overflow-y: auto;
-    border: 1px solid #ccc;
-    margin-bottom: 20px;
-    background: #fff;
-}
-.fields-list table { width: 100%; border-collapse: collapse; }
-.fields-list th {
-    background: #2c241b;
-    color: var(--text-gold);
-    padding: 8px;
-    text-align: left;
-    position: sticky;
-    top: 0;
-}
-.fields-list td { padding: 8px; border-bottom: 1px solid #eee; }
-
-/* Badge de Tipo */
-.badge {
-    background: #ddd; color: #333; padding: 2px 6px;
-    border-radius: 4px; font-size: 0.75rem; font-weight: bold;
-    text-transform: uppercase;
-}
-
-/* Formulário Add Campo */
-.add-field-form {
-    display: flex;
-    gap: 10px;
-    padding: 15px;
-    background: rgba(0,0,0,0.05);
-    border-radius: 4px;
-    align-items: center;
-    flex-wrap: wrap;
-}
-.add-field-form input { flex: 2; min-width: 150px; }
-.add-field-form select { flex: 1; min-width: 120px; }
-
-/* ==========================================================================
-   6. FICHA DO PERSONAGEM (Visual usado pelo JS)
-   ========================================================================== */
-
-/* Container da Ficha (Papel dentro do papel) */
-.sheet-paper {
-    border: 3px double var(--border-gold);
-    padding: 30px;
-    background: rgba(255,255,255,0.2);
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    margin: 0 auto;
-    max-width: 1000px;
-}
-
-/* Headers da Ficha */
-.sheet-header { text-align: center; margin-bottom: 20px; }
-.char-name { font-size: 2.5rem; font-family: var(--font-title); margin: 0; color: #2c241b; }
-.char-meta { font-style: italic; color: #555; margin-top: 5px; }
-
-/* Caixas de Atributos */
-.attribute-box {
-    background: rgba(255,255,255,0.4);
-    border: 1px solid var(--border-gold);
-    padding: 10px;
-    border-radius: 6px;
-    text-align: center;
-    transition: transform 0.2s;
-}
-.attribute-box:hover {
-    border-color: var(--text-gold);
-    background: rgba(255,255,255,0.7);
-}
-.attribute-box label {
-    font-size: 0.7rem; text-transform: uppercase; font-weight: bold; display: block; color: #8b0000;
-}
-.attribute-val { font-family: var(--font-title); font-size: 1.5rem; font-weight: bold; display: block; }
-
-/* Inputs Específicos da Ficha (Modo Edição) */
-.edit-input {
-    border: none;
-    border-bottom: 2px solid var(--border-gold);
-    background: transparent;
-    text-align: center;
-    font-family: var(--font-title);
-    color: #2c241b;
-    border-radius: 0;
-    width: 100%;
-}
-.edit-input:focus { background: rgba(255,255,255,0.5); border-bottom-color: #2ecc71; box-shadow: none; }
-
-.edit-textarea {
-    width: 100%;
-    min-height: 100px;
-    background: rgba(255,255,255,0.3);
-    border: 1px solid var(--border-gold);
-}
-
-/* Separador Visual */
-.separator {
-    height: 2px;
-    background: linear-gradient(90deg, transparent, var(--border-gold), transparent);
-    margin: 20px 0;
-    opacity: 0.5;
-}
-
-/* ==========================================================================
-   7. GRID UTILITY (Substituindo necessidade do Tailwind no seu JS)
-   ========================================================================== */
-/* Estas classes garantem que o layout da ficha funcione mesmo sem Tailwind */
-
-.grid { display: grid; gap: 15px; }
-.grid-cols-1 { grid-template-columns: 1fr; }
-.grid-cols-2 { grid-template-columns: repeat(2, 1fr); }
-.grid-cols-3 { grid-template-columns: repeat(3, 1fr); }
-
-@media (min-width: 768px) {
-    .md\:grid-cols-2 { grid-template-columns: repeat(2, 1fr); }
-    .md\:grid-cols-3 { grid-template-columns: repeat(3, 1fr); }
-}
-
-@media (min-width: 1024px) {
-    .lg\:grid-cols-6 { grid-template-columns: repeat(6, 1fr); }
-}
-
-.text-center { text-align: center; }
-.text-2xl { font-size: 1.5rem; }
-.text-3xl { font-size: 1.875rem; }
-.font-bold { font-weight: bold; }
-.w-full { width: 100%; }
-.flex { display: flex; }
-.justify-between { justify-content: space-between; }
-.gap-4 { gap: 1rem; }
-.mb-4 { margin-bottom: 1rem; }
-
-/* Helper genérico */
+.grid-2-col { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.text-right { text-align: right; }
+.mb-15px { margin-bottom: 15px; }
 .hidden { display: none !important; }
 
-/* ==========================================================================
-   8. ESTILOS DE MODO LEITURA VS EDIÇÃO
-   ========================================================================== */
+.read-only-mode { border: none !important; background: transparent !important; box-shadow: none !important; color: var(--ink-color) !important; cursor: default; padding: 0 !important; font-weight: bold; }
+textarea.read-only-mode { resize: none; overflow: hidden; min-height: 1.5em; }
 
-/* Quando em modo leitura: remove bordas e fundos para parecer texto impresso */
-.read-only-mode {
-    border: none !important;
-    background: transparent !important;
-    box-shadow: none !important;
-    color: #2c241b !important;
-    cursor: default;
-    padding: 0 !important;
-    font-weight: bold;
-}
-
-/* Ajuste específico para textarea em modo leitura para não ter barra de rolagem feia */
-textarea.read-only-mode {
-    resize: none;
-    overflow: hidden;
-    min-height: 1.5em; /* Altura mínima de uma linha */
-}
-
-/* Quando entra em modo edição: destaca o campo */
-.editable-mode {
-    background: rgba(255, 255, 255, 0.8) !important;
-    border-bottom: 2px solid #27ae60 !important; /* Verde indicando edição */
-    padding: 5px !important;
-    transition: all 0.3s ease;
-}
-
-/* Esconde elementos via classe utilitária */
-.hidden {
-    display: none !important;
-}
-
-/* Estilo especial para o Nome do Personagem na ficha */
-.char-name {
-    font-family: var(--font-title);
-    font-size: 2.5rem;
-    color: #2c241b;
-    margin-bottom: 5px;
-}
+.read-only-pb { border: 1px solid var(--border-gold) !important; background: rgba(0,0,0,0.05) !important; border-radius: 20px; color: #555 !important; cursor: not-allowed; font-weight: bold; text-align: center; font-size: 1.2rem; padding: 5px; width: 60px; margin: 0 auto;}
+.editable-mode { background: rgba(255, 255, 255, 0.8) !important; border-bottom: 2px solid var(--btn-success) !important; padding: 5px !important; transition: all 0.3s ease; }
+.editable-mode.editable-pb { border: 1px solid var(--border-gold) !important; background: rgba(0,0,0,0.05) !important; border-bottom: none !important; }
