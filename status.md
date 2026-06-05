@@ -21,8 +21,8 @@
 | E7 | Backend — Bestiário (monstros/PDMs) | ✅ |
 | E8 | Backend — Conteúdo de referência + seed SRD | ✅ |
 | E9 | Backend — Admin (gestão da plataforma) | ✅ |
-| E10 | Frontend — UI estilo D&D Beyond | ⏳ |
-| E11 | Infra — Docker (backend/frontend/postgres) | ⏳ |
+| E10 | Frontend — UI estilo D&D Beyond | ✅ |
+| E11 | Infra — Docker (backend/frontend/postgres) | ✅ |
 | E12 | Integração & verificação end-to-end | ⏳ |
 
 ---
@@ -89,22 +89,22 @@
 - [x] T9.3 CRUD de conteúdo de referência por ADMIN
 
 ### E10 — Frontend
-- [ ] T10.1 Design system (CSS): tema, componentes, layout
-- [ ] T10.2 `api.js` (cliente fetch + token) + `auth.js` (sessão)
-- [ ] T10.3 Páginas auth (login/registro)
-- [ ] T10.4 Dashboard (lista de personagens + mesas) por papel
-- [ ] T10.5 Ficha de personagem estilo D&D Beyond (visual + edição)
-- [ ] T10.6 Criação de personagem (wizard: raça→classe→atributos→perícias)
-- [ ] T10.7 Mesas (mestre gerencia; jogador entra por código)
-- [ ] T10.8 Bestiário (lista/detalhe/CRUD)
-- [ ] T10.9 Compêndio (magias/raças/classes — referência)
-- [ ] T10.10 Painel ADMIN (usuários/stats)
+- [x] T10.1 Design system (CSS): tema, componentes, layout
+- [x] T10.2 `api.js` (cliente fetch + token) + `auth.js` (sessão)
+- [x] T10.3 Páginas auth (login/registro)
+- [x] T10.4 Dashboard (lista de personagens + mesas) por papel
+- [x] T10.5 Ficha de personagem estilo D&D Beyond (visual + edição)
+- [x] T10.6 Criação de personagem (wizard: raça→classe→atributos→perícias)
+- [x] T10.7 Mesas (mestre gerencia; jogador entra por código)
+- [x] T10.8 Bestiário (lista/detalhe/CRUD)
+- [x] T10.9 Compêndio (magias/raças/classes — referência)
+- [x] T10.10 Painel ADMIN (usuários/stats)
 
 ### E11 — Infra Docker
-- [ ] T11.1 `backend/Dockerfile` (gunicorn)
-- [ ] T11.2 `frontend/Dockerfile` + `nginx.conf` (proxy `/api`)
-- [ ] T11.3 `docker-compose.yml` (db/backend/frontend) + `.env.example`
-- [ ] T11.4 Entrypoint que espera o DB e roda seed
+- [x] T11.1 `backend/Dockerfile` (gunicorn)
+- [x] T11.2 `frontend/Dockerfile` + `nginx.conf` (proxy `/api`)
+- [x] T11.3 `docker-compose.yml` (db/backend/frontend) + `.env.example`
+- [x] T11.4 Entrypoint que espera o DB e roda seed
 
 ### E12 — Integração & verificação
 - [ ] T12.1 `pytest` verde (todos os testes)
