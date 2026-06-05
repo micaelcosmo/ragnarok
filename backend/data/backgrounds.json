@@ -1,0 +1,66 @@
+[
+  {
+    "slug": "acolyte",
+    "nome": "Acólito",
+    "descricao": "Você passou a vida a serviço de um templo, intermediando entre o mundo mortal e os deuses. Realiza ritos sagrados e oferece sacrifícios em nome de sua fé.",
+    "pericias": ["Intuição", "Religião"],
+    "idiomas": 2,
+    "equipamento": "Símbolo sagrado, livro de orações, 5 varetas de incenso, vestes, roupas comuns e uma bolsa com 15 po."
+  },
+  {
+    "slug": "criminal",
+    "nome": "Criminoso",
+    "descricao": "Você é um transgressor experiente com um histórico de violar a lei. Mantém contatos no submundo e conhece bem os meandros das atividades ilícitas.",
+    "pericias": ["Enganação", "Furtividade"],
+    "idiomas": 0,
+    "equipamento": "Pé de cabra, roupas escuras comuns com capuz e uma bolsa com 15 po."
+  },
+  {
+    "slug": "folk-hero",
+    "nome": "Herói do Povo",
+    "descricao": "Você vem de uma origem humilde, mas está destinado a algo maior. As pessoas comuns o veem como seu campeão por um ato de coragem contra a tirania ou o perigo.",
+    "pericias": ["Adestrar Animais", "Sobrevivência"],
+    "idiomas": 0,
+    "equipamento": "Ferramentas de artesão à escolha, uma pá, uma panela de ferro, roupas comuns e uma bolsa com 10 po."
+  },
+  {
+    "slug": "noble",
+    "nome": "Nobre",
+    "descricao": "Você compreende riqueza, poder e privilégio. Carrega um título nobre e sua família possui terras, coleta impostos e exerce influência política significativa.",
+    "pericias": ["História", "Persuasão"],
+    "idiomas": 1,
+    "equipamento": "Roupas finas, um anel de sinete, um pergaminho de linhagem e uma bolsa com 25 po."
+  },
+  {
+    "slug": "sage",
+    "nome": "Sábio",
+    "descricao": "Você passou anos aprendendo sobre o multiverso. Vasculhou manuscritos, estudou pergaminhos e absorveu conhecimento de muitos campos do saber.",
+    "pericias": ["Arcanismo", "História"],
+    "idiomas": 2,
+    "equipamento": "Frasco de tinta, uma pena, uma faca pequena, uma carta de um colega falecido, roupas comuns e uma bolsa com 10 po."
+  },
+  {
+    "slug": "soldier",
+    "nome": "Soldado",
+    "descricao": "A guerra foi sua vida desde que você tem idade para empunhar uma arma. Foi treinado no uso de armas, táticas de combate e na sobrevivência nas linhas de frente.",
+    "pericias": ["Atletismo", "Intimidação"],
+    "idiomas": 0,
+    "equipamento": "Insígnia de patente, um troféu tomado de um inimigo caído, um conjunto de dados de osso, roupas comuns e uma bolsa com 10 po."
+  },
+  {
+    "slug": "charlatan",
+    "nome": "Charlatão",
+    "descricao": "Você sempre teve talento para enganar as pessoas. Sabe o que move os outros e usa esse conhecimento para trapaças, disfarces e golpes elaborados.",
+    "pericias": ["Enganação", "Prestidigitação"],
+    "idiomas": 0,
+    "equipamento": "Roupas finas, um kit de disfarce, ferramentas de uma trapaça à escolha e uma bolsa com 15 po."
+  },
+  {
+    "slug": "entertainer",
+    "nome": "Artista",
+    "descricao": "Você prospera diante de uma plateia, sabendo entreter, inspirar e cativar. Sua arte pode ser música, dança, atuação, contação de histórias ou acrobacia.",
+    "pericias": ["Acrobacia", "Atuação"],
+    "idiomas": 0,
+    "equipamento": "Um instrumento musical à escolha, o favor de um admirador, um traje e uma bolsa com 15 po."
+  }
+]
