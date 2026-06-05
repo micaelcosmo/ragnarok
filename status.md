@@ -4,7 +4,7 @@
 > **planning → spec → teste (RED) → código (GREEN) → refatora → atualiza status**.
 > Legenda: ✅ feito · 🔄 em andamento · ⏳ pendente · ❌ bloqueado/falhando
 
-Última atualização: 2026-06-05
+Última atualização: 2026-06-05 (stack verificada E2E)
 
 ---
 
@@ -23,7 +23,7 @@
 | E9 | Backend — Admin (gestão da plataforma) | ✅ |
 | E10 | Frontend — UI estilo D&D Beyond | ✅ |
 | E11 | Infra — Docker (backend/frontend/postgres) | ✅ |
-| E12 | Integração & verificação end-to-end | ⏳ |
+| E12 | Integração & verificação end-to-end | ✅ |
 
 ---
 
@@ -107,10 +107,10 @@
 - [x] T11.4 Entrypoint que espera o DB e roda seed
 
 ### E12 — Integração & verificação
-- [ ] T12.1 `pytest` verde (todos os testes)
-- [ ] T12.2 `docker compose up` sobe a stack
-- [ ] T12.3 Fluxo E2E: registrar → login → criar personagem → ver ficha
-- [ ] T12.4 Relatório final
+- [x] T12.1 `pytest` verde (todos os testes)
+- [x] T12.2 `docker compose up` sobe a stack
+- [x] T12.3 Fluxo E2E: registrar → login → criar personagem → ver ficha
+- [x] T12.4 Relatório final
 
 ---
 

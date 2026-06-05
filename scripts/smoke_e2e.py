@@ -111,7 +111,7 @@ def main():
         for falha in falhas:
             print(f"  - {falha}")
         sys.exit(1)
-    print(f"[smoke] TODAS as {total} chamadas OK ✔")
+    print(f"[smoke] TODAS as {total} chamadas OK")
 
 
 if __name__ == "__main__":
