@@ -1,0 +1,174 @@
+"""
+Motor de regras do D&D 5E (SRD 5.1).
+
+Funções PURAS: recebem números, devolvem números. Sem I/O, sem Flask, sem DB.
+São a base do TDD (ver spec/backend/units/rules-engine.spec.md).
+"""
+from __future__ import annotations
+
+import math
+
+# Os seis atributos, na ordem canônica.
+ATRIBUTOS = ["for", "des", "con", "int", "sab", "car"]
+
+NOMES_ATRIBUTOS = {
+    "for": "Força",
+    "des": "Destreza",
+    "con": "Constituição",
+    "int": "Inteligência",
+    "sab": "Sabedoria",
+    "car": "Carisma",
+}
+
+# Perícia -> atributo regente (18 perícias do 5E, nomes pt-BR).
+PERICIAS = {
+    "Acrobacia": "des",
+    "Adestrar Animais": "sab",
+    "Arcanismo": "int",
+    "Atletismo": "for",
+    "Atuação": "car",
+    "Enganação": "car",
+    "Furtividade": "des",
+    "História": "int",
+    "Intimidação": "car",
+    "Intuição": "sab",
+    "Investigação": "int",
+    "Medicina": "sab",
+    "Natureza": "int",
+    "Percepção": "sab",
+    "Persuasão": "car",
+    "Prestidigitação": "des",
+    "Religião": "int",
+    "Sobrevivência": "sab",
+}
+
+# Tabela oficial de XP acumulado para alcançar cada nível (índice 0 = nível 1).
+_XP_NIVEL = [
+    0, 300, 900, 2700, 6500, 14000, 23000, 34000, 48000, 64000,
+    85000, 100000, 120000, 140000, 165000, 195000, 225000, 265000, 305000, 355000,
+]
+
+
+def _clamp(valor: int, minimo: int, maximo: int) -> int:
+    return max(minimo, min(maximo, valor))
+
+
+def modificador(valor: int) -> int:
+    """Modificador de atributo: floor((valor - 10) / 2)."""
+    return math.floor((int(valor) - 10) / 2)
+
+
+def bonus_proficiencia(nivel: int) -> int:
+    """Bônus de proficiência por nível (1..20): 2 + floor((nivel-1)/4)."""
+    nivel = _clamp(int(nivel), 1, 20)
+    return 2 + (nivel - 1) // 4
+
+
+def nivel_por_xp(xp: int) -> int:
+    """Nível (1..20) correspondente a um total de XP acumulado."""
+    xp = max(0, int(xp))
+    nivel = 1
+    for indice, xp_limite in enumerate(_XP_NIVEL):
+        if xp >= xp_limite:
+            nivel = indice + 1
+        else:
+            break
+    return nivel
+
+
+def valor_pericia(atributo_mod: int, proficiente: bool, bonus_prof: int) -> int:
+    """Valor de uma perícia: mod do atributo + (proficiência se aplicável)."""
+    return int(atributo_mod) + (int(bonus_prof) if proficiente else 0)
+
+
+def valor_salvaguarda(atributo_mod: int, proficiente: bool, bonus_prof: int) -> int:
+    """Valor de uma salvaguarda: idêntico à perícia."""
+    return valor_pericia(atributo_mod, proficiente, bonus_prof)
+
+
+def percepcao_passiva(mod_sabedoria: int, proficiente_percepcao: bool, bonus_prof: int) -> int:
+    """Percepção passiva: 10 + valor da perícia Percepção."""
+    return 10 + valor_pericia(mod_sabedoria, proficiente_percepcao, bonus_prof)
+
+
+def cd_magia(mod_conjuracao: int, bonus_prof: int) -> int:
+    """CD de salvaguarda das magias: 8 + bônus de proficiência + mod de conjuração."""
+    return 8 + int(bonus_prof) + int(mod_conjuracao)
+
+
+def bonus_ataque_magia(mod_conjuracao: int, bonus_prof: int) -> int:
+    """Bônus de ataque de magia: bônus de proficiência + mod de conjuração."""
+    return int(bonus_prof) + int(mod_conjuracao)
+
+
+def iniciativa(mod_destreza: int, bonus_extra: int = 0) -> int:
+    """Bônus de iniciativa: mod de Destreza + bônus extra."""
+    return int(mod_destreza) + int(bonus_extra)
+
+
+def pv_maximo_sugerido(dado_vida: int, nivel: int, mod_constituicao: int) -> int:
+    """
+    PV máximo sugerido (média): nível 1 = dado cheio + CON;
+    níveis seguintes usam a média do dado (dado/2 + 1) + CON por nível.
+    """
+    nivel = max(1, int(nivel))
+    media_por_nivel = dado_vida // 2 + 1
+    total = dado_vida + mod_constituicao
+    total += (nivel - 1) * (media_por_nivel + mod_constituicao)
+    return max(1, total)
+
+
+def ficha_derivada(atributos: dict, nivel: int, *,
+                   pericias_proficientes=None,
+                   salvaguardas_proficientes=None,
+                   atributo_conjuracao=None,
+                   iniciativa_bonus_extra=0) -> dict:
+    """
+    Monta o bloco de campos derivados de uma ficha a partir dos atributos base
+    e do nível. Usado na serialização de Personagem (não persistido).
+    """
+    pericias_proficientes = set(pericias_proficientes or [])
+    salvaguardas_proficientes = set(salvaguardas_proficientes or [])
+
+    mods = {atributo: modificador(atributos.get(atributo, 10)) for atributo in ATRIBUTOS}
+    bp = bonus_proficiencia(nivel)
+
+    pericias = []
+    for nome_pericia, atributo in PERICIAS.items():
+        proficiente = nome_pericia in pericias_proficientes
+        pericias.append({
+            "nome": nome_pericia,
+            "atributo": atributo,
+            "proficiente": proficiente,
+            "valor": valor_pericia(mods[atributo], proficiente, bp),
+        })
+
+    salvaguardas = []
+    for atributo in ATRIBUTOS:
+        proficiente = atributo in salvaguardas_proficientes
+        salvaguardas.append({
+            "atributo": atributo,
+            "proficiente": proficiente,
+            "valor": valor_salvaguarda(mods[atributo], proficiente, bp),
+        })
+
+    derivado = {
+        "modificadores": mods,
+        "bonus_proficiencia": bp,
+        "iniciativa": iniciativa(mods["des"], iniciativa_bonus_extra),
+        "percepcao_passiva": percepcao_passiva(
+            mods["sab"], "Percepção" in pericias_proficientes, bp
+        ),
+        "pericias": pericias,
+        "salvaguardas": salvaguardas,
+    }
+
+    if atributo_conjuracao in ATRIBUTOS:
+        mc = mods[atributo_conjuracao]
+        derivado["cd_magia"] = cd_magia(mc, bp)
+        derivado["bonus_ataque_magia"] = bonus_ataque_magia(mc, bp)
+    else:
+        derivado["cd_magia"] = None
+        derivado["bonus_ataque_magia"] = None
+
+    return derivado

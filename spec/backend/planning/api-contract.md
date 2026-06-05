@@ -4,7 +4,11 @@ Autenticação: `Authorization: Bearer <access_token>` (exceto onde marcado púb
 Papéis: `A`=ADMIN, `M`=MESTRE, `J`=JOGADOR. "owner" = dono do recurso.
 
 ## Health
-- `GET /health` → `{data:{status:"ok"}}` — público.
+```yaml
+GET /health:           # público
+  resposta:
+    data: { status: ok }
+```
 
 ## Auth
 - `POST /auth/register` *(público)* — `{email,name,password,role?}` → cria usuário (role default JOGADOR; ADMIN não é auto-atribuível). 201.

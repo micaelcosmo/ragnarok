@@ -31,13 +31,17 @@ app/
 Isso permite TDD rápido e mantém as regras de jogo desacopladas da infraestrutura.
 
 ## Padrão de resposta da API
-Sucesso:
-```json
-{ "data": { ... } }            // ou { "data": [ ... ], "meta": {"total": N} }
-```
-Erro (sempre JSON, status HTTP coerente):
-```json
-{ "error": { "code": "VALIDATION", "message": "..." , "details": {...} } }
+```yaml
+sucesso_objeto:
+  data: { ... }
+sucesso_lista:
+  data: [ ... ]
+  meta: { total: N }
+erro:                       # sempre JSON, com status HTTP coerente
+  error:
+    code: VALIDATION
+    message: "mensagem legível"
+    details: { campo: "motivo" }
 ```
 
 ## Versionamento

@@ -1,0 +1,666 @@
+[
+  {
+    "slug": "goblin",
+    "nome": "Goblin",
+    "tipo": "Humanoide",
+    "tamanho": "Pequeno",
+    "alinhamento": "Neutro e mau",
+    "ca": 15,
+    "pv": 7,
+    "pv_formula": "2d6",
+    "deslocamento": "9 m",
+    "atributos": {"for": 8, "des": 14, "con": 10, "int": 10, "sab": 8, "car": 8},
+    "nd": "1/4",
+    "xp": 50,
+    "pericias": "Furtividade +6",
+    "sentidos": "Visão no escuro 18 m, Percepção passiva 9",
+    "idiomas": "Comum, Goblin",
+    "habilidades": [
+      {"nome": "Fuga Ágil", "descricao": "O goblin pode realizar a ação Disparada ou Desengajar como ação bônus em cada um de seus turnos."}
+    ],
+    "acoes": [
+      {"nome": "Cimitarra", "descricao": "Ataque Corpo a Corpo com Arma: +4 para acertar, alcance 1,5 m, um alvo. Acerto: 5 (1d6 + 2) de dano cortante."},
+      {"nome": "Arco Curto", "descricao": "Ataque à Distância com Arma: +4 para acertar, alcance 24/96 m, um alvo. Acerto: 5 (1d6 + 2) de dano perfurante."}
+    ]
+  },
+  {
+    "slug": "kobold",
+    "nome": "Kobold",
+    "tipo": "Humanoide",
+    "tamanho": "Pequeno",
+    "alinhamento": "Leal e mau",
+    "ca": 12,
+    "pv": 5,
+    "pv_formula": "2d6 - 2",
+    "deslocamento": "9 m",
+    "atributos": {"for": 7, "des": 15, "con": 9, "int": 8, "sab": 7, "car": 8},
+    "nd": "1/8",
+    "xp": 25,
+    "pericias": "—",
+    "sentidos": "Visão no escuro 18 m, Percepção passiva 8",
+    "idiomas": "Comum, Dracônico",
+    "habilidades": [
+      {"nome": "Sensibilidade à Luz Solar", "descricao": "Sob luz solar direta, o kobold tem desvantagem em ataques e em testes de Sabedoria (Percepção) baseados na visão."},
+      {"nome": "Táticas de Matilha", "descricao": "O kobold tem vantagem em ataques contra uma criatura se ao menos um aliado dele estiver a até 1,5 m da criatura e não estiver incapacitado."}
+    ],
+    "acoes": [
+      {"nome": "Adaga", "descricao": "Ataque Corpo a Corpo com Arma: +4 para acertar, alcance 1,5 m, um alvo. Acerto: 4 (1d4 + 2) de dano perfurante."},
+      {"nome": "Funda", "descricao": "Ataque à Distância com Arma: +4 para acertar, alcance 9/36 m, um alvo. Acerto: 4 (1d4 + 2) de dano de concussão."}
+    ]
+  },
+  {
+    "slug": "skeleton",
+    "nome": "Esqueleto",
+    "tipo": "Morto-vivo",
+    "tamanho": "Médio",
+    "alinhamento": "Leal e mau",
+    "ca": 13,
+    "pv": 13,
+    "pv_formula": "2d8 + 4",
+    "deslocamento": "9 m",
+    "atributos": {"for": 10, "des": 14, "con": 15, "int": 6, "sab": 8, "car": 5},
+    "nd": "1/4",
+    "xp": 50,
+    "pericias": "—",
+    "sentidos": "Visão no escuro 18 m, Percepção passiva 9",
+    "idiomas": "Entende os idiomas que conhecia em vida, mas não fala",
+    "habilidades": [
+      {"nome": "Vulnerabilidade a Dano", "descricao": "Vulnerável a dano de concussão. Imune a veneno e exaustão; não pode ser envenenado."}
+    ],
+    "acoes": [
+      {"nome": "Espada Curta", "descricao": "Ataque Corpo a Corpo com Arma: +4 para acertar, alcance 1,5 m, um alvo. Acerto: 5 (1d6 + 2) de dano perfurante."},
+      {"nome": "Arco Curto", "descricao": "Ataque à Distância com Arma: +4 para acertar, alcance 24/96 m, um alvo. Acerto: 5 (1d6 + 2) de dano perfurante."}
+    ]
+  },
+  {
+    "slug": "zombie",
+    "nome": "Zumbi",
+    "tipo": "Morto-vivo",
+    "tamanho": "Médio",
+    "alinhamento": "Neutro e mau",
+    "ca": 8,
+    "pv": 22,
+    "pv_formula": "3d8 + 9",
+    "deslocamento": "6 m",
+    "atributos": {"for": 13, "des": 6, "con": 16, "int": 3, "sab": 6, "car": 5},
+    "nd": "1/4",
+    "xp": 50,
+    "pericias": "—",
+    "sentidos": "Visão no escuro 18 m, Percepção passiva 8",
+    "idiomas": "Entende os idiomas que conhecia em vida, mas não fala",
+    "habilidades": [
+      {"nome": "Fortitude dos Mortos-Vivos", "descricao": "Se o dano reduzir o zumbi a 0 pontos de vida, ele deve fazer uma salvaguarda de Constituição (CD 5 + o dano sofrido), a menos que o dano seja radiante ou de um acerto crítico. Em caso de sucesso, ele cai a 1 ponto de vida."}
+    ],
+    "acoes": [
+      {"nome": "Pancada", "descricao": "Ataque Corpo a Corpo com Arma: +3 para acertar, alcance 1,5 m, um alvo. Acerto: 4 (1d6 + 1) de dano de concussão."}
+    ]
+  },
+  {
+    "slug": "orc",
+    "nome": "Orc",
+    "tipo": "Humanoide",
+    "tamanho": "Médio",
+    "alinhamento": "Caótico e mau",
+    "ca": 13,
+    "pv": 15,
+    "pv_formula": "2d8 + 6",
+    "deslocamento": "9 m",
+    "atributos": {"for": 16, "des": 12, "con": 16, "int": 7, "sab": 11, "car": 10},
+    "nd": "1/2",
+    "xp": 100,
+    "pericias": "Intimidação +2",
+    "sentidos": "Visão no escuro 18 m, Percepção passiva 10",
+    "idiomas": "Comum, Orc",
+    "habilidades": [
+      {"nome": "Agressivo", "descricao": "Como ação bônus, o orc pode se mover até seu deslocamento em direção a um inimigo hostil que possa ver."}
+    ],
+    "acoes": [
+      {"nome": "Machado Grande", "descricao": "Ataque Corpo a Corpo com Arma: +5 para acertar, alcance 1,5 m, um alvo. Acerto: 9 (1d12 + 3) de dano cortante."},
+      {"nome": "Azagaia", "descricao": "Ataque Corpo a Corpo ou à Distância com Arma: +5 para acertar, alcance 1,5 m ou 9/36 m, um alvo. Acerto: 6 (1d6 + 3) de dano perfurante."}
+    ]
+  },
+  {
+    "slug": "wolf",
+    "nome": "Lobo",
+    "tipo": "Fera",
+    "tamanho": "Médio",
+    "alinhamento": "Não alinhado",
+    "ca": 13,
+    "pv": 11,
+    "pv_formula": "2d8 + 2",
+    "deslocamento": "12 m",
+    "atributos": {"for": 12, "des": 15, "con": 12, "int": 3, "sab": 12, "car": 6},
+    "nd": "1/4",
+    "xp": 50,
+    "pericias": "Percepção +3, Furtividade +4",
+    "sentidos": "Percepção passiva 13",
+    "idiomas": "—",
+    "habilidades": [
+      {"nome": "Audição e Olfato Apurados", "descricao": "O lobo tem vantagem em testes de Sabedoria (Percepção) que dependam de audição ou olfato."},
+      {"nome": "Táticas de Matilha", "descricao": "O lobo tem vantagem em ataques contra uma criatura se ao menos um aliado dele estiver a até 1,5 m da criatura e não estiver incapacitado."}
+    ],
+    "acoes": [
+      {"nome": "Mordida", "descricao": "Ataque Corpo a Corpo com Arma: +4 para acertar, alcance 1,5 m, um alvo. Acerto: 7 (2d4 + 2) de dano perfurante. Se o alvo for uma criatura, deve ser bem-sucedido numa salvaguarda de Força (CD 11) ou cai derrubado."}
+    ]
+  },
+  {
+    "slug": "giant-spider",
+    "nome": "Aranha Gigante",
+    "tipo": "Fera",
+    "tamanho": "Grande",
+    "alinhamento": "Não alinhado",
+    "ca": 14,
+    "pv": 26,
+    "pv_formula": "4d10 + 4",
+    "deslocamento": "9 m, escalada 9 m",
+    "atributos": {"for": 14, "des": 16, "con": 12, "int": 2, "sab": 11, "car": 4},
+    "nd": "1",
+    "xp": 200,
+    "pericias": "Furtividade +7",
+    "sentidos": "Visão às cegas 3 m, Visão no escuro 18 m, Percepção passiva 10",
+    "idiomas": "—",
+    "habilidades": [
+      {"nome": "Caminhar em Teias", "descricao": "A aranha ignora restrições de movimento causadas por teias e sabe a localização de qualquer criatura em contato com a mesma teia."},
+      {"nome": "Sentido de Teia", "descricao": "Enquanto em contato com uma teia, a aranha percebe a localização de qualquer criatura que esteja em contato com a mesma teia."}
+    ],
+    "acoes": [
+      {"nome": "Mordida", "descricao": "Ataque Corpo a Corpo com Arma: +5 para acertar, alcance 1,5 m, uma criatura. Acerto: 7 (1d8 + 3) de dano perfurante; o alvo deve fazer uma salvaguarda de Constituição (CD 11), sofrendo 9 (2d8) de dano de veneno em caso de falha, ou metade em caso de sucesso. Se reduzido a 0 PV pelo veneno, o alvo fica estável mas paralisado por 1 hora."},
+      {"nome": "Teia (Recarga 5-6)", "descricao": "Ataque à Distância com Arma: +5 para acertar, alcance 9/18 m, uma criatura. Acerto: o alvo fica restringido pela teia. Como ação, pode tentar se soltar com um teste de Força (CD 12)."}
+    ]
+  },
+  {
+    "slug": "bandit",
+    "nome": "Bandido",
+    "tipo": "Humanoide",
+    "tamanho": "Médio",
+    "alinhamento": "Qualquer não leal",
+    "ca": 12,
+    "pv": 11,
+    "pv_formula": "2d8 + 2",
+    "deslocamento": "9 m",
+    "atributos": {"for": 11, "des": 12, "con": 12, "int": 10, "sab": 10, "car": 10},
+    "nd": "1/8",
+    "xp": 25,
+    "pericias": "—",
+    "sentidos": "Percepção passiva 10",
+    "idiomas": "Qualquer um idioma (geralmente Comum)",
+    "habilidades": [],
+    "acoes": [
+      {"nome": "Cimitarra", "descricao": "Ataque Corpo a Corpo com Arma: +3 para acertar, alcance 1,5 m, um alvo. Acerto: 4 (1d6 + 1) de dano cortante."},
+      {"nome": "Besta Leve", "descricao": "Ataque à Distância com Arma: +3 para acertar, alcance 24/96 m, um alvo. Acerto: 5 (1d8 + 1) de dano perfurante."}
+    ]
+  },
+  {
+    "slug": "bugbear",
+    "nome": "Bugbear",
+    "tipo": "Humanoide",
+    "tamanho": "Médio",
+    "alinhamento": "Caótico e mau",
+    "ca": 16,
+    "pv": 27,
+    "pv_formula": "5d8 + 5",
+    "deslocamento": "9 m",
+    "atributos": {"for": 15, "des": 14, "con": 13, "int": 8, "sab": 11, "car": 9},
+    "nd": "1",
+    "xp": 200,
+    "pericias": "Furtividade +6, Sobrevivência +2",
+    "sentidos": "Visão no escuro 18 m, Percepção passiva 10",
+    "idiomas": "Comum, Goblin",
+    "habilidades": [
+      {"nome": "Brutal", "descricao": "Um ataque corpo a corpo com arma causa um dado de dano extra quando o bugbear acerta com ele (já incluído no ataque)."},
+      {"nome": "Furtivo", "descricao": "O bugbear causa 7 (2d6) de dano extra ao atingir um alvo com um ataque com arma durante o primeiro turno de combate se ainda não tiver agido."}
+    ],
+    "acoes": [
+      {"nome": "Maça Estrela do Amanhecer", "descricao": "Ataque Corpo a Corpo com Arma: +4 para acertar, alcance 1,5 m, um alvo. Acerto: 11 (2d8 + 2) de dano perfurante."},
+      {"nome": "Azagaia", "descricao": "Ataque Corpo a Corpo ou à Distância com Arma: +4 para acertar, alcance 1,5 m ou 9/36 m, um alvo. Acerto: 9 (2d6 + 2) corpo a corpo ou 5 (1d6 + 2) à distância, de dano perfurante."}
+    ]
+  },
+  {
+    "slug": "ghoul",
+    "nome": "Carniçal",
+    "tipo": "Morto-vivo",
+    "tamanho": "Médio",
+    "alinhamento": "Caótico e mau",
+    "ca": 12,
+    "pv": 22,
+    "pv_formula": "5d8",
+    "deslocamento": "9 m",
+    "atributos": {"for": 13, "des": 15, "con": 10, "int": 7, "sab": 10, "car": 6},
+    "nd": "1",
+    "xp": 200,
+    "pericias": "—",
+    "sentidos": "Visão no escuro 18 m, Percepção passiva 10",
+    "idiomas": "Comum",
+    "habilidades": [
+      {"nome": "Imunidades", "descricao": "Imune a veneno e à condição enfeitiçado e exaustão."}
+    ],
+    "acoes": [
+      {"nome": "Mordida", "descricao": "Ataque Corpo a Corpo com Arma: +2 para acertar, alcance 1,5 m, um alvo. Acerto: 9 (2d6 + 2) de dano perfurante."},
+      {"nome": "Garras", "descricao": "Ataque Corpo a Corpo com Arma: +4 para acertar, alcance 1,5 m, um alvo. Acerto: 7 (2d4 + 2) de dano cortante. Se o alvo for uma criatura que não seja elfo ou morto-vivo, deve ser bem-sucedido numa salvaguarda de Constituição (CD 10) ou fica paralisado por 1 minuto. O alvo pode repetir a salvaguarda ao final de cada turno."}
+    ]
+  },
+  {
+    "slug": "ogre",
+    "nome": "Ogro",
+    "tipo": "Gigante",
+    "tamanho": "Grande",
+    "alinhamento": "Caótico e mau",
+    "ca": 11,
+    "pv": 59,
+    "pv_formula": "7d10 + 21",
+    "deslocamento": "12 m",
+    "atributos": {"for": 19, "des": 8, "con": 16, "int": 5, "sab": 7, "car": 7},
+    "nd": "2",
+    "xp": 450,
+    "pericias": "—",
+    "sentidos": "Visão no escuro 18 m, Percepção passiva 8",
+    "idiomas": "Comum, Gigante",
+    "habilidades": [],
+    "acoes": [
+      {"nome": "Clava Grande", "descricao": "Ataque Corpo a Corpo com Arma: +6 para acertar, alcance 1,5 m, um alvo. Acerto: 13 (2d8 + 4) de dano de concussão."},
+      {"nome": "Azagaia", "descricao": "Ataque Corpo a Corpo ou à Distância com Arma: +6 para acertar, alcance 1,5 m ou 9/36 m, um alvo. Acerto: 11 (2d6 + 4) de dano perfurante."}
+    ]
+  },
+  {
+    "slug": "owlbear",
+    "nome": "Coruja-Urso",
+    "tipo": "Monstruosidade",
+    "tamanho": "Grande",
+    "alinhamento": "Não alinhado",
+    "ca": 13,
+    "pv": 59,
+    "pv_formula": "7d10 + 21",
+    "deslocamento": "12 m",
+    "atributos": {"for": 20, "des": 12, "con": 17, "int": 3, "sab": 12, "car": 7},
+    "nd": "3",
+    "xp": 700,
+    "pericias": "Percepção +3",
+    "sentidos": "Visão no escuro 18 m, Percepção passiva 13",
+    "idiomas": "—",
+    "habilidades": [
+      {"nome": "Visão e Olfato Apurados", "descricao": "A coruja-urso tem vantagem em testes de Sabedoria (Percepção) que dependam da visão ou do olfato."}
+    ],
+    "acoes": [
+      {"nome": "Ataque Múltiplo", "descricao": "A coruja-urso faz dois ataques: um com o bico e um com as garras."},
+      {"nome": "Bico", "descricao": "Ataque Corpo a Corpo com Arma: +7 para acertar, alcance 1,5 m, uma criatura. Acerto: 10 (1d10 + 5) de dano perfurante."},
+      {"nome": "Garras", "descricao": "Ataque Corpo a Corpo com Arma: +7 para acertar, alcance 1,5 m, um alvo. Acerto: 14 (2d8 + 5) de dano cortante."}
+    ]
+  },
+  {
+    "slug": "dire-wolf",
+    "nome": "Lobo Atroz",
+    "tipo": "Fera",
+    "tamanho": "Grande",
+    "alinhamento": "Não alinhado",
+    "ca": 14,
+    "pv": 37,
+    "pv_formula": "5d10 + 10",
+    "deslocamento": "15 m",
+    "atributos": {"for": 17, "des": 15, "con": 15, "int": 3, "sab": 12, "car": 7},
+    "nd": "1",
+    "xp": 200,
+    "pericias": "Percepção +3, Furtividade +4",
+    "sentidos": "Percepção passiva 13",
+    "idiomas": "—",
+    "habilidades": [
+      {"nome": "Audição e Olfato Apurados", "descricao": "O lobo atroz tem vantagem em testes de Sabedoria (Percepção) que dependam de audição ou olfato."},
+      {"nome": "Táticas de Matilha", "descricao": "O lobo atroz tem vantagem em ataques contra uma criatura se ao menos um aliado dele estiver a até 1,5 m da criatura e não estiver incapacitado."}
+    ],
+    "acoes": [
+      {"nome": "Mordida", "descricao": "Ataque Corpo a Corpo com Arma: +5 para acertar, alcance 1,5 m, um alvo. Acerto: 10 (2d6 + 3) de dano perfurante. Se o alvo for uma criatura, deve ser bem-sucedido numa salvaguarda de Força (CD 13) ou cai derrubado."}
+    ]
+  },
+  {
+    "slug": "brown-bear",
+    "nome": "Urso-Pardo",
+    "tipo": "Fera",
+    "tamanho": "Grande",
+    "alinhamento": "Não alinhado",
+    "ca": 11,
+    "pv": 34,
+    "pv_formula": "4d10 + 12",
+    "deslocamento": "12 m, escalada 9 m",
+    "atributos": {"for": 19, "des": 10, "con": 16, "int": 2, "sab": 13, "car": 7},
+    "nd": "1",
+    "xp": 200,
+    "pericias": "Percepção +3",
+    "sentidos": "Percepção passiva 13",
+    "idiomas": "—",
+    "habilidades": [
+      {"nome": "Olfato Apurado", "descricao": "O urso tem vantagem em testes de Sabedoria (Percepção) que dependam do olfato."}
+    ],
+    "acoes": [
+      {"nome": "Ataque Múltiplo", "descricao": "O urso faz dois ataques: um com a mordida e um com as garras."},
+      {"nome": "Mordida", "descricao": "Ataque Corpo a Corpo com Arma: +6 para acertar, alcance 1,5 m, um alvo. Acerto: 8 (1d8 + 4) de dano perfurante."},
+      {"nome": "Garras", "descricao": "Ataque Corpo a Corpo com Arma: +6 para acertar, alcance 1,5 m, um alvo. Acerto: 11 (2d6 + 4) de dano cortante."}
+    ]
+  },
+  {
+    "slug": "hobgoblin",
+    "nome": "Hobgoblin",
+    "tipo": "Humanoide",
+    "tamanho": "Médio",
+    "alinhamento": "Leal e mau",
+    "ca": 18,
+    "pv": 11,
+    "pv_formula": "2d8 + 2",
+    "deslocamento": "9 m",
+    "atributos": {"for": 13, "des": 12, "con": 12, "int": 10, "sab": 10, "car": 9},
+    "nd": "1/2",
+    "xp": 100,
+    "pericias": "—",
+    "sentidos": "Visão no escuro 18 m, Percepção passiva 10",
+    "idiomas": "Comum, Goblin",
+    "habilidades": [
+      {"nome": "Vantagem Marcial", "descricao": "Uma vez por turno, o hobgoblin causa 7 (2d6) de dano extra a uma criatura que ele acerte com um ataque com arma, se essa criatura estiver a até 1,5 m de um aliado do hobgoblin que não esteja incapacitado."}
+    ],
+    "acoes": [
+      {"nome": "Espada Longa", "descricao": "Ataque Corpo a Corpo com Arma: +3 para acertar, alcance 1,5 m, um alvo. Acerto: 5 (1d8 + 1) de dano cortante, ou 6 (1d10 + 1) se usada com as duas mãos."},
+      {"nome": "Arco Longo", "descricao": "Ataque à Distância com Arma: +3 para acertar, alcance 45/180 m, um alvo. Acerto: 5 (1d8 + 1) de dano perfurante."}
+    ]
+  },
+  {
+    "slug": "animated-armor",
+    "nome": "Armadura Animada",
+    "tipo": "Constructo",
+    "tamanho": "Médio",
+    "alinhamento": "Não alinhado",
+    "ca": 18,
+    "pv": 33,
+    "pv_formula": "6d8 + 6",
+    "deslocamento": "7,5 m",
+    "atributos": {"for": 14, "des": 11, "con": 13, "int": 1, "sab": 3, "car": 1},
+    "nd": "1",
+    "xp": 200,
+    "pericias": "—",
+    "sentidos": "Visão às cegas 18 m (cega além disso), Percepção passiva 6",
+    "idiomas": "—",
+    "habilidades": [
+      {"nome": "Antimagia Suscetível", "descricao": "A armadura fica incapacitada enquanto estiver na área de um campo antimagia. Se for alvo de dissipar magia, deve ser bem-sucedida numa salvaguarda de Constituição ou fica inconsciente por 1 minuto."},
+      {"nome": "Imutável", "descricao": "A armadura é imune a veneno, dano psíquico e a diversas condições, como amedrontado, paralisado e envenenado."}
+    ],
+    "acoes": [
+      {"nome": "Ataque Múltiplo", "descricao": "A armadura faz dois ataques de pancada."},
+      {"nome": "Pancada", "descricao": "Ataque Corpo a Corpo com Arma: +4 para acertar, alcance 1,5 m, um alvo. Acerto: 5 (1d6 + 2) de dano de concussão."}
+    ]
+  },
+  {
+    "slug": "gelatinous-cube",
+    "nome": "Cubo Gelatinoso",
+    "tipo": "Limo",
+    "tamanho": "Grande",
+    "alinhamento": "Não alinhado",
+    "ca": 6,
+    "pv": 84,
+    "pv_formula": "8d10 + 40",
+    "deslocamento": "4,5 m",
+    "atributos": {"for": 14, "des": 3, "con": 20, "int": 1, "sab": 6, "car": 1},
+    "nd": "2",
+    "xp": 450,
+    "pericias": "—",
+    "sentidos": "Visão às cegas 18 m (cego além disso), Percepção passiva 8",
+    "idiomas": "—",
+    "habilidades": [
+      {"nome": "Transparente", "descricao": "Mesmo quando em plena visão, o cubo exige um teste de Sabedoria (Percepção) CD 15 para ser percebido por uma criatura que não tenha notado sua presença."},
+      {"nome": "Engolir Cadáveres", "descricao": "O cubo pode se mover através de criaturas e objetos como se fossem terreno difícil, absorvendo matéria orgânica que toca."}
+    ],
+    "acoes": [
+      {"nome": "Pseudópode", "descricao": "Ataque Corpo a Corpo com Arma: +4 para acertar, alcance 1,5 m, uma criatura. Acerto: 10 (3d6) de dano ácido."},
+      {"nome": "Engolir", "descricao": "O cubo se move através do espaço de uma criatura Grande ou menor. A criatura deve fazer uma salvaguarda de Destreza (CD 12); em caso de falha, é engolida, ficando restringida e sofrendo 21 (6d6) de dano ácido no início de cada turno do cubo."}
+    ]
+  },
+  {
+    "slug": "wight",
+    "nome": "Carniçal Maior (Wight)",
+    "tipo": "Morto-vivo",
+    "tamanho": "Médio",
+    "alinhamento": "Neutro e mau",
+    "ca": 14,
+    "pv": 45,
+    "pv_formula": "6d8 + 18",
+    "deslocamento": "9 m",
+    "atributos": {"for": 15, "des": 14, "con": 16, "int": 10, "sab": 13, "car": 15},
+    "nd": "3",
+    "xp": 700,
+    "pericias": "Percepção +3, Furtividade +4",
+    "sentidos": "Visão no escuro 18 m, Percepção passiva 13",
+    "idiomas": "Os idiomas que conhecia em vida",
+    "habilidades": [
+      {"nome": "Sensibilidade à Luz Solar", "descricao": "Sob luz solar direta, o wight tem desvantagem em ataques e em testes de Percepção baseados na visão."}
+    ],
+    "acoes": [
+      {"nome": "Ataque Múltiplo", "descricao": "O wight faz dois ataques de espada longa ou dois de arco longo. Pode usar Dreno de Vida no lugar de um ataque corpo a corpo."},
+      {"nome": "Dreno de Vida", "descricao": "Ataque Corpo a Corpo com Arma: +4 para acertar, alcance 1,5 m, uma criatura. Acerto: 5 (1d6 + 2) de dano necrótico. O alvo deve ser bem-sucedido numa salvaguarda de Constituição (CD 13) ou tem seu máximo de pontos de vida reduzido em valor igual ao dano causado. Um humanoide morto por esse ataque se levanta como zumbi sob controle do wight."},
+      {"nome": "Espada Longa", "descricao": "Ataque Corpo a Corpo com Arma: +4 para acertar, alcance 1,5 m, um alvo. Acerto: 6 (1d8 + 2) de dano cortante, ou 7 (1d10 + 2) se usada com as duas mãos."}
+    ]
+  },
+  {
+    "slug": "werewolf",
+    "nome": "Lobisomem",
+    "tipo": "Humanoide (metamorfo)",
+    "tamanho": "Médio",
+    "alinhamento": "Caótico e mau",
+    "ca": 12,
+    "pv": 58,
+    "pv_formula": "9d8 + 18",
+    "deslocamento": "9 m (12 m na forma de lobo)",
+    "atributos": {"for": 15, "des": 13, "con": 14, "int": 10, "sab": 11, "car": 10},
+    "nd": "3",
+    "xp": 700,
+    "pericias": "Percepção +4, Furtividade +3",
+    "sentidos": "Percepção passiva 14",
+    "idiomas": "Comum (não pode falar na forma de lobo)",
+    "habilidades": [
+      {"nome": "Metamorfose", "descricao": "O lobisomem pode usar sua ação para assumir uma forma híbrida humano-lobo ou de lobo, ou voltar à forma humana. Suas estatísticas, exceto o tamanho, são iguais em cada forma."},
+      {"nome": "Olfato Apurado", "descricao": "O lobisomem tem vantagem em testes de Sabedoria (Percepção) que dependam do olfato."}
+    ],
+    "acoes": [
+      {"nome": "Ataque Múltiplo (Forma Humana ou Híbrida)", "descricao": "O lobisomem faz dois ataques: um com a mordida (apenas forma híbrida ou de lobo) e um com garras ou maça."},
+      {"nome": "Mordida (Forma de Lobo ou Híbrida)", "descricao": "Ataque Corpo a Corpo com Arma: +4 para acertar, alcance 1,5 m, uma criatura. Acerto: 6 (1d8 + 2) de dano perfurante. Se o alvo for um humanoide, deve ser bem-sucedido numa salvaguarda de Constituição (CD 12) ou é amaldiçoado com licantropia."},
+      {"nome": "Garras (Forma Híbrida)", "descricao": "Ataque Corpo a Corpo com Arma: +4 para acertar, alcance 1,5 m, um alvo. Acerto: 7 (2d4 + 2) de dano cortante."}
+    ]
+  },
+  {
+    "slug": "minotaur",
+    "nome": "Minotauro",
+    "tipo": "Monstruosidade",
+    "tamanho": "Grande",
+    "alinhamento": "Caótico e mau",
+    "ca": 14,
+    "pv": 76,
+    "pv_formula": "9d10 + 27",
+    "deslocamento": "12 m",
+    "atributos": {"for": 18, "des": 11, "con": 16, "int": 6, "sab": 16, "car": 9},
+    "nd": "3",
+    "xp": 700,
+    "pericias": "Percepção +7",
+    "sentidos": "Visão no escuro 18 m, Percepção passiva 17",
+    "idiomas": "Abissal",
+    "habilidades": [
+      {"nome": "Investida", "descricao": "Se o minotauro se mover ao menos 3 m em linha reta em direção a um alvo e o acertar com um ataque de chifres no mesmo turno, o alvo sofre 9 (2d8) de dano perfurante extra. Se for uma criatura, deve ser bem-sucedida numa salvaguarda de Força (CD 14) ou é empurrada 3 m e cai derrubada."},
+      {"nome": "Memória de Labirinto", "descricao": "O minotauro consegue refazer perfeitamente qualquer caminho que já percorreu."}
+    ],
+    "acoes": [
+      {"nome": "Machado Grande", "descricao": "Ataque Corpo a Corpo com Arma: +6 para acertar, alcance 1,5 m, um alvo. Acerto: 17 (2d12 + 4) de dano cortante."},
+      {"nome": "Chifres", "descricao": "Ataque Corpo a Corpo com Arma: +6 para acertar, alcance 1,5 m, um alvo. Acerto: 13 (2d8 + 4) de dano perfurante."}
+    ]
+  },
+  {
+    "slug": "troll",
+    "nome": "Troll",
+    "tipo": "Gigante",
+    "tamanho": "Grande",
+    "alinhamento": "Caótico e mau",
+    "ca": 15,
+    "pv": 84,
+    "pv_formula": "8d10 + 40",
+    "deslocamento": "9 m",
+    "atributos": {"for": 18, "des": 13, "con": 20, "int": 7, "sab": 9, "car": 7},
+    "nd": "5",
+    "xp": 1800,
+    "pericias": "Percepção +2",
+    "sentidos": "Visão no escuro 18 m, Percepção passiva 12",
+    "idiomas": "Gigante",
+    "habilidades": [
+      {"nome": "Olfato Apurado", "descricao": "O troll tem vantagem em testes de Sabedoria (Percepção) que dependam do olfato."},
+      {"nome": "Regeneração", "descricao": "O troll recupera 10 pontos de vida no início de seu turno. Se sofrer dano de ácido ou de fogo, esse traço não funciona no início de seu próximo turno. O troll só morre se começar o turno com 0 PV e não regenerar."}
+    ],
+    "acoes": [
+      {"nome": "Ataque Múltiplo", "descricao": "O troll faz três ataques: um com a mordida e dois com as garras."},
+      {"nome": "Mordida", "descricao": "Ataque Corpo a Corpo com Arma: +7 para acertar, alcance 1,5 m, um alvo. Acerto: 7 (1d6 + 4) de dano perfurante."},
+      {"nome": "Garras", "descricao": "Ataque Corpo a Corpo com Arma: +7 para acertar, alcance 1,5 m, um alvo. Acerto: 11 (2d6 + 4) de dano cortante."}
+    ]
+  },
+  {
+    "slug": "hill-giant",
+    "nome": "Gigante da Colina",
+    "tipo": "Gigante",
+    "tamanho": "Enorme",
+    "alinhamento": "Caótico e mau",
+    "ca": 13,
+    "pv": 105,
+    "pv_formula": "10d12 + 40",
+    "deslocamento": "12 m",
+    "atributos": {"for": 21, "des": 8, "con": 19, "int": 5, "sab": 9, "car": 6},
+    "nd": "5",
+    "xp": 1800,
+    "pericias": "Percepção +2",
+    "sentidos": "Percepção passiva 12",
+    "idiomas": "Gigante",
+    "habilidades": [],
+    "acoes": [
+      {"nome": "Ataque Múltiplo", "descricao": "O gigante faz dois ataques de clava grande."},
+      {"nome": "Clava Grande", "descricao": "Ataque Corpo a Corpo com Arma: +8 para acertar, alcance 3 m, um alvo. Acerto: 18 (3d8 + 5) de dano de concussão."},
+      {"nome": "Pedregulho", "descricao": "Ataque à Distância com Arma: +8 para acertar, alcance 18/72 m, um alvo. Acerto: 21 (3d10 + 5) de dano de concussão."}
+    ]
+  },
+  {
+    "slug": "young-red-dragon",
+    "nome": "Dragão Vermelho Jovem",
+    "tipo": "Dragão",
+    "tamanho": "Grande",
+    "alinhamento": "Caótico e mau",
+    "ca": 18,
+    "pv": 178,
+    "pv_formula": "17d10 + 85",
+    "deslocamento": "12 m, escalada 12 m, voo 24 m",
+    "atributos": {"for": 23, "des": 10, "con": 21, "int": 14, "sab": 11, "car": 19},
+    "nd": "10",
+    "xp": 5900,
+    "pericias": "Percepção +8, Furtividade +4",
+    "sentidos": "Visão cega 9 m, Visão no escuro 36 m, Percepção passiva 18",
+    "idiomas": "Comum, Dracônico",
+    "habilidades": [
+      {"nome": "Resistência a Dano", "descricao": "O dragão é imune a dano de fogo."}
+    ],
+    "acoes": [
+      {"nome": "Ataque Múltiplo", "descricao": "O dragão faz três ataques: um com a mordida e dois com as garras."},
+      {"nome": "Mordida", "descricao": "Ataque Corpo a Corpo com Arma: +10 para acertar, alcance 3 m, um alvo. Acerto: 17 (2d10 + 6) de dano perfurante mais 3 (1d6) de dano de fogo."},
+      {"nome": "Garras", "descricao": "Ataque Corpo a Corpo com Arma: +10 para acertar, alcance 1,5 m, um alvo. Acerto: 13 (2d6 + 6) de dano cortante."},
+      {"nome": "Sopro de Fogo (Recarga 5-6)", "descricao": "O dragão exala fogo num cone de 9 metros. Cada criatura na área deve fazer uma salvaguarda de Destreza (CD 17), sofrendo 56 (16d6) de dano de fogo em caso de falha, ou metade em caso de sucesso."}
+    ]
+  },
+  {
+    "slug": "vampire",
+    "nome": "Vampiro",
+    "tipo": "Morto-vivo (metamorfo)",
+    "tamanho": "Médio",
+    "alinhamento": "Leal e mau",
+    "ca": 16,
+    "pv": 144,
+    "pv_formula": "17d8 + 68",
+    "deslocamento": "9 m",
+    "atributos": {"for": 18, "des": 18, "con": 18, "int": 17, "sab": 15, "car": 18},
+    "nd": "13",
+    "xp": 10000,
+    "pericias": "Percepção +7, Furtividade +9, Persuasão +9",
+    "sentidos": "Visão no escuro 36 m, Percepção passiva 17",
+    "idiomas": "Os idiomas que conhecia em vida",
+    "habilidades": [
+      {"nome": "Regeneração", "descricao": "O vampiro recupera 20 pontos de vida no início de seu turno se tiver ao menos 1 PV e não estiver sob luz solar nem água corrente. Se sofrer dano radiante ou de água benta, esse traço não funciona no início de seu próximo turno."},
+      {"nome": "Fraquezas do Vampiro", "descricao": "O vampiro sofre com luz solar, água corrente, ser empalado por uma estaca enquanto incapacitado, e não pode entrar numa residência sem convite."},
+      {"nome": "Movimento Aranha", "descricao": "O vampiro pode escalar superfícies difíceis, inclusive de cabeça para baixo em tetos, sem precisar de testes de habilidade."}
+    ],
+    "acoes": [
+      {"nome": "Ataque Múltiplo (Forma Vampírica)", "descricao": "O vampiro faz dois ataques, apenas um dos quais pode ser uma mordida."},
+      {"nome": "Ataque Desarmado (Forma Vampírica)", "descricao": "Ataque Corpo a Corpo com Arma: +9 para acertar, alcance 1,5 m, uma criatura. Acerto: 8 (1d8 + 4) de dano de concussão. Em vez de causar dano, o vampiro pode agarrar o alvo (CD 18)."},
+      {"nome": "Mordida (Forma Vampírica ou de Morcego)", "descricao": "Ataque Corpo a Corpo com Arma: +9 para acertar, alcance 1,5 m, uma criatura agarrada, incapacitada ou contida. Acerto: 7 (1d6 + 4) de dano perfurante mais 10 (3d6) de dano necrótico. O máximo de pontos de vida do alvo é reduzido em valor igual ao dano necrótico, e o vampiro recupera esse mesmo total."}
+    ]
+  },
+  {
+    "slug": "beholder",
+    "nome": "Contemplador (Beholder)",
+    "tipo": "Aberração",
+    "tamanho": "Grande",
+    "alinhamento": "Leal e mau",
+    "ca": 18,
+    "pv": 180,
+    "pv_formula": "19d10 + 76",
+    "deslocamento": "0 m, voo 6 m (flutuar)",
+    "atributos": {"for": 10, "des": 14, "con": 18, "int": 17, "sab": 15, "car": 17},
+    "nd": "13",
+    "xp": 10000,
+    "pericias": "Percepção +12",
+    "sentidos": "Visão no escuro 36 m, Percepção passiva 22",
+    "idiomas": "Subterrâneo (Deep Speech), Subcomum",
+    "habilidades": [
+      {"nome": "Cone Antimagia", "descricao": "O olho central do contemplador cria uma área de antimagia num cone de 45 metros. No início de cada turno, o contemplador decide para onde o cone aponta. Magias e habilidades mágicas dentro do cone são suprimidas."}
+    ],
+    "acoes": [
+      {"nome": "Mordida", "descricao": "Ataque Corpo a Corpo com Arma: +5 para acertar, alcance 1,5 m, um alvo. Acerto: 14 (4d6) de dano perfurante."},
+      {"nome": "Raios Oculares", "descricao": "O contemplador dispara três de seus dez raios mágicos aleatórios, cada um contra um alvo a até 36 m. Os efeitos incluem: dilacerar mente, paralisia, amedrontar, dreno de força, telecinese, sono, petrificação, desintegração, morte e lentidão, cada um exigindo a salvaguarda apropriada."}
+    ]
+  },
+  {
+    "slug": "lich",
+    "nome": "Lich",
+    "tipo": "Morto-vivo",
+    "tamanho": "Médio",
+    "alinhamento": "Qualquer mau",
+    "ca": 17,
+    "pv": 135,
+    "pv_formula": "18d8 + 54",
+    "deslocamento": "9 m",
+    "atributos": {"for": 11, "des": 16, "con": 16, "int": 20, "sab": 14, "car": 16},
+    "nd": "21",
+    "xp": 33000,
+    "pericias": "Arcanismo +18, História +12, Intuição +9, Percepção +9",
+    "sentidos": "Visão verdadeira 36 m, Percepção passiva 19",
+    "idiomas": "Comum e até cinco outros idiomas",
+    "habilidades": [
+      {"nome": "Renascimento (Filactério)", "descricao": "Se o lich tiver um filactério intacto, seu corpo destruído ganha um novo corpo em 1d10 dias, recuperando todos os pontos de vida. O novo corpo se forma a até 1,5 m do filactério."},
+      {"nome": "Resistência Lendária (3/dia)", "descricao": "Se o lich falhar numa salvaguarda, ele pode optar por ser bem-sucedido."},
+      {"nome": "Conjuração", "descricao": "O lich é um conjurador de 18º nível (Inteligência, CD de salvaguarda 20). Tem preparada uma vasta gama de magias de mago, incluindo bola de fogo, dissipar magia, contramágica, dedo da morte e palavra de poder: matar."}
+    ],
+    "acoes": [
+      {"nome": "Toque Paralisante", "descricao": "Ataque Corpo a Corpo com Magia: +12 para acertar, alcance 1,5 m, uma criatura. Acerto: 10 (3d6) de dano de frio. O alvo deve ser bem-sucedido numa salvaguarda de Constituição (CD 18) ou fica paralisado por 1 minuto, podendo repetir a salvaguarda ao final de cada turno."}
+    ]
+  },
+  {
+    "slug": "adult-red-dragon",
+    "nome": "Dragão Vermelho Adulto",
+    "tipo": "Dragão",
+    "tamanho": "Enorme",
+    "alinhamento": "Caótico e mau",
+    "ca": 19,
+    "pv": 256,
+    "pv_formula": "19d12 + 133",
+    "deslocamento": "12 m, escalada 12 m, voo 24 m",
+    "atributos": {"for": 27, "des": 10, "con": 25, "int": 16, "sab": 13, "car": 21},
+    "nd": "17",
+    "xp": 18000,
+    "pericias": "Percepção +13, Furtividade +6",
+    "sentidos": "Visão cega 18 m, Visão no escuro 36 m, Percepção passiva 23",
+    "idiomas": "Comum, Dracônico",
+    "habilidades": [
+      {"nome": "Resistência Lendária (3/dia)", "descricao": "Se o dragão falhar numa salvaguarda, ele pode optar por ser bem-sucedido."},
+      {"nome": "Resistência a Dano", "descricao": "O dragão é imune a dano de fogo."}
+    ],
+    "acoes": [
+      {"nome": "Ataque Múltiplo", "descricao": "O dragão pode usar sua Presença Aterrorizante. Em seguida, faz três ataques: um com a mordida e dois com as garras."},
+      {"nome": "Mordida", "descricao": "Ataque Corpo a Corpo com Arma: +14 para acertar, alcance 3 m, um alvo. Acerto: 19 (2d10 + 8) de dano perfurante mais 7 (2d6) de dano de fogo."},
+      {"nome": "Garras", "descricao": "Ataque Corpo a Corpo com Arma: +14 para acertar, alcance 1,5 m, um alvo. Acerto: 15 (2d6 + 8) de dano cortante."},
+      {"nome": "Sopro de Fogo (Recarga 5-6)", "descricao": "O dragão exala fogo num cone de 18 metros. Cada criatura na área deve fazer uma salvaguarda de Destreza (CD 21), sofrendo 63 (18d6) de dano de fogo em caso de falha, ou metade em caso de sucesso."}
+    ]
+  }
+]
