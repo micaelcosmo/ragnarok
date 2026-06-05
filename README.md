@@ -1,104 +1,105 @@
-# ⚔️ Ragnarok - Grimório Digital
+# ⚔️ Ragnarok — Grimório Digital
 
-![Python](https://img.shields.io/badge/Python-3.10%2B-blue?style=for-the-badge&logo=python&logoColor=white)
-![Flask](https://img.shields.io/badge/Flask-3.0-black?style=for-the-badge&logo=flask&logoColor=white)
-![SQLite](https://img.shields.io/badge/SQLite-Database-07405e?style=for-the-badge&logo=sqlite&logoColor=white)
+![Python](https://img.shields.io/badge/Python-3.12-blue?style=for-the-badge&logo=python&logoColor=white)
+![Flask](https://img.shields.io/badge/Flask-API_REST-black?style=for-the-badge&logo=flask&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-DB-336791?style=for-the-badge&logo=postgresql&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-Compose-2496ed?style=for-the-badge&logo=docker&logoColor=white)
+![Tests](https://img.shields.io/badge/pytest-63_passing-4c9a5e?style=for-the-badge)
 
 > *"Toda lenda começa com uma escolha..."*
 
-**Ragnarok** é um gerenciador de fichas de RPG **agnóstico de sistema**. Diferente de plataformas presas ao D&D ou Pathfinder, o Ragnarok permite que o mestre ou jogador **crie seus próprios modelos de ficha**, definindo dinamicamente quais campos, atributos e tipos de dados compõem o sistema de regras.
+**Ragnarok** é uma plataforma web para criação e gerenciamento de fichas de RPG **D&D 5E**,
+inspirada no [D&D Beyond](https://www.dndbeyond.com). Projeto **acadêmico**, usando apenas
+conteúdo do **SRD 5.1** (CC-BY/OGL).
 
-Construído com **Python (Flask)** e **SQLite**, focado em uma interface imersiva estilo "Dark Fantasy/Pergaminho".
-
----
-
-## 📸 Visão Geral
-
-O sistema funciona através de um **Iframe Central** controlado por uma **Barra Lateral**, garantindo navegação fluida sem recarregamentos desnecessários da interface principal.
-
-| Configuração de Modelos | Ficha de Personagem |
-|:---:|:---:|
-| *Crie templates personalizados (D&D, Tormenta, CoC)* | *Preenchimento dinâmico e visualização imersiva* |
-| ![Modelos](https://placehold.co/400x250/2c241b/d4af37?text=Criacao+de+Modelos) | ![Ficha](https://placehold.co/400x250/f4e4bc/5c4033?text=Ficha+de+Personagem) |
+> 🌱 Este é o estado da branch **`develop`** — reescrita com separação front/back,
+> API REST, PostgreSQL e tudo dockerizado, desenvolvida com **Spec-Driven Development + TDD**.
+> O protótipo Flask original foi arquivado em [`legacy/`](legacy/).
 
 ---
 
-## ✨ Funcionalidades Principais
+## ✨ Funcionalidades
 
-### 🛠️ Sistema de Modelos Dinâmicos (Meta-Ficha)
-A grande força do projeto. O usuário não está preso a campos fixos.
-- **Criação Customizada:** Defina o nome do sistema (ex: "Vampiro: A Máscara", "Call of Cthulhu").
-- **Tipagem de Campos:** Adicione campos dinamicamente com validação:
-  - `Texto Curto` (ex: Nome, Classe, Raça)
-  - `Inteiro` (ex: Força, Destreza, PV)
-  - `Texto Longo` (ex: Inventário, Background)
-  - `Booleano` (ex: Inspiração, Está Vivo?)
-- **Integridade Referencial:** O sistema utiliza `Cascades` do SQLAlchemy. Ao excluir um modelo, todas as fichas e valores associados são limpos automaticamente.
+### 👥 Três perfis de usuário (RBAC)
+- **ADMIN** — gerencia a plataforma: usuários, papéis, catálogo SRD e métricas.
+- **MESTRE** — monta mesas (campanhas), gerencia jogadores, cria/edita monstros e PDMs.
+- **JOGADOR** — cria e edita personagens com ficha 5E completa e automatizada.
 
-### 📜 Gerenciador de Personagens
-- **Herança de Modelo:** Ao criar um herói, o sistema carrega a estrutura do modelo escolhido.
-- **Modo Leitura vs. Edição:** Interface limpa para jogar e formulário robusto para editar valores.
-- **Navegação Fluida:** Feedback visual de carregamento e atualização automática da lista de heróis.
+### 🗺️ Fichas estilo D&D Beyond
+- Atributos com **modificadores calculados** automaticamente (stat-blocks).
+- **Perícias e salvaguardas** derivadas (proficiência + atributo) pelo motor de regras.
+- CA, iniciativa, percepção passiva, CD/ataque de magia — tudo computado no backend.
+- PV com barra visual e botões de **dano/cura**; abas de ataques, equipamento, traços e história.
+- **Wizard de criação** em 5 passos (raça → classe → antecedente → atributos → perícias).
+
+### 🛡️ Mesas, Bestiário e Compêndio
+- Mestre cria mesa com **código de convite**; jogadores entram e vinculam personagens.
+- **Bestiário** SRD global + criaturas próprias por mesa (monstros e PDMs).
+- **Compêndio** navegável: 47 magias (com filtros), 9 raças, 12 classes.
 
 ---
 
-## 🚀 Instalação e Execução
+## 🏗️ Arquitetura
 
-### 1. Clone o repositório
+```
+┌──────────────┐   HTTP/JSON    ┌──────────────┐   SQLAlchemy   ┌──────────────┐
+│  Frontend    │ ─────────────► │   Backend    │ ─────────────► │  PostgreSQL  │
+│ HTML/CSS/JS  │   REST /api/v1 │  Python/Flask│                │   (Docker)   │
+│  (nginx)     │ ◄───────────── │  JWT + RBAC  │ ◄───────────── │              │
+└──────────────┘                └──────────────┘                └──────────────┘
+```
+
+- **Frontend**: HTML + CSS + JavaScript *vanilla* (SPA com hash router), servido por **nginx**.
+- **Backend**: **Python**/Flask (app factory) + SQLAlchemy + JWT + CORS. Regras de jogo puras
+  em `backend/app/rules/dnd5e.py` (100% testadas).
+- **Banco**: **PostgreSQL** em runtime; **SQLite em memória** nos testes.
+- **Infra**: `docker-compose` orquestra `db`, `backend` (gunicorn) e `frontend` (nginx).
+
+Documentação de design em [`spec/`](spec/) (Spec-Driven Development) e o guia do agente em
+[`CLAUDE.md`](CLAUDE.md). Progresso das tasks em [`status.md`](status.md).
+
+---
+
+## 🚀 Como rodar
+
+### Opção A — Docker (recomendado)
+> Sempre derrube a stack antes de subir de novo.
 ```bash
-git clone [https://github.com/micaelcosmo/ragnarok.git](https://github.com/micaelcosmo/ragnarok.git)
-cd ragnarok
-2. Prepare o Ambiente Virtual
-Bash
+docker compose down
+docker compose up --build -d
+```
+Acesse:
+- **Frontend**: http://localhost:8080
+- **API**: http://localhost:5050/api/v1/health
+- **Postgres**: localhost:5433
 
-# Windows
-python -m venv venv
-.\venv\Scripts\activate
+Login admin inicial (criado pelo seed): `admin@ragnarok.local` / `admin123`.
 
-# Linux/Mac
-python3 -m venv venv
-source venv/bin/activate
-3. Instale as dependências
-Bash
-
+### Opção B — Backend local (testes/dev)
+```bash
+cd backend
+python -m venv .venv && .venv\Scripts\activate      # Windows
 pip install -r requirements.txt
-4. Execute o Grimório
-Bash
+pytest -q                                            # 63 testes
+python -m app.seed                                   # popula SRD (SQLite dev)
+python wsgi.py                                        # API em :5050
+```
 
-python app.py
-O servidor iniciará em http://127.0.0.1:5000.
+---
 
-Nota: O banco de dados ragnarok.db será criado automaticamente na primeira execução com um modelo de exemplo ("Aventureiro Padrão").
+## 🧪 Qualidade
+- **63 testes pytest** (37 unitários do motor de regras + 26 de integração da API).
+- TDD: cada funcionalidade tem teste antes do código.
+- Conteúdo apenas SRD 5.1 (CC-BY/OGL).
 
-🏗️ Estrutura do Projeto
-O projeto segue o padrão MTV (Model-Template-View) do Flask:
-
-Plaintext
-
+## 📁 Estrutura
+```
 ragnarok/
-├── app.py                 # Controller (Rotas) e Models (SQLAlchemy)
-├── ragnarok.db            # Banco de dados SQLite (Auto-gerado)
-├── requirements.txt       # Dependências do projeto
-├── static/
-│   └── css/
-│       └── style.css      # Estilização (Temas Dark/Parchment com CSS Variables)
-└── templates/
-    ├── index.html         # Layout base + Sidebar (Container do Iframe)
-    ├── ficha.html         # Visualização/Edição do Personagem
-    ├── modelos.html       # CRUD de Modelos e Campos
-    ├── form.html          # Formulário de Criação de Personagem
-    ├── selecionar_modelo.html # Passo 1 da criação
-    └── refresh_parent.html # Utilitário de atualização de UI (ponte iframe-pai)
-🎨 Design System
-O projeto utiliza CSS Variables para facilitar a manutenção e consistência visual:
+├── backend/   # API Flask + regras + testes + seed SRD
+├── frontend/  # SPA vanilla + nginx
+├── spec/      # Spec-Driven Development (planning/units/tests/decisions/changelogs)
+├── legacy/    # protótipo Flask original (arquivado)
+├── docker-compose.yml · CLAUDE.md · status.md
+```
 
-Tema Dark (Interface Externa): #1a1a1a (Fundo), #2c241b (Painéis).
-
-Tema Pergaminho (Fichas): #f4e4bc (Papel), #8a6d3b (Detalhes Dourados).
-
-Tipografia: Cinzel (Títulos Medievais) e Lato (Legibilidade).
-
-🤝 Contribuição
-Contribuições são bem-vindas! Sinta-se à vontade para abrir issues ou pull requests para adicionar novos tipos de campos (ex: Select Box, Rolagem de Dados) ou melhorar a interface.
-
-Desenvolvido por Micael Cosmo
+Desenvolvido por **Micael Cosmo** · Reformulação SDD/TDD na branch `develop`.
