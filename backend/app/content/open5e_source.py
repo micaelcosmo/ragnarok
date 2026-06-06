@@ -120,6 +120,8 @@ class Open5eSource(ContentSource):
             "tracos": tracos,
             "subracas": subracas,
             "fonte": self._fonte(bruto),
+            # Efeitos: raça concede bônus de atributo automaticamente.
+            "efeitos": {"atributos": bonus},
         }
 
     def _norm_backgrounds(self, bruto):
@@ -135,6 +137,8 @@ class Open5eSource(ContentSource):
             "pericias": pericias,
             "equipamento": bruto.get("equipment"),
             "fonte": self._fonte(bruto),
+            # Efeitos: antecedente concede proficiência nas perícias.
+            "efeitos": {"pericias": pericias},
         }
 
     def _norm_classes(self, bruto):
@@ -159,6 +163,8 @@ class Open5eSource(ContentSource):
             "conjurador": bool(atributo_conj),
             "atributo_conjuracao": atributo_conj,
             "fonte": self._fonte(bruto),
+            # Efeitos: classe concede proficiência nas salvaguardas.
+            "efeitos": {"salvaguardas": salvaguardas},
         }
 
     def _norm_spells(self, bruto):
@@ -222,4 +228,63 @@ class Open5eSource(ContentSource):
             "habilidades": habilidades,
             "acoes": acoes,
             "fonte": self._fonte(bruto),
+        }
+
+    def _norm_weapons(self, bruto):
+        propriedades = bruto.get("properties") or []
+        corpo_a_corpo = "Ranged" not in (bruto.get("category") or "")
+        return {
+            "slug": bruto.get("slug"),
+            "nome": bruto.get("name"),
+            "descricao": "",
+            "categoria": "marcial" if "Martial" in (bruto.get("category") or "") else "simples",
+            "alcance": "corpo a corpo" if corpo_a_corpo else "à distância",
+            "dano": bruto.get("damage_dice"),
+            "tipo_dano": bruto.get("damage_type"),
+            "propriedades": propriedades,
+            "homebrew": False,
+            "fonte": self._fonte(bruto),
+            "idioma": "en",
+            # Efeito: ataque com dano/tipo (acuidade permite usar DES no ataque).
+            "efeitos": {
+                "ataque": {
+                    "dano": bruto.get("damage_dice"),
+                    "tipo": bruto.get("damage_type"),
+                    "acuidade": any("Finesse" in p for p in propriedades),
+                }
+            },
+        }
+
+    def _norm_armor(self, bruto):
+        return {
+            "slug": bruto.get("slug"),
+            "nome": bruto.get("name"),
+            "descricao": bruto.get("ac_string") or "",
+            "categoria": (bruto.get("category") or "").lower() or None,
+            "ca_base": bruto.get("base_ac"),
+            "ca_soma_des": bool(bruto.get("plus_dex_mod")),
+            "ca_des_max": bruto.get("plus_max"),
+            "requisito_forca": bruto.get("strength_requirement") or 0,
+            "furtividade_desvantagem": bool(bruto.get("stealth_disadvantage")),
+            "homebrew": False,
+            "fonte": self._fonte(bruto),
+            "idioma": "en",
+            "efeitos": {
+                "ca_base": bruto.get("base_ac"),
+                "ca_soma_des": bool(bruto.get("plus_dex_mod")),
+                "ca_des_max": bruto.get("plus_max"),
+            },
+        }
+
+    def _norm_items(self, bruto):
+        return {
+            "slug": bruto.get("slug"),
+            "nome": bruto.get("name"),
+            "descricao": (bruto.get("desc") or "").strip(),
+            "tipo_item": bruto.get("type"),
+            "raridade": bruto.get("rarity"),
+            "requer_sintonia": bool(bruto.get("requires_attunement")),
+            "homebrew": False,
+            "fonte": self._fonte(bruto),
+            "idioma": "en",
         }

@@ -2,7 +2,8 @@
 from abc import ABC, abstractmethod
 
 # Tipos de conteúdo suportados pela pipeline.
-TIPOS = ("races", "classes", "backgrounds", "spells", "monsters", "feats")
+TIPOS = ("races", "classes", "backgrounds", "spells", "monsters", "feats",
+         "weapons", "armor", "items")
 
 
 class ContentSource(ABC):

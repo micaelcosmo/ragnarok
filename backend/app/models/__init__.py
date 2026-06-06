@@ -4,6 +4,7 @@ from app.models.campaign import Mesa, MembroMesa
 from app.models.character import Personagem
 from app.models.monster import Monstro
 from app.models.reference import Raca, Classe, Antecedente, Magia, Talento
+from app.models.items import Arma, Armadura, Item
 
 __all__ = [
     "User",
@@ -16,4 +17,7 @@ __all__ = [
     "Antecedente",
     "Magia",
     "Talento",
+    "Arma",
+    "Armadura",
+    "Item",
 ]

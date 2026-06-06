@@ -49,11 +49,21 @@ Ao **equipar**: define a fórmula de CA (ver effects-engine). **CA também edit�
 ## Item (não-arma/armadura)
 ```yaml
 Item(comum):
-  tipo: "maravilhoso|poção|pergaminho|anel|varinha|..."
+  tipo_item: "maravilhoso|poção|pergaminho|anel|varinha|..."   # campo real (evita colidir c/ discriminador 'tipo')
   raridade: "comum|incomum|raro|muito raro|lendário"
   requer_sintonia: bool
   # SEM efeitos numéricos -> apenas DESCRITIVO (editável)
 ```
+
+## Implementação (as-built, Fase 2) — fiel ao código
+`backend/app/models/items.py`. Mixin `ConteudoItemMixin(TimestampMixin)` com campos comuns:
+`id, slug(index, NÃO único — permite homebrew repetido), nome, descricao, fonte(NOT NULL,
+default 'Homebrew'), homebrew(default True), idioma('pt'), criado_por(FK), personagem_id(FK),
+mesa_id(FK)`. `to_dict()` adiciona `oficial = not homebrew`, `global = (sem personagem e sem mesa)`
+e `tipo` ('arma'|'armadura'|'item'). `pode_editar(user)` = criador, ADMIN ou mestre da mesa.
+Tabelas `armas`/`armaduras`/`itens`; migração Alembic `9c6b8cab1404`.
+Endpoints de catálogo global (leitura): `GET /reference/{weapons,armor,items}` com `?q=`, `?fonte=`
+e paginação (`limit`, default 80). Pipeline open5e: tipos `weapons/armor/items` (homebrew=False).
 
 ## Personagem — novas fontes e inventário
 ```yaml

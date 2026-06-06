@@ -2,6 +2,7 @@
 from flask import Blueprint, request
 
 from app.extensions import db
+from app.models.items import Arma, Armadura, Item
 from app.models.reference import Antecedente, Classe, Magia, Raca, Talento
 from app.utils.auth import auth_required, role_required
 from app.utils.errors import Conflict, NotFound
@@ -79,6 +80,39 @@ def obter_talento(slug):
     if talento is None:
         raise NotFound("Talento não encontrado.")
     return ok(talento.to_dict())
+
+
+def _listar_itens(modelo):
+    """Lista o catálogo GLOBAL (SRD/OGL) de um tipo de item, com ?q=, ?fonte= e paginação."""
+    consulta = modelo.query.filter(modelo.personagem_id.is_(None), modelo.mesa_id.is_(None))
+    consulta = _filtrar_fonte(consulta, modelo)
+    busca = request.args.get("q")
+    if busca:
+        consulta = consulta.filter(modelo.nome.ilike(f"%{busca}%"))
+    consulta = consulta.order_by(modelo.nome)
+    total = consulta.count()
+    limite = min(max(int(request.args.get("limit", 80)), 1), 500)
+    registros = consulta.limit(limite).all()
+    return ok([r.to_dict() for r in registros],
+              meta={"total": total, "exibidos": len(registros), "limite": limite})
+
+
+@bp.get("/reference/weapons")
+@auth_required
+def listar_armas():
+    return _listar_itens(Arma)
+
+
+@bp.get("/reference/armor")
+@auth_required
+def listar_armaduras():
+    return _listar_itens(Armadura)
+
+
+@bp.get("/reference/items")
+@auth_required
+def listar_itens_magicos():
+    return _listar_itens(Item)
 
 
 @bp.get("/reference/sources")
