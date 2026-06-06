@@ -31,6 +31,12 @@
   tesouro, aparência): só temos `historia`/`avatar_url`. Futuro: aba "Identidade".
 - ⚪ **Multiclasse** (ex.: Bárbaro X / Outra Y): só uma classe por personagem.
 
+## Futuro distante (ideias do dono)
+- ⚪ **Importação de ficha por LLM**: jogador/mestre faz upload de uma ficha (PDF/imagem) e um
+  **LLM parseia e distribui** os dados no nosso modelo de forma inteligente (mapear raça/classe/
+  antecedente/talentos/atributos/itens contra o catálogo, criar homebrew quando não existir,
+  aplicar efeitos). Reduz digitação manual. **Bem pra depois.** (Hoje a importação é manual via API/UI.)
+
 ## Observações de qualidade detectadas na ficha de origem
 - Sabedoria Passiva no PDF (12) estava **incorreta**; o correto com Percepção proficiente é **14**
   (nossa engine calcula 14 — importação "corrigida").
