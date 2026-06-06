@@ -43,8 +43,8 @@ class DevConfig(Config):
 class TestConfig(Config):
     TESTING = True
     SQLALCHEMY_DATABASE_URI = "sqlite:///:memory:"
-    # Segredo fixo só nos testes (ambiente isolado, sem rede/produção).
-    JWT_SECRET_KEY = "test-jwt-secret-com-32-bytes-no-minimo!!"  # gitleaks:allow
+    # JWT herda o segredo EFÊMERO do base Config (token_hex aleatório por processo) —
+    # estável durante a sessão de testes e sem nenhum literal de segredo no código.
 
 
 class ProdConfig(Config):
