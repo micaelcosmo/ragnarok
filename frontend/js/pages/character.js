@@ -113,6 +113,12 @@ function pintarFicha(view, personagem) {
             ${blocoTexto(personagem.equipamento, 'Mochila vazia.')}
             ${personagem.dinheiro ? `<div class="chip" style="margin-top:8px">💰 ${esc(personagem.dinheiro)}</div>` : ''}</div>
           <div data-panel="tracos" style="display:none">
+            ${(derivados.recursos || []).length || (derivados.sentidos || []).length || (derivados.proficiencias_concedidas || []).length ? `
+              <div class="card" style="margin-bottom:12px"><h4 style="margin-top:0">✨ Concedidos pelas suas escolhas</h4>
+                ${(derivados.sentidos || []).length ? `<div class="row" style="margin-bottom:6px">${derivados.sentidos.map((s) => `<span class="chip">👁️ ${esc(s)}</span>`).join('')}</div>` : ''}
+                ${(derivados.proficiencias_concedidas || []).length ? `<div class="row" style="margin-bottom:6px">${derivados.proficiencias_concedidas.map((p) => `<span class="chip">${esc(p)}</span>`).join('')}</div>` : ''}
+                ${(derivados.recursos || []).map((r) => `<div style="margin-top:4px">• ${esc(r)}</div>`).join('')}
+              </div>` : ''}
             ${campo('Traços de Personalidade', personagem.tracos_personalidade)}
             ${campo('Ideais', personagem.ideais)}
             ${campo('Vínculos', personagem.vinculos)}

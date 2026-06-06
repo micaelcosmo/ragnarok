@@ -5,6 +5,7 @@ from app.models.character import Personagem
 from app.models.monster import Monstro
 from app.models.reference import Raca, Classe, Antecedente, Magia, Talento
 from app.models.items import Arma, Armadura, Item
+from app.models.translation import Traducao
 
 __all__ = [
     "User",
@@ -21,4 +22,5 @@ __all__ = [
     "Arma",
     "Armadura",
     "Item",
+    "Traducao",
 ]

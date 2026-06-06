@@ -1,5 +1,5 @@
 // Gerência de sessão do usuário (token + dados) em localStorage.
-const CHAVE_TOKEN = 'ragnarok.token';
+const CHAVE_TOKEN = 'ragnarok.token'; // gitleaks:allow (chave de localStorage, não é segredo)
 const CHAVE_USER = 'ragnarok.user';
 
 export function setSession({ access_token, user }) {
@@ -25,6 +25,10 @@ export function logout() {
   localStorage.removeItem(CHAVE_TOKEN);
   localStorage.removeItem(CHAVE_USER);
 }
+
+const CHAVE_IDIOMA = 'ragnarok.idioma';
+export function getIdioma() { return localStorage.getItem(CHAVE_IDIOMA) || 'pt'; }
+export function setIdioma(idioma) { localStorage.setItem(CHAVE_IDIOMA, idioma); }
 
 // ADMIN sempre passa; senão verifica se o papel está na lista permitida.
 export function requireRole(...papeis) {

@@ -1,5 +1,5 @@
 // Ponto de entrada: monta o shell, registra rotas e aplica guardas por papel.
-import { getUser, isLogged, logout, requireRole } from './auth.js';
+import { getUser, isLogged, logout, requireRole, getIdioma, setIdioma } from './auth.js';
 import { rota, definirGuard, iniciarRouter, navegar } from './router.js';
 import { esc, iniciais, toast } from './ui.js';
 
@@ -40,6 +40,7 @@ export function montarShell(tituloPagina, hashAtivo) {
       <div class="topbar">
         <div class="page-title">${esc(tituloPagina)}</div>
         <div class="user-chip">
+          <button class="btn btn--ghost btn--sm" id="btn-idioma" title="Idioma do conteúdo">🌐 ${getIdioma().toUpperCase()}</button>
           <span class="role-badge role-${esc(usuario?.role)}">${esc(usuario?.role || '')}</span>
           <span class="avatar" title="${esc(usuario?.name)}">${iniciais(usuario?.name)}</span>
           <span class="muted">${esc(usuario?.name || '')}</span>
@@ -61,6 +62,12 @@ export function montarShell(tituloPagina, hashAtivo) {
     logout();
     toast('Sessão encerrada.');
     navegar('#/login');
+  });
+  app.querySelector('#btn-idioma').addEventListener('click', () => {
+    const novo = getIdioma() === 'pt' ? 'en' : 'pt';
+    setIdioma(novo);
+    toast(novo === 'pt' ? 'Conteúdo em Português (traduz importados).' : 'Conteúdo no idioma original (EN).');
+    location.reload();
   });
   return app.querySelector('#view');
 }

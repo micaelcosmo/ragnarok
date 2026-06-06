@@ -59,8 +59,14 @@ def listar(tipo):
         personagem = Personagem.query.get(int(pid))
         if personagem and (personagem.user_id == usuario.id or usuario.is_admin):
             proprios = modelo.query.filter_by(personagem_id=personagem.id).all()
-    return ok([r.to_dict() for r in proprios + globais],
-              meta={"total": len(proprios) + len(globais)})
+    dados = [r.to_dict() for r in proprios + globais]
+
+    if request.args.get("idioma") == "pt":
+        from app.services.tradutor import Tradutor
+        tradutor = Tradutor("pt")
+        dados = [tradutor.aplicar(tipo, d) for d in dados]
+
+    return ok(dados, meta={"total": len(proprios) + len(globais)})
 
 
 @bp.get("/catalog/<tipo>/<int:item_id>")

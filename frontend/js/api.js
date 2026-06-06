@@ -1,5 +1,5 @@
 // Cliente HTTP da API do Ragnarok.
-import { getToken, logout } from './auth.js';
+import { getToken, getIdioma, logout } from './auth.js';
 
 export const API_BASE = '/api/v1';
 
@@ -62,6 +62,7 @@ export const api = {
       const params = new URLSearchParams();
       if (personagemId) params.set('personagem_id', personagemId);
       if (q) params.set('q', q);
+      if (getIdioma() === 'pt') params.set('idioma', 'pt');
       const qs = params.toString();
       return apiFetch(`/catalog/${tipo}${qs ? `?${qs}` : ''}`);
     },

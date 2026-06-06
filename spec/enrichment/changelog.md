@@ -14,6 +14,14 @@
 - Testes: motor puro (4) + integração add/remove talento reversível + raça/antecedente + CA (3).
 - Validado em stack Docker **isolada** (`docker-compose.dev.yml`, projeto `ragnarok-dev`).
 
+### Fase 6 — Traços não-numéricos + idioma EN/PT (feat)
+- Ficha exibe **traços concedidos** (recursos/sentidos/proficiências) das fontes, sem afetar números.
+- `Traducao` (cache) + serviço `Tradutor` (Argos offline opcional, fallback gracioso);
+  migração `f3fb253e632d`.
+- `?idioma=pt` em `/catalog/<tipo>` e `/reference/{weapons,armor,items}` traduz conteúdo importado.
+- Frontend: **toggle 🌐 PT/EN** na topbar (persistente); cliente injeta o idioma.
+- +4 testes (103 no total).
+
 ### Fase 5 — Compêndio editável (feat)
 - Campos `homebrew`/`criado_por` em Raca/Classe/Antecedente/Magia/Talento (+ `oficial` no to_dict).
   Modelo `MesaFonteAceita`. Migração `0ba57e6c8e18`.

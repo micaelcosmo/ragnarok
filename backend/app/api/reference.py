@@ -93,8 +93,16 @@ def _listar_itens(modelo):
     total = consulta.count()
     limite = min(max(int(request.args.get("limit", 80)), 1), 500)
     registros = consulta.limit(limite).all()
-    return ok([r.to_dict() for r in registros],
-              meta={"total": total, "exibidos": len(registros), "limite": limite})
+    dados = [r.to_dict() for r in registros]
+
+    # Tradução opcional (?idioma=pt) para conteúdo importado em inglês.
+    if request.args.get("idioma") == "pt":
+        from app.services.tradutor import Tradutor
+        tradutor = Tradutor("pt")
+        tipo_rota = {"Arma": "weapons", "Armadura": "armor", "Item": "items"}.get(modelo.__name__, "")
+        dados = [tradutor.aplicar(tipo_rota, d) for d in dados]
+
+    return ok(dados, meta={"total": total, "exibidos": len(registros), "limite": limite})
 
 
 @bp.get("/reference/weapons")
