@@ -29,6 +29,29 @@ export async function apiUpload(file) {
   return payload ? payload.data : null;
 }
 
+// Download autenticado de arquivo binário (ex.: PDF da ficha): busca o blob e dispara o save.
+export async function baixarArquivo(path) {
+  const headers = {};
+  const token = getToken();
+  if (token) headers['Authorization'] = `Bearer ${token}`;
+  const res = await fetch(`${API_BASE}${path}`, { headers });
+  if (!res.ok) {
+    if (res.status === 401) { logout(); location.hash = '#/login'; }
+    let payload = null;
+    try { payload = await res.json(); } catch (_) { payload = null; }
+    throw new ApiError(res.status, (payload && payload.error) || {});
+  }
+  const blob = await res.blob();
+  const disp = res.headers.get('Content-Disposition') || '';
+  const m = disp.match(/filename="?([^"]+)"?/);
+  const nome = m ? m[1] : 'ficha.pdf';
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = nome;
+  document.body.appendChild(a); a.click(); a.remove();
+  URL.revokeObjectURL(url);
+}
+
 export async function apiFetch(path, { method = 'GET', body, auth = true } = {}) {
   const headers = { 'Content-Type': 'application/json' };
   if (auth) {
@@ -74,6 +97,7 @@ export const api = {
     remove: (id) => apiFetch(`/characters/${id}`, { method: 'DELETE' }),
     equipar: (id, tipo, itemId) => apiFetch(`/characters/${id}/equipar`, { method: 'POST', body: { tipo, item_id: itemId } }),
     desequipar: (id, tipo, itemId) => apiFetch(`/characters/${id}/desequipar`, { method: 'POST', body: { tipo, item_id: itemId } }),
+    baixarPdf: (id) => baixarArquivo(`/characters/${id}/pdf`),
   },
   catalog: {
     list: (tipo, { personagemId, q } = {}) => {

@@ -36,6 +36,7 @@
 | E22 | Traços/recursos como cards incrementais (descritivo × numérico, reversível) + Aumentos de Habilidade | ✅ (em prod) |
 | E23 | Equipamento mundano no catálogo (gear + pacotes SRD) | ✅ (em prod) |
 | E24 | Tradução PT de armas/armaduras (de-para curado offline + cache) | ✅ (em prod) |
+| E25 | Exportar ficha em PDF (estilo oficial 5E, WeasyPrint) | 🔄 em andamento |
 
 ---
 
