@@ -16,4 +16,16 @@ Ex.: 13 → +1, 14 → +2, 8 → −1, 9 → −1. (Nossa engine `app/rules/dnd5
 do stat block (mantendo o valor **base** editável no formulário de edição). Assim número e
 modificador batem (DES 18/+4, CON 16/+3). Avaliar mostrar um "(base 16 +2)" discreto p/ transparência.
 
-<!-- Próximos itens entram abaixo conforme forem aparecendo -->
+## 2. Nomes de armas/itens em inglês (catálogo open5e) 🟡
+**Sintoma:** as armas equipadas no Kzen aparecem como "Greataxe/Handaxe/Javelin" (open5e em
+inglês), enquanto a ficha-fonte usa PT (Machado Grande/Machadinha/Azagaia).
+**Opções:** (a) ativar tradução real (Argos) e exibir em PT via toggle; (b) criar **aliases/
+homebrew PT** dos itens comuns; (c) curar um de-para PT para armas/armaduras básicas do SRD.
+**Status:** Greataxe/Javelin/Handaxe equipados (id 95/101/100); ataque/dano corretos (+8, 1d12+4 etc.).
+
+## 3. Equipamento mundano não está no catálogo 🟡
+**Sintoma:** Pacote de Explorador, Roupas de Viajante, Armadilha de Caça, Tatuagens, Bolsa,
+Corda 30 m — não existem como itens cadastráveis (open5e só trouxe weapons/armor/magicitems).
+Hoje ficam no campo de texto `equipamento` do Kzen.
+**Correção proposta:** ingerir "adventuring gear" + pacotes de equipamento (equipment packs) do SRD
+para um tipo de item "equipamento comum" (ou estender o tipo `Item`).
