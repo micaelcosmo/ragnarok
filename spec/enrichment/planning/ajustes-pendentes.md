@@ -29,3 +29,15 @@ Corda 30 m — não existem como itens cadastráveis (open5e só trouxe weapons/
 Hoje ficam no campo de texto `equipamento` do Kzen.
 **Correção proposta:** ingerir "adventuring gear" + pacotes de equipamento (equipment packs) do SRD
 para um tipo de item "equipamento comum" (ou estender o tipo `Item`).
+
+## 4. Imagens do personagem (retrato + símbolo da facção) 🔴 — FEATURE
+**Pedido:** a ficha oficial tem **arte de aparência** (retrato do Kzen) e **símbolo da facção**.
+Queremos exibir/anexar imagens ao personagem.
+**Proposta:** upload de imagem (validado) OU URL; campos `retrato_url`/`avatar_url` e
+`simbolo_faccao_url`; volume Docker p/ uploads; nginx servindo. (ver planning "identidade-imagens").
+
+## 5. Página de Identidade (página 2 da ficha oficial) 🟡 — FEATURE
+**Pedido implícito:** dados de identidade/história — idade, altura, peso, olhos, pele, cabelo,
+facção, **aparência**, **aliados & organizações**, **tesouro** (além de história, que já existe).
+**Proposta:** novos campos no `Personagem` + aba "Identidade" na ficha (editável).
+
