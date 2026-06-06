@@ -45,6 +45,8 @@ export const api = {
     register: (dados) => apiFetch('/auth/register', { method: 'POST', body: dados, auth: false }),
     login: (dados) => apiFetch('/auth/login', { method: 'POST', body: dados, auth: false }),
     me: () => apiFetch('/auth/me'),
+    resetPassword: (token, nova_senha) =>
+      apiFetch('/auth/reset-password', { method: 'POST', body: { token, nova_senha }, auth: false }),
   },
   characters: {
     list: (mesaId) => apiFetch(`/characters${mesaId ? `?mesa_id=${mesaId}` : ''}`),
@@ -109,6 +111,7 @@ export const api = {
     },
     setRole: (id, role) => apiFetch(`/admin/users/${id}/role`, { method: 'PUT', body: { role } }),
     removeUser: (id) => apiFetch(`/admin/users/${id}`, { method: 'DELETE' }),
+    resetLink: (id) => apiFetch(`/admin/users/${id}/reset-link`, { method: 'POST' }),
     stats: () => apiFetch('/admin/stats'),
     campaigns: (q) => apiFetch(`/admin/campaigns${q ? `?q=${encodeURIComponent(q)}` : ''}`),
     removeCampaign: (id) => apiFetch(`/admin/campaigns/${id}`, { method: 'DELETE' }),

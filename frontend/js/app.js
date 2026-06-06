@@ -4,6 +4,7 @@ import { rota, definirGuard, iniciarRouter, navegar } from './router.js';
 import { esc, iniciais, toast } from './ui.js';
 
 import { renderLogin } from './pages/login.js';
+import { renderReset } from './pages/reset.js';
 import { renderDashboard } from './pages/dashboard.js';
 import { renderCharacter } from './pages/character.js';
 import { renderCharacterNew } from './pages/character_new.js';
@@ -71,7 +72,7 @@ definirGuard((opcoes) => {
     navegar('#/login');
     return false;
   }
-  if (isLogged() && ehLogin) {
+  if (isLogged() && opcoes.soDeslogado) {
     navegar('#/dashboard');
     return false;
   }
@@ -85,7 +86,8 @@ definirGuard((opcoes) => {
 
 // Registro de rotas.
 rota('#/', () => navegar('#/dashboard'));
-rota('#/login', renderLogin, { publico: true });
+rota('#/login', renderLogin, { publico: true, soDeslogado: true });
+rota('#/reset', renderReset, { publico: true });
 rota('#/dashboard', renderDashboard);
 rota('#/characters/new', renderCharacterNew);
 rota('#/characters/:id', (params) => renderCharacter(params.id));

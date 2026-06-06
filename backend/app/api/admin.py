@@ -1,6 +1,10 @@
 """Endpoints de administração da plataforma (somente ADMIN)."""
-from flask import Blueprint, request
+from datetime import timedelta
 
+from flask import Blueprint, request
+from flask_jwt_extended import create_access_token
+
+from app.api.auth import _impressao_senha
 from app.extensions import db
 from app.models.campaign import MembroMesa, Mesa
 from app.models.character import Personagem
@@ -9,6 +13,9 @@ from app.models.user import PAPEIS_VALIDOS, User
 from app.utils.auth import current_user, role_required
 from app.utils.errors import NotFound, ValidationError
 from app.utils.responses import corpo_json, ok
+
+# Validade do link de redefinição de senha.
+RESET_HORAS = 24
 
 bp = Blueprint("admin", __name__)
 
@@ -43,6 +50,29 @@ def alterar_papel(user_id):
     usuario.role = papel
     db.session.commit()
     return ok(usuario.to_dict())
+
+
+@bp.post("/admin/users/<int:user_id>/reset-link")
+@role_required("ADMIN")
+def gerar_link_reset(user_id):
+    """
+    Gera um token de redefinição de senha para o usuário. O ADMIN repassa o link;
+    o usuário define a nova senha sem precisar da antiga. Validade: RESET_HORAS.
+    """
+    usuario = User.query.get(user_id)
+    if usuario is None:
+        raise NotFound("Usuário não encontrado.")
+    token = create_access_token(
+        identity=str(usuario.id),
+        additional_claims={"purpose": "pwd_reset", "ph": _impressao_senha(usuario)},
+        expires_delta=timedelta(hours=RESET_HORAS),
+    )
+    return ok({
+        "token": token,
+        "user": usuario.to_dict(),
+        "expira_em_horas": RESET_HORAS,
+        "caminho": f"/#/reset?token={token}",
+    })
 
 
 @bp.delete("/admin/users/<int:user_id>")

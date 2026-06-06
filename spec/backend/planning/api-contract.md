@@ -13,6 +13,9 @@ GET /health:           # público
 ## Auth
 - `POST /auth/register` *(público)* — `{email,name,password,role?}` → cria usuário (role default JOGADOR; ADMIN não é auto-atribuível). 201.
 - `POST /auth/login` *(público)* — `{email,password}` → `{data:{access_token,user}}`.
+- `POST /auth/reset-password` *(público)* — `{token,nova_senha}` → redefine a senha via link
+  (sem senha antiga) e devolve `{access_token,user}` (auto-login). Token de uso único (invalida
+  ao trocar a senha) e com validade.
 - `GET /auth/me` — usuário atual.
 
 ## Reference (catálogo SRD) — leitura: qualquer autenticado
@@ -50,6 +53,8 @@ GET /health:           # público
 - `GET /admin/users?q=&role=` *(A)*.
 - `PUT /admin/users/<id>/role` *(A)* — `{role}`.
 - `DELETE /admin/users/<id>` *(A)*.
+- `POST /admin/users/<id>/reset-link` *(A)* — gera um link de redefinição de senha para o usuário
+  (devolve `{token, caminho:"/#/reset?token=...", expira_em_horas}`).
 - `GET /admin/stats` *(A)* — contagens (usuários por papel, personagens, mesas, monstros).
 - `GET /admin/campaigns?q=` *(A)* — lista **todas** as mesas (moderação).
 - `DELETE /admin/campaigns/<id>` *(A)* — remove qualquer mesa ("desbugar").

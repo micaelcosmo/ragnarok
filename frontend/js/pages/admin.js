@@ -63,8 +63,11 @@ export async function renderAdmin() {
               ${PAPEIS.map((papel) => `<option value="${papel}" ${papel === usuario.role ? 'selected' : ''}>${papel}</option>`).join('')}
             </select>
           </td>
-          <td>${usuario.id === eu.id ? '<span class="chip">você</span>'
-            : `<button class="btn btn--danger btn--sm" data-del="${usuario.id}" data-nome="${esc(usuario.name)}">Excluir</button>`}</td>
+          <td class="row" style="gap:6px">
+            <button class="btn btn--ghost btn--sm" data-reset="${usuario.id}" data-nome="${esc(usuario.name)}" title="Gerar link de redefinição de senha">🔑 Link</button>
+            ${usuario.id === eu.id ? '<span class="chip">você</span>'
+              : `<button class="btn btn--danger btn--sm" data-del="${usuario.id}" data-nome="${esc(usuario.name)}">Excluir</button>`}
+          </td>
         </tr>`).join('');
 
       corpo.querySelectorAll('.sel-papel').forEach((select) =>
@@ -74,6 +77,8 @@ export async function renderAdmin() {
         }));
       corpo.querySelectorAll('[data-del]').forEach((botao) =>
         botao.addEventListener('click', () => confirmarRemocao(Number(botao.dataset.del), botao.dataset.nome, () => carregar(busca))));
+      corpo.querySelectorAll('[data-reset]').forEach((botao) =>
+        botao.addEventListener('click', () => gerarLinkReset(Number(botao.dataset.reset), botao.dataset.nome)));
     } catch (erro) { toast(erro.message, 'err'); }
   }
 
@@ -106,6 +111,30 @@ export async function renderAdmin() {
   });
   carregar('');
   carregarMesas('');
+}
+
+async function gerarLinkReset(id, nome) {
+  let dados;
+  try { dados = await api.admin.resetLink(id); }
+  catch (erro) { toast(erro.message, 'err'); return; }
+  const url = `${location.origin}${location.pathname}${dados.caminho}`;
+  const conteudo = html(`<div>
+    <h3>🔑 Link de redefinição — ${esc(nome)}</h3>
+    <p class="muted">Envie este link para a pessoa. Ela define a nova senha (sem a antiga).
+      Válido por ${dados.expira_em_horas}h e some assim que a senha for trocada.</p>
+    <div class="field"><textarea class="textarea" id="link" readonly style="min-height:70px">${esc(url)}</textarea></div>
+    <div class="row" style="justify-content:flex-end">
+      <button class="btn btn--gold" id="copiar">📋 Copiar link</button>
+      <button class="btn btn--ghost" id="fechar">Fechar</button>
+    </div></div>`);
+  const fechar = modal(conteudo);
+  conteudo.querySelector('#fechar').addEventListener('click', fechar);
+  conteudo.querySelector('#copiar').addEventListener('click', async () => {
+    const campo = conteudo.querySelector('#link');
+    campo.select();
+    try { await navigator.clipboard.writeText(url); toast('Link copiado!'); }
+    catch (_) { document.execCommand('copy'); toast('Link copiado!'); }
+  });
 }
 
 function confirmarRemocaoMesa(id, nome, aoRemover) {

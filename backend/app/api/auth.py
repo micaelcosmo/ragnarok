@@ -1,13 +1,14 @@
 """Endpoints de autenticação: registro, login e perfil atual."""
+import hashlib
 import re
 
 from flask import Blueprint
-from flask_jwt_extended import create_access_token
+from flask_jwt_extended import create_access_token, decode_token
 
 from app.extensions import db
 from app.models.user import PAPEIS_VALIDOS, User
 from app.utils.auth import auth_required, current_user
-from app.utils.errors import Conflict, Unauthorized, ValidationError
+from app.utils.errors import Conflict, NotFound, Unauthorized, ValidationError
 from app.utils.responses import corpo_json, created, ok
 
 bp = Blueprint("auth", __name__)
@@ -77,3 +78,41 @@ def login():
 def me():
     """Retorna o usuário autenticado."""
     return ok(current_user().to_dict())
+
+
+def _impressao_senha(usuario):
+    """Fragmento do hash atual — invalida o link de reset assim que a senha muda."""
+    return hashlib.sha256(usuario.password_hash.encode()).hexdigest()[:16]
+
+
+@bp.post("/auth/reset-password")
+def reset_password():
+    """
+    Redefine a senha usando um token de redefinição (gerado pelo admin).
+    Não exige a senha antiga — só o token válido + a nova senha.
+    """
+    dados = corpo_json(["token", "nova_senha"])
+    if len(dados["nova_senha"]) < SENHA_MINIMA:
+        raise ValidationError(f"A senha deve ter ao menos {SENHA_MINIMA} caracteres.")
+
+    try:
+        conteudo = decode_token(dados["token"])
+    except Exception:
+        raise Unauthorized("Link inválido ou expirado.")
+
+    if conteudo.get("purpose") != "pwd_reset":
+        raise Unauthorized("Token não é de redefinição de senha.")
+
+    usuario = User.query.get(int(conteudo.get("sub")))
+    if usuario is None:
+        raise NotFound("Usuário não encontrado.")
+    # O link deixa de valer quando a senha é trocada (uso único na prática).
+    if conteudo.get("ph") != _impressao_senha(usuario):
+        raise Unauthorized("Este link já foi usado ou expirou.")
+
+    usuario.set_password(dados["nova_senha"])
+    db.session.commit()
+
+    # Auto-login após redefinir.
+    token = create_access_token(identity=str(usuario.id))
+    return ok({"access_token": token, "user": usuario.to_dict()})
