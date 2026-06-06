@@ -28,6 +28,7 @@ _CAMPOS_INT = (
 )
 _CAMPOS_LISTA = (
     "pericias_proficientes", "salvaguardas_proficientes", "truques", "magias", "talentos",
+    "tracos_extras",
 )
 
 

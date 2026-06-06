@@ -35,7 +35,52 @@ class ConstrutorDeFicha:
             talento = Talento.query.filter_by(slug=slug).first()
             if talento and talento.efeitos:
                 fontes.append(talento.efeitos)
+        for traco in (self.personagem.tracos_extras or []):
+            if isinstance(traco, dict) and traco.get("efeitos"):
+                fontes.append(traco["efeitos"])
         return fontes
+
+    @staticmethod
+    def _tem_numero(efeitos):
+        """True se o efeito altera algum número (atributos/iniciativa/ca/etc.)."""
+        if not efeitos:
+            return False
+        if efeitos.get("atributos"):
+            return True
+        return any(int(efeitos.get(chave) or 0) != 0
+                   for chave in ("iniciativa", "deslocamento", "pv_por_nivel", "ca_bonus"))
+
+    def _tracos_ativos(self):
+        """Lista de traços/recursos ativos (talentos + extras) para exibir como cards."""
+        from app.models.reference import Talento
+
+        cards = []
+        for slug in (self.personagem.talentos or []):
+            talento = Talento.query.filter_by(slug=slug).first()
+            if talento is None:
+                continue
+            cards.append({
+                "nome": talento.nome,
+                "descricao": talento.descricao,
+                "fonte": talento.fonte,
+                "origem": "talento",
+                "slug": talento.slug,
+                "efeitos": talento.efeitos or {},
+                "tipo": "numerico" if self._tem_numero(talento.efeitos) else "descritivo",
+            })
+        for traco in (self.personagem.tracos_extras or []):
+            if not isinstance(traco, dict):
+                continue
+            efeitos = traco.get("efeitos") or {}
+            cards.append({
+                "nome": traco.get("nome", "Traço"),
+                "descricao": traco.get("descricao"),
+                "fonte": traco.get("fonte"),
+                "origem": "extra",
+                "efeitos": efeitos,
+                "tipo": "numerico" if self._tem_numero(efeitos) else "descritivo",
+            })
+        return cards
 
     def construir(self):
         """Devolve o bloco de derivados enriquecido (com fontes aplicadas)."""
@@ -62,6 +107,7 @@ class ConstrutorDeFicha:
         derivado["ca"] = self._calcular_ca(personagem, mods, final["ca_bonus"])
         derivado["ataques_equipados"] = self._ataques(personagem, mods, bp)
         derivado["atributos_final"] = final["atributos"]
+        derivado["tracos_ativos"] = self._tracos_ativos()
         derivado["concedido"] = final["concedido"]
         derivado["recursos"] = final["recursos"]
         derivado["sentidos"] = final["sentidos"]

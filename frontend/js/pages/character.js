@@ -123,6 +123,12 @@ function pintarFicha(view, personagem) {
             ${blocoTexto(personagem.equipamento, 'Mochila vazia.')}
             ${personagem.dinheiro ? `<div class="chip" style="margin-top:8px">💰 ${esc(personagem.dinheiro)}</div>` : ''}</div>
           <div data-panel="tracos" style="display:none">
+            <div class="spread"><h4 style="margin:0">🎴 Traços & Recursos</h4>
+              <button class="btn btn--gold btn--sm" id="add-traco">+ Adicionar traço / aumento</button></div>
+            <div class="grid grid--cards" id="cards-tracos" style="margin:10px 0 14px">
+              ${(derivados.tracos_ativos || []).length ? derivados.tracos_ativos.map((t, i) => cardTraco(t, i)).join('')
+                : '<p class="muted">Nenhum traço ainda. Adicione talentos (catálogo) ou crie um traço/aumento aqui.</p>'}
+            </div>
             ${(derivados.recursos || []).length || (derivados.sentidos || []).length || (derivados.proficiencias_concedidas || []).length ? `
               <div class="card" style="margin-bottom:12px"><h4 style="margin-top:0">✨ Concedidos pelas suas escolhas</h4>
                 ${(derivados.sentidos || []).length ? `<div class="row" style="margin-bottom:6px">${derivados.sentidos.map((s) => `<span class="chip">👁️ ${esc(s)}</span>`).join('')}</div>` : ''}
@@ -167,6 +173,69 @@ function pintarFicha(view, personagem) {
   view.querySelector('#pv-cura').addEventListener('click', () => ajustarPV(view, personagem, +1));
   view.querySelector('#gerenciar-equip').addEventListener('click', () => gerenciarEquipamento(view, personagem));
   renderResumoEquip(view, personagem);
+
+  // Traços & Recursos (cards incrementais/descritivos)
+  view.querySelector('#add-traco').addEventListener('click', () => formTraco(view, personagem, null));
+  view.querySelectorAll('[data-edit-traco]').forEach((b) =>
+    b.addEventListener('click', () => formTraco(view, personagem, Number(b.dataset.editTraco))));
+  view.querySelectorAll('[data-del-traco]').forEach((b) =>
+    b.addEventListener('click', async () => {
+      const lista = (personagem.derivados.tracos_ativos || []);
+      const card = lista[Number(b.dataset.delTraco)];
+      // remove o correspondente em tracos_extras (por nome) — só os 'extra' têm botão.
+      const extras = (personagem.tracos_extras || []).filter((t) => t.nome !== card.nome);
+      try {
+        const atualizado = await api.characters.update(personagem.id, { tracos_extras: extras });
+        toast('Traço removido.'); pintarFicha(view, atualizado);
+      } catch (erro) { toast(erro.message, 'err'); }
+    }));
+}
+
+// Formulário de traço/recurso (ou "Aumento de Habilidade") — edita personagem.tracos_extras.
+function formTraco(view, personagem, indiceCardOuNull) {
+  const extras = [...(personagem.tracos_extras || [])];
+  // Se veio de um card 'extra', acha o índice real em tracos_extras pelo nome.
+  let editando = null;
+  if (indiceCardOuNull !== null) {
+    const card = (personagem.derivados.tracos_ativos || [])[indiceCardOuNull];
+    editando = extras.findIndex((t) => t.nome === (card && card.nome));
+  }
+  const atual = editando !== null && editando >= 0 ? extras[editando] : { nome: '', descricao: '', fonte: '', efeitos: { atributos: {} } };
+  const a = atual.efeitos && atual.efeitos.atributos || {};
+  const campoAttr = Object.keys(ROTULO_ATTR).map((k) => `
+    <div class="field" style="margin:0"><label>${ROTULO_ATTR[k]}</label>
+      <input class="input" data-ef="${k}" type="number" value="${a[k] || 0}"></div>`).join('');
+  const conteudo = html(`<div>
+    <h3>${editando !== null && editando >= 0 ? 'Editar' : 'Novo'} traço / aumento</h3>
+    <div class="field"><label>Nome</label><input class="input" id="t-nome" value="${esc(atual.nome || '')}"></div>
+    <div class="field"><label>Fonte (ex.: StormKing - Mestre Atila)</label><input class="input" id="t-fonte" value="${esc(atual.fonte || '')}"></div>
+    <div class="field"><label>Descrição (deixe efeitos zerados se for só descritivo)</label><textarea class="textarea" id="t-desc">${esc(atual.descricao || '')}</textarea></div>
+    <h4 style="margin:6px 0">🔢 Efeitos incrementais (opcional)</h4>
+    <div class="option-grid">${campoAttr}</div>
+    <div class="row" style="gap:8px;margin-top:8px">
+      <div class="field" style="flex:1"><label>Iniciativa</label><input class="input" id="t-ini" type="number" value="${(atual.efeitos||{}).iniciativa||0}"></div>
+      <div class="field" style="flex:1"><label>CA</label><input class="input" id="t-ca" type="number" value="${(atual.efeitos||{}).ca_bonus||0}"></div>
+    </div>
+    <div class="row" style="justify-content:flex-end"><button class="btn btn--ghost" id="x">Cancelar</button><button class="btn btn--primary" id="ok">Salvar</button></div>
+  </div>`);
+  const fechar = modal(conteudo);
+  conteudo.querySelector('#x').addEventListener('click', fechar);
+  conteudo.querySelector('#ok').addEventListener('click', async () => {
+    const nome = conteudo.querySelector('#t-nome').value.trim();
+    if (!nome) { toast('Dê um nome ao traço.', 'err'); return; }
+    const atributos = {};
+    Object.keys(ROTULO_ATTR).forEach((k) => { const v = Number(conteudo.querySelector(`[data-ef="${k}"]`).value) || 0; if (v) atributos[k] = v; });
+    const efeitos = {};
+    if (Object.keys(atributos).length) efeitos.atributos = atributos;
+    const ini = Number(conteudo.querySelector('#t-ini').value) || 0; if (ini) efeitos.iniciativa = ini;
+    const ca = Number(conteudo.querySelector('#t-ca').value) || 0; if (ca) efeitos.ca_bonus = ca;
+    const novo = { nome, descricao: conteudo.querySelector('#t-desc').value, fonte: conteudo.querySelector('#t-fonte').value, efeitos };
+    if (editando !== null && editando >= 0) extras[editando] = novo; else extras.push(novo);
+    try {
+      const atualizado = await api.characters.update(personagem.id, { tracos_extras: extras });
+      toast('Traço salvo!'); fechar(); pintarFicha(view, atualizado);
+    } catch (erro) { toast(erro.message, 'err'); }
+  });
 }
 
 function renderResumoEquip(view, personagem) {
@@ -280,6 +349,33 @@ function renderSkills(derivados) {
       <span>${esc(pericia.nome)} <span class="muted">(${pericia.atributo.toUpperCase()})</span></span>
       <span class="sk-val">${sinal(pericia.valor)}</span>
     </div>`).join('');
+}
+
+const ROTULO_ATTR = { for: 'FOR', des: 'DES', con: 'CON', int: 'INT', sab: 'SAB', car: 'CAR' };
+
+function formatarEfeitos(efeitos) {
+  if (!efeitos) return '';
+  const partes = [];
+  Object.entries(efeitos.atributos || {}).forEach(([k, v]) => { if (v) partes.push(`${v > 0 ? '+' : ''}${v} ${ROTULO_ATTR[k] || k.toUpperCase()}`); });
+  if (efeitos.iniciativa) partes.push(`${efeitos.iniciativa > 0 ? '+' : ''}${efeitos.iniciativa} Iniciativa`);
+  if (efeitos.ca_bonus) partes.push(`${efeitos.ca_bonus > 0 ? '+' : ''}${efeitos.ca_bonus} CA`);
+  if (efeitos.deslocamento) partes.push(`${efeitos.deslocamento > 0 ? '+' : ''}${efeitos.deslocamento} m`);
+  return partes.join(' · ');
+}
+
+function cardTraco(t, indice) {
+  const editavel = t.origem === 'extra';
+  const selo = t.tipo === 'numerico'
+    ? `<span class="chip" style="border-color:var(--gold);color:var(--gold)">🔢 ${esc(formatarEfeitos(t.efeitos)) || 'numérico'}</span>`
+    : '<span class="chip">📝 descritivo</span>';
+  return `<div class="card" style="padding:12px">
+    <div class="spread"><div class="ccard-name" style="font-size:.98rem">${esc(t.nome)}</div>
+      ${editavel ? `<div class="row" style="gap:4px">
+        <button class="btn btn--ghost btn--sm" data-edit-traco="${indice}">✏️</button>
+        <button class="btn btn--danger btn--sm" data-del-traco="${indice}">🗑️</button></div>` : ''}</div>
+    <div style="margin:6px 0">${selo} ${t.fonte ? `<span class="chip">${t.origem === 'talento' ? '⭐' : '🧪'} ${esc(t.fonte)}</span>` : ''}</div>
+    ${t.descricao ? `<div class="muted" style="font-size:.84rem;white-space:pre-wrap">${esc(t.descricao)}</div>` : ''}
+  </div>`;
 }
 
 function combatBox(label, valor, dica) {
