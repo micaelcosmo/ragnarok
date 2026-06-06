@@ -28,6 +28,8 @@
 | E14 | Pipeline de Conteúdo Base (talentos, fontes, ingestão OGL) | ✅ |
 | E15 | Exposição online (hardening + túnel Cloudflare) | ✅ |
 | E16 | Ficha 100% editável + tooltips no hover | ✅ |
+| E17 | Auth: auto-login no registro + reset de senha por link (admin) | ✅ |
+| E18 | Banco: Alembic/Flask-Migrate (sem perder dados) + backup | ✅ |
 
 ---
 
@@ -144,6 +146,20 @@
 - [x] T16.2 Monstro/PDM editável (PUT) pelo dono/mestre/admin
 - [x] T16.3 Tooltips no hover (atributos/perícias/salvaguardas/combate) sem afetar inputs
 - [x] T16.4 Compêndio: aba de Talentos + filtro por fonte
+
+---
+
+### E17 — Auth (auto-login + reset por link)
+- [x] T17.1 Registro devolve {access_token, user} (auto-login) — corrige "credenciais inválidas"
+- [x] T17.2 Frontend: entra direto no registro + mostrar senha + feedback
+- [x] T17.3 ADMIN gera link de reset; usuário define só a senha nova (token uso único/validade)
+- [x] T17.4 Página pública #/reset + botão no painel admin + 7 testes (auth+reset)
+
+### E18 — Banco (Alembic)
+- [x] T18.1 Flask-Migrate nas extensions/app factory
+- [x] T18.2 Baseline (autogenerate) + stamp head no banco vivo (dados preservados)
+- [x] T18.3 entrypoint roda flask db upgrade no boot; ADR-0002
+- [x] T18.4 scripts/backup.ps1 e restore.ps1 + docs
 
 ---
 
