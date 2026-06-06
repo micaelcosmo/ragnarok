@@ -36,6 +36,7 @@ class Monstro(TimestampMixin, db.Model):
     is_pdm = db.Column(db.Boolean, default=False, nullable=False)
     mesa_id = db.Column(db.Integer, db.ForeignKey("mesas.id"), nullable=True, index=True)
     criado_por = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=True)
+    fonte = db.Column(db.String(120), nullable=True, index=True)
 
     def pode_editar(self, user, mesa=None):
         """Criador, mestre da mesa de origem ou ADMIN podem editar."""
@@ -70,4 +71,5 @@ class Monstro(TimestampMixin, db.Model):
             "is_pdm": self.is_pdm,
             "mesa_id": self.mesa_id,
             "global": self.mesa_id is None,
+            "fonte": self.fonte,
         }

@@ -1,9 +1,14 @@
-"""Modelos de conteúdo de referência do SRD (raças, classes, antecedentes, magias)."""
+"""Modelos de conteúdo de referência (raças, classes, antecedentes, magias, talentos).
+
+Todos carregam o campo `fonte` (livro/origem) para rastreabilidade e filtro por procedência.
+"""
 from app.extensions import db
+
+FONTE_PADRAO = "SRD 5.1"
 
 
 class Raca(db.Model):
-    """Raça jogável do SRD, com possíveis sub-raças."""
+    """Raça jogável, com possíveis sub-raças."""
 
     __tablename__ = "racas"
 
@@ -16,6 +21,7 @@ class Raca(db.Model):
     bonus_atributos = db.Column(db.JSON, default=dict)
     tracos = db.Column(db.JSON, default=list)
     subracas = db.Column(db.JSON, default=list)
+    fonte = db.Column(db.String(120), default=FONTE_PADRAO, index=True)
 
     def to_dict(self):
         return {
@@ -27,6 +33,7 @@ class Raca(db.Model):
             "bonus_atributos": self.bonus_atributos or {},
             "tracos": self.tracos or [],
             "subracas": self.subracas or [],
+            "fonte": self.fonte,
         }
 
 
@@ -48,6 +55,7 @@ class Classe(db.Model):
     atributo_conjuracao = db.Column(db.String(3), nullable=True)
     proficiencias_armadura = db.Column(db.JSON, default=list)
     proficiencias_arma = db.Column(db.JSON, default=list)
+    fonte = db.Column(db.String(120), default=FONTE_PADRAO, index=True)
 
     def to_dict(self):
         return {
@@ -63,6 +71,7 @@ class Classe(db.Model):
             "atributo_conjuracao": self.atributo_conjuracao,
             "proficiencias_armadura": self.proficiencias_armadura or [],
             "proficiencias_arma": self.proficiencias_arma or [],
+            "fonte": self.fonte,
         }
 
 
@@ -78,6 +87,7 @@ class Antecedente(db.Model):
     pericias = db.Column(db.JSON, default=list)
     idiomas = db.Column(db.Integer, default=0)
     equipamento = db.Column(db.Text, nullable=True)
+    fonte = db.Column(db.String(120), default=FONTE_PADRAO, index=True)
 
     def to_dict(self):
         return {
@@ -87,6 +97,7 @@ class Antecedente(db.Model):
             "pericias": self.pericias or [],
             "idiomas": self.idiomas,
             "equipamento": self.equipamento,
+            "fonte": self.fonte,
         }
 
 
@@ -108,6 +119,7 @@ class Magia(db.Model):
     ritual = db.Column(db.Boolean, default=False)
     classes = db.Column(db.JSON, default=list)
     descricao = db.Column(db.Text, nullable=True)
+    fonte = db.Column(db.String(120), default=FONTE_PADRAO, index=True)
 
     def to_dict(self):
         return {
@@ -123,4 +135,27 @@ class Magia(db.Model):
             "ritual": self.ritual,
             "classes": self.classes or [],
             "descricao": self.descricao,
+            "fonte": self.fonte,
+        }
+
+
+class Talento(db.Model):
+    """Talento (feat). Em geral vem do pipeline de conteúdo (o SRD só traz 'Grappler')."""
+
+    __tablename__ = "talentos"
+
+    id = db.Column(db.Integer, primary_key=True)
+    slug = db.Column(db.String(80), unique=True, nullable=False, index=True)
+    nome = db.Column(db.String(120), nullable=False)
+    descricao = db.Column(db.Text, nullable=True)
+    pre_requisito = db.Column(db.String(160), nullable=True)
+    fonte = db.Column(db.String(120), default=FONTE_PADRAO, index=True)
+
+    def to_dict(self):
+        return {
+            "slug": self.slug,
+            "nome": self.nome,
+            "descricao": self.descricao,
+            "pre_requisito": self.pre_requisito,
+            "fonte": self.fonte,
         }
