@@ -2,7 +2,7 @@
 from flask import Flask, jsonify
 
 from app.config import get_config
-from app.extensions import cors, db, jwt
+from app.extensions import cors, db, jwt, migrate
 from app.utils.errors import register_error_handlers
 
 
@@ -21,6 +21,10 @@ def create_app(config_name=None):
 
 def _registrar_extensoes(app):
     db.init_app(app)
+    # Importa os models para que o Alembic enxergue todas as tabelas no autogenerate.
+    # (usa 'from ... import' para NÃO rebind/sombrear o parâmetro `app`).
+    from app import models as _models  # noqa: F401
+    migrate.init_app(app, db)
     jwt.init_app(app)
     cors.init_app(app, resources={r"/api/*": {"origins": "*"}})
 

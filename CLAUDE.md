@@ -99,11 +99,25 @@ python -m app.seed                                 # popula o banco com SRD + ad
 
 ### Stack completa (Docker) — IMPORTANTE
 > Sempre **derrube** a stack antes de subir de novo (evita conflito de container/porta).
+> **NUNCA use `down -v`** com dados reais — apaga o volume do Postgres. Migrações cuidam do schema.
 ```bash
-docker compose down                # mata os containers do Ragnarok
-docker compose up --build -d       # sobe db + backend + frontend
+docker compose down                # mata os containers (mantém o volume/dados)
+docker compose up --build -d       # sobe db + backend + frontend (entrypoint roda migrações + seed)
 docker compose logs -f backend     # acompanha logs
-docker compose exec backend python -m app.seed   # popula o banco
+```
+
+### Banco de dados — migrações (Alembic/Flask-Migrate) e backup
+> Schema é versionado. **Não** se usa mais `down -v` para aplicar mudanças. Ver ADR-0002.
+```bash
+# Backup / restore (PowerShell)
+.\scripts\backup.ps1                       # gera backups\ragnarok_<timestamp>.sql
+.\scripts\restore.ps1 backups\arquivo.sql  # restaura
+
+# Mudança de schema (após editar models)
+cd backend
+flask db migrate -m "descreve a mudança"   # gera a migração (ALTER não-destrutivo)
+flask db upgrade                           # aplica preservando os dados
+# Em produção o entrypoint roda `flask db upgrade` automaticamente no boot.
 ```
 
 ## 6. Convenções

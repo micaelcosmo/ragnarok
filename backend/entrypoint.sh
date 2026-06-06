@@ -22,6 +22,10 @@ else:
     raise SystemExit("[entrypoint] banco não respondeu a tempo.")
 PY
 
+echo "[entrypoint] aplicando migrações (flask db upgrade)..."
+export FLASK_APP=wsgi
+flask db upgrade || echo "[entrypoint] aviso: upgrade falhou (banco já no head?), seguindo."
+
 echo "[entrypoint] populando o banco (seed idempotente)..."
 python -m app.seed || echo "[entrypoint] aviso: seed falhou, seguindo mesmo assim."
 
