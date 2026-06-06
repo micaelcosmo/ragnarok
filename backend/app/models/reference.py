@@ -22,6 +22,7 @@ class Raca(db.Model):
     tracos = db.Column(db.JSON, default=list)
     subracas = db.Column(db.JSON, default=list)
     fonte = db.Column(db.String(120), default=FONTE_PADRAO, index=True)
+    efeitos = db.Column(db.JSON, default=dict)
 
     def to_dict(self):
         return {
@@ -34,6 +35,7 @@ class Raca(db.Model):
             "tracos": self.tracos or [],
             "subracas": self.subracas or [],
             "fonte": self.fonte,
+            "efeitos": self.efeitos or {},
         }
 
 
@@ -56,6 +58,7 @@ class Classe(db.Model):
     proficiencias_armadura = db.Column(db.JSON, default=list)
     proficiencias_arma = db.Column(db.JSON, default=list)
     fonte = db.Column(db.String(120), default=FONTE_PADRAO, index=True)
+    efeitos = db.Column(db.JSON, default=dict)
 
     def to_dict(self):
         return {
@@ -72,6 +75,7 @@ class Classe(db.Model):
             "proficiencias_armadura": self.proficiencias_armadura or [],
             "proficiencias_arma": self.proficiencias_arma or [],
             "fonte": self.fonte,
+            "efeitos": self.efeitos or {},
         }
 
 
@@ -88,6 +92,7 @@ class Antecedente(db.Model):
     idiomas = db.Column(db.Integer, default=0)
     equipamento = db.Column(db.Text, nullable=True)
     fonte = db.Column(db.String(120), default=FONTE_PADRAO, index=True)
+    efeitos = db.Column(db.JSON, default=dict)
 
     def to_dict(self):
         return {
@@ -98,6 +103,7 @@ class Antecedente(db.Model):
             "idiomas": self.idiomas,
             "equipamento": self.equipamento,
             "fonte": self.fonte,
+            "efeitos": self.efeitos or {},
         }
 
 
@@ -150,6 +156,7 @@ class Talento(db.Model):
     descricao = db.Column(db.Text, nullable=True)
     pre_requisito = db.Column(db.String(160), nullable=True)
     fonte = db.Column(db.String(120), default=FONTE_PADRAO, index=True)
+    efeitos = db.Column(db.JSON, default=dict)
 
     def to_dict(self):
         return {
@@ -158,4 +165,5 @@ class Talento(db.Model):
             "descricao": self.descricao,
             "pre_requisito": self.pre_requisito,
             "fonte": self.fonte,
+            "efeitos": self.efeitos or {},
         }

@@ -22,10 +22,10 @@ _CAMPOS_TEXTO = (
     "idiomas", "equipamento", "ataques", "dinheiro", "avatar_url",
 )
 _CAMPOS_INT = (
-    "nivel", "xp", "ca", "iniciativa_bonus", "pv_max", "pv_atual", "pv_temp",
+    "nivel", "xp", "ca", "ca_ajuste", "iniciativa_bonus", "pv_max", "pv_atual", "pv_temp",
 )
 _CAMPOS_LISTA = (
-    "pericias_proficientes", "salvaguardas_proficientes", "truques", "magias",
+    "pericias_proficientes", "salvaguardas_proficientes", "truques", "magias", "talentos",
 )
 
 

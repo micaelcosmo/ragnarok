@@ -1,0 +1,21 @@
+# Override para uma stack de TESTE isolada, sem tocar na de produção.
+# Uso:
+#   docker compose -p ragnarok-dev -f docker-compose.yml -f docker-compose.dev.yml up -d --build
+#   docker compose -p ragnarok-dev -f docker-compose.yml -f docker-compose.dev.yml down
+# Portas próprias (8090/5060/5434) e containers/volume/rede isolados pelo projeto 'ragnarok-dev'.
+# `!override` substitui a lista de ports do base (senão o compose ACUMULA e conflita com a prod).
+services:
+  db:
+    container_name: ragnarok-dev-db
+    ports: !override
+      - "5434:5432"
+
+  backend:
+    container_name: ragnarok-dev-backend
+    ports: !override
+      - "5060:5050"
+
+  frontend:
+    container_name: ragnarok-dev-frontend
+    ports: !override
+      - "8090:80"
