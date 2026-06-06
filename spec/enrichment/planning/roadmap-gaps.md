@@ -31,6 +31,12 @@
   tesouro, aparência): só temos `historia`/`avatar_url`. Futuro: aba "Identidade".
 - ⚪ **Multiclasse** (ex.: Bárbaro X / Outra Y): só uma classe por personagem.
 
+## Imagens / mídia
+- 🟡 **Galeria de imagens do personagem**: hoje há 2 slots (retrato `avatar_url` + símbolo
+  `simbolo_faccao_url`). Pedido: suportar **várias imagens** por personagem (corpo inteiro, rosto,
+  cenas, etc.) com legenda e uma marcada como principal. Modelo `ImagemPersonagem`
+  (personagem_id, url, legenda, principal) + UI de galeria na aba Identidade.
+
 ## Futuro distante (ideias do dono)
 - ⚪ **Importação de ficha por LLM**: jogador/mestre faz upload de uma ficha (PDF/imagem) e um
   **LLM parseia e distribui** os dados no nosso modelo de forma inteligente (mapear raça/classe/
