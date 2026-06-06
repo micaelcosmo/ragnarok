@@ -44,11 +44,14 @@ class Open5eSource(ContentSource):
     def nome(self) -> str:
         return "Open5e (OGL)"
 
+    # Alguns tipos têm nome de endpoint diferente no open5e.
+    _RECURSO = {"items": "magicitems"}
+
     def buscar(self, tipo: str) -> list[dict]:
         normalizador = getattr(self, f"_norm_{tipo}", None)
         if normalizador is None:
             return []
-        brutos = self._paginar(tipo)
+        brutos = self._paginar(self._RECURSO.get(tipo, tipo))
         registros = []
         for bruto in brutos:
             try:
