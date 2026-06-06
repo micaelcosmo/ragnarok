@@ -131,5 +131,16 @@ flask db upgrade                           # aplica preservando os dados
 - **Camadas**: regras de jogo puras ficam em `app/rules/` (sem dependência de Flask/DB) para
   serem 100% testáveis. API só orquestra.
 
-## 7. Estado atual
+## 7. Segurança (segredos)
+- **NUNCA** hardcode segredos no código. Tudo via variáveis de ambiente (`.env`, gitignored).
+- Em **produção** (`FLASK_CONFIG=prod`), `ProdConfig.validate()` **aborta o boot** se faltarem
+  `SECRET_KEY`, `JWT_SECRET_KEY` ou `DATABASE_URL`. Em dev/test, segredos ausentes viram
+  valores **efêmeros aleatórios** (não hardcoded).
+- `docker-compose.yml` usa `${VAR:?...}` para os segredos → o compose **recusa subir** sem `.env`.
+- O seed gera uma **senha de admin aleatória** (e a imprime) se `SEED_ADMIN_PASSWORD` não vier.
+- **Hook de pre-commit** ativo (`git config core.hooksPath scripts/git-hooks`) bloqueia `.env`
+  e padrões de segredo. Opcional: `pre-commit` + gitleaks (`.pre-commit-config.yaml`).
+- Linha de segredo de teste consciente: marque com `# gitleaks:allow`.
+
+## 8. Estado atual
 Veja **`status.md`** para a lista completa de tasks e o que está pronto/pendente.

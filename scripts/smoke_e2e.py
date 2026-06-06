@@ -6,11 +6,14 @@ Uso: python scripts/smoke_e2e.py [base_url]
 Default base_url: http://localhost:8080/api/v1
 """
 import json
+import os
 import sys
 import urllib.error
 import urllib.request
 
 BASE = sys.argv[1] if len(sys.argv) > 1 else "http://localhost:8080/api/v1"
+# Senha do admin vem do ambiente (não hardcoded). Defina ADMIN_PASSWORD ao rodar o smoke.
+ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD")
 
 falhas = []
 total = 0
@@ -47,9 +50,13 @@ def main():
     chamar("GET", "/health", esperado=200)
 
     print("\n[2] Login do ADMIN (seed)")
-    sessao_admin = chamar("POST", "/auth/login",
-                          {"email": "admin@ragnarok.local", "password": "admin123"})
-    token_admin = sessao_admin["access_token"] if sessao_admin else None
+    if not ADMIN_PASSWORD:
+        print("  ! defina ADMIN_PASSWORD no ambiente para testar o login do admin — pulando.")
+        token_admin = None
+    else:
+        sessao_admin = chamar("POST", "/auth/login",
+                              {"email": "admin@ragnarok.local", "password": ADMIN_PASSWORD})
+        token_admin = sessao_admin["access_token"] if sessao_admin else None
 
     print("\n[3] Catálogo SRD carregado pelo seed")
     racas = chamar("GET", "/reference/races", token=token_admin)

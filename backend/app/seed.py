@@ -6,6 +6,7 @@ Orientado a objetos: a classe SeedRunner encapsula o carregamento dos JSON
 e a persistência idempotente de cada catálogo.
 """
 import json
+import secrets
 from pathlib import Path
 
 from app import create_app
@@ -52,15 +53,29 @@ class SeedRunner:
         if User.query.filter_by(email=email).first():
             self.resumo["admin"] = "já existia"
             return
+        # Sem senha definida no ambiente: gera uma aleatória e avisa (nunca usa default fraco).
+        senha = config.get("SEED_ADMIN_PASSWORD")
+        gerada = False
+        if not senha:
+            senha = secrets.token_urlsafe(12)
+            gerada = True
         admin = User(
             email=email,
             name=config["SEED_ADMIN_NAME"],
-            password=config["SEED_ADMIN_PASSWORD"],
+            password=senha,
             role="ADMIN",
         )
         db.session.add(admin)
         db.session.commit()
-        self.resumo["admin"] = f"criado ({email})"
+        if gerada:
+            print("=" * 60)
+            print(f"[seed] ADMIN criado: {email}")
+            print(f"[seed] SENHA GERADA (anote!): {senha}")
+            print("[seed] Defina SEED_ADMIN_PASSWORD no .env para escolher a sua.")
+            print("=" * 60)
+            self.resumo["admin"] = f"criado ({email}) — senha gerada (ver log)"
+        else:
+            self.resumo["admin"] = f"criado ({email})"
 
     def semear_demo(self):
         """Cria contas demo (MESTRE e JOGADOR) para facilitar os testes."""
