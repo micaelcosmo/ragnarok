@@ -49,6 +49,10 @@ class Personagem(TimestampMixin, db.Model):
     # Fontes de efeitos (bônus reversíveis): talentos escolhidos (slugs).
     talentos = db.Column(db.JSON, default=list)
 
+    # Equipamento ativo (fontes de efeitos de itens).
+    armadura_equipada_id = db.Column(db.Integer, db.ForeignKey("armaduras.id"), nullable=True)
+    armas_equipadas = db.Column(db.JSON, default=list)   # lista de ids de Arma
+
     # Magia
     classe_conjuradora = db.Column(db.String(60), nullable=True)
     atributo_conjuracao = db.Column(db.String(3), nullable=True)
@@ -121,6 +125,8 @@ class Personagem(TimestampMixin, db.Model):
             "pericias_proficientes": self.pericias_proficientes or [],
             "salvaguardas_proficientes": self.salvaguardas_proficientes or [],
             "talentos": self.talentos or [],
+            "armadura_equipada_id": self.armadura_equipada_id,
+            "armas_equipadas": self.armas_equipadas or [],
             "outras_proficiencias": self.outras_proficiencias,
             "classe_conjuradora": self.classe_conjuradora,
             "atributo_conjuracao": self.atributo_conjuracao,

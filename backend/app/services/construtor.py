@@ -57,8 +57,10 @@ class ConstrutorDeFicha:
             iniciativa_bonus_extra=final["iniciativa_extra"],
         )
 
-        # CA final = base + ajuste manual + bônus de fontes (armadura/escudo vêm na Fase 3).
-        derivado["ca"] = int(personagem.ca or 10) + int(personagem.ca_ajuste or 0) + final["ca_bonus"]
+        mods = derivado["modificadores"]
+        bp = derivado["bonus_proficiencia"]
+        derivado["ca"] = self._calcular_ca(personagem, mods, final["ca_bonus"])
+        derivado["ataques_equipados"] = self._ataques(personagem, mods, bp)
         derivado["atributos_final"] = final["atributos"]
         derivado["concedido"] = final["concedido"]
         derivado["recursos"] = final["recursos"]
@@ -68,6 +70,50 @@ class ConstrutorDeFicha:
         derivado["pericias_proficientes_final"] = final["pericias_proficientes"]
         derivado["salvaguardas_proficientes_final"] = final["salvaguardas_proficientes"]
         return derivado
+
+    def _calcular_ca(self, personagem, mods, ca_bonus_fontes):
+        """
+        CA = armadura equipada (base + DES limitado + bônus mágico) OU CA base manual;
+        + ajuste manual (`ca_ajuste`) + bônus de outras fontes.
+        """
+        ajuste = int(personagem.ca_ajuste or 0) + int(ca_bonus_fontes or 0)
+        armadura = None
+        if personagem.armadura_equipada_id:
+            from app.models.items import Armadura
+            armadura = Armadura.query.get(personagem.armadura_equipada_id)
+        if armadura is None:
+            return int(personagem.ca or 10) + ajuste
+        ca = int(armadura.ca_base or 10)
+        if armadura.ca_soma_des:
+            des = mods["des"]
+            if armadura.ca_des_max is not None:
+                des = min(des, int(armadura.ca_des_max))
+            ca += des
+        ca += int(armadura.ca_bonus or 0) + int(armadura.bonus_magico or 0)
+        return ca + ajuste
+
+    def _ataques(self, personagem, mods, bp):
+        """Monta a lista de ataques das armas equipadas (bônus de acerto + dano)."""
+        ids = personagem.armas_equipadas or []
+        if not ids:
+            return []
+        from app.models.items import Arma
+        ataques = []
+        for arma in Arma.query.filter(Arma.id.in_(ids)).all():
+            efeito = (arma.efeitos or {}).get("ataque", {})
+            # Acuidade ou arma à distância usam DES; senão FOR.
+            usa_des = efeito.get("acuidade") or arma.alcance == "à distância"
+            mod = mods["des"] if usa_des else mods["for"]
+            bonus_acerto = mod + bp + int(arma.bonus_magico or 0)
+            ataques.append({
+                "id": arma.id,
+                "nome": arma.nome,
+                "bonus_acerto": bonus_acerto,
+                "dano": arma.dano,
+                "tipo_dano": arma.tipo_dano,
+                "bonus_dano": mod + int(arma.bonus_magico or 0),
+            })
+        return ataques
 
 
 def construir_derivados(personagem):

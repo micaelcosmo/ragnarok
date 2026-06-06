@@ -14,6 +14,17 @@
 - Testes: motor puro (4) + integração add/remove talento reversível + raça/antecedente + CA (3).
 - Validado em stack Docker **isolada** (`docker-compose.dev.yml`, projeto `ragnarok-dev`).
 
+### Fase 3 — Editor de itens + equipar (feat)
+- CRUD `/catalog/{weapons,armor,items}` com ownership: JOGADOR vincula ao seu personagem;
+  MESTRE/ADMIN ao acervo geral; tudo homebrew + fonte obrigatória.
+- Personagem: `armadura_equipada_id` + `armas_equipadas`; endpoints `/characters/<id>/equipar`
+  e `/desequipar`. Migração `e8c592ad9299`.
+- `ConstrutorDeFicha` calcula **CA** da armadura equipada (base+DES limitado+bônus) e os
+  **ataques** das armas (acerto = mod+proficiência+mágico; DES se acuidade/à distância).
+- Frontend: aba Equipamento na ficha (equipar/desequipar + criar item homebrew vinculado),
+  tabela de ataques equipados.
+- +5 testes (95 no total).
+
 ### Fase 2 — Conteúdo (feat)
 - Modelos `Arma`, `Armadura`, `Item` (separados) com procedência (`fonte`/`homebrew`/`oficial`),
   ownership (`personagem_id`/`mesa_id`/global) e i18n (`idioma`). Migração `9c6b8cab1404`.

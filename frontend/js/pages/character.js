@@ -98,11 +98,19 @@ function pintarFicha(view, personagem) {
             <div class="tab" data-tab="tracos">Traços</div>
             <div class="tab" data-tab="historia">História</div>
           </div>
-          <div data-panel="ataques">${blocoTexto(personagem.ataques, 'Nenhum ataque ou magia registrado.')}
+          <div data-panel="ataques">
+            ${(derivados.ataques_equipados || []).length ? `<table class="table" style="margin-bottom:10px"><thead><tr><th>Arma</th><th>Acerto</th><th>Dano</th></tr></thead><tbody>
+              ${derivados.ataques_equipados.map((a) => `<tr><td>${esc(a.nome)}</td><td>${sinal(a.bonus_acerto)}</td><td>${esc(a.dano || '')} ${esc(a.tipo_dano || '')} ${a.bonus_dano ? '(' + sinal(a.bonus_dano) + ')' : ''}</td></tr>`).join('')}
+            </tbody></table>` : ''}
+            ${blocoTexto(personagem.ataques, 'Nenhum ataque manual registrado.')}
             ${personagem.atributo_conjuracao ? `<div class="row" style="margin-top:10px">
               <span class="chip">CD de Magia: ${derivados.cd_magia ?? '—'}</span>
               <span class="chip">Ataque de Magia: ${sinal(derivados.bonus_ataque_magia)}</span></div>` : ''}</div>
-          <div data-panel="equip" style="display:none">${blocoTexto(personagem.equipamento, 'Mochila vazia.')}
+          <div data-panel="equip" style="display:none">
+            <div class="spread"><h4 style="margin:0">Equipamento</h4>
+              <button class="btn btn--gold btn--sm" id="gerenciar-equip">⚔️ Gerenciar / criar itens</button></div>
+            <div id="resumo-equip" style="margin:10px 0"></div>
+            ${blocoTexto(personagem.equipamento, 'Mochila vazia.')}
             ${personagem.dinheiro ? `<div class="chip" style="margin-top:8px">💰 ${esc(personagem.dinheiro)}</div>` : ''}</div>
           <div data-panel="tracos" style="display:none">
             ${campo('Traços de Personalidade', personagem.tracos_personalidade)}
@@ -123,6 +131,87 @@ function pintarFicha(view, personagem) {
   view.querySelector('#apagar').addEventListener('click', () => confirmarExclusao(personagem));
   view.querySelector('#pv-dano').addEventListener('click', () => ajustarPV(view, personagem, -1));
   view.querySelector('#pv-cura').addEventListener('click', () => ajustarPV(view, personagem, +1));
+  view.querySelector('#gerenciar-equip').addEventListener('click', () => gerenciarEquipamento(view, personagem));
+  renderResumoEquip(view, personagem);
+}
+
+function renderResumoEquip(view, personagem) {
+  const alvo = view.querySelector('#resumo-equip');
+  if (!alvo) return;
+  const ataques = personagem.derivados.ataques_equipados || [];
+  const temArmadura = personagem.armadura_equipada_id;
+  alvo.innerHTML = `
+    <div class="row">
+      <span class="chip">🛡️ Armadura: ${temArmadura ? 'equipada (CA ' + personagem.derivados.ca + ')' : 'nenhuma (CA ' + personagem.derivados.ca + ')'}</span>
+      <span class="chip">⚔️ Armas equipadas: ${ataques.length}</span>
+    </div>`;
+}
+
+// Modal: lista itens usáveis (global + do personagem), equipa/desequipa e cria novos.
+async function gerenciarEquipamento(view, personagem) {
+  const conteudo = html(`<div>
+    <h3>Equipamento de ${esc(personagem.nome)}</h3>
+    <div class="tabs">
+      <div class="tab active" data-tab="g-armas">⚔️ Armas</div>
+      <div class="tab" data-tab="g-armaduras">🛡️ Armaduras</div>
+      <div class="tab" data-tab="g-itens">✨ Itens</div>
+    </div>
+    <div data-panel="g-armas"><div id="lst-weapons"><div class="spinner"></div></div></div>
+    <div data-panel="g-armaduras" style="display:none"><div id="lst-armor"><div class="spinner"></div></div></div>
+    <div data-panel="g-itens" style="display:none"><div id="lst-items"><div class="spinner"></div></div></div>
+    <div class="row" style="justify-content:flex-end;margin-top:12px"><button class="btn btn--ghost" id="fechar">Fechar</button></div>
+  </div>`);
+  const fechar = modal(conteudo);
+  ligarTabs(conteudo);
+  conteudo.querySelector('#fechar').addEventListener('click', () => { fechar(); renderCharacter(personagem.id); });
+
+  const recarregar = async (tipo, containerId, equipavel) => {
+    const alvo = conteudo.querySelector(`#${containerId}`);
+    const lista = await api.catalog.list(tipo, { personagemId: personagem.id });
+    alvo.innerHTML = `
+      <button class="btn btn--gold btn--sm" data-criar="${tipo}" style="margin-bottom:8px">+ Criar ${tipo === 'weapons' ? 'arma' : tipo === 'armor' ? 'armadura' : 'item'}</button>
+      ${lista.length ? lista.map((it) => `
+        <div class="skill-line"><span>${esc(it.nome)} ${it.homebrew ? '<span class="chip">🧪 ' + esc(it.fonte) + '</span>' : '<span class="chip">🛡️ ' + esc(it.fonte) + '</span>'}</span>
+          ${equipavel ? `<button class="btn btn--ghost btn--sm" data-equipar="${tipo}:${it.id}" style="margin-left:auto">Equipar</button>` : ''}</div>`).join('') : '<p class="muted">Nada aqui ainda.</p>'}`;
+    alvo.querySelectorAll('[data-equipar]').forEach((b) => b.addEventListener('click', async () => {
+      const [, id] = b.dataset.equipar.split(':');
+      const tipoEquip = tipo === 'weapons' ? 'arma' : 'armadura';
+      try { await api.characters.equipar(personagem.id, tipoEquip, Number(id)); toast('Equipado!'); }
+      catch (e) { toast(e.message, 'err'); }
+    }));
+    alvo.querySelectorAll('[data-criar]').forEach((b) => b.addEventListener('click', () => formItem(tipo, personagem, () => recarregar(tipo, containerId, equipavel))));
+  };
+  recarregar('weapons', 'lst-weapons', true);
+  recarregar('armor', 'lst-armor', true);
+  recarregar('items', 'lst-items', false);
+}
+
+function formItem(tipo, personagem, aoCriar) {
+  const ehArma = tipo === 'weapons', ehArmadura = tipo === 'armor';
+  const conteudo = html(`<div>
+    <h3>Criar ${ehArma ? 'arma' : ehArmadura ? 'armadura' : 'item'}</h3>
+    <div class="field"><label>Nome</label><input class="input" id="nome"></div>
+    ${ehArma ? `<div class="row" style="gap:8px">
+      <div class="field" style="flex:1"><label>Dano</label><input class="input" id="dano" placeholder="1d8"></div>
+      <div class="field" style="flex:1"><label>Tipo de dano</label><input class="input" id="tipo_dano" placeholder="cortante"></div></div>` : ''}
+    ${ehArmadura ? `<div class="row" style="gap:8px">
+      <div class="field" style="flex:1"><label>CA base</label><input class="input" id="ca_base" type="number" value="12"></div>
+      <label class="field-inline" style="flex:1"><input type="checkbox" id="ca_soma_des" checked> Soma DES</label></div>` : ''}
+    <div class="field"><label>Descrição</label><textarea class="textarea" id="descricao"></textarea></div>
+    <p class="muted" style="font-size:.8rem">Será criado como 🧪 Homebrew vinculado a ${esc(personagem.nome)}.</p>
+    <div class="row" style="justify-content:flex-end"><button class="btn btn--ghost" id="x">Cancelar</button><button class="btn btn--primary" id="ok">Criar</button></div>
+  </div>`);
+  const fechar = modal(conteudo);
+  conteudo.querySelector('#x').addEventListener('click', fechar);
+  conteudo.querySelector('#ok').addEventListener('click', async () => {
+    const g = (id) => { const e = conteudo.querySelector('#' + id); return e ? (e.type === 'checkbox' ? e.checked : e.value) : undefined; };
+    const dados = { nome: g('nome'), descricao: g('descricao'), personagem_id: personagem.id };
+    if (!dados.nome) { toast('Dê um nome ao item.', 'err'); return; }
+    if (ehArma) { dados.dano = g('dano'); dados.tipo_dano = g('tipo_dano'); dados.efeitos = { ataque: { dano: g('dano'), tipo: g('tipo_dano') } }; }
+    if (ehArmadura) { dados.ca_base = Number(g('ca_base')); dados.ca_soma_des = g('ca_soma_des'); dados.efeitos = { ca_base: Number(g('ca_base')), ca_soma_des: g('ca_soma_des'), ca_des_max: 2 }; }
+    try { await api.catalog.create(tipo, dados); toast('Item criado!'); fechar(); aoCriar(); }
+    catch (e) { toast(e.message, 'err'); }
+  });
 }
 
 function renderStats(personagem, derivados) {

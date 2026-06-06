@@ -42,6 +42,20 @@ GET /health:           # público
 - `POST /campaigns/<id>/kick` *(mestre/A)* — `{user_id}`.
 - `POST /campaigns/<id>/personagens` *(membro)* — vincula um personagem meu à mesa.
 
+## Catálogo de itens (Armas/Armaduras/Itens) — `tipo ∈ {weapons, armor, items}`
+- `GET /catalog/<tipo>?personagem_id=&q=` — catálogo global + itens próprios do personagem.
+- `GET /catalog/<tipo>/<id>`.
+- `POST /catalog/<tipo>` — cria. **JOGADOR** exige `personagem_id` (vincula ao seu personagem,
+  só ele usa); **MESTRE/ADMIN** cria global (ou `mesa_id`). Sempre `homebrew=true`, `fonte` obrigatória.
+- `PUT /catalog/<tipo>/<id>` · `DELETE /catalog/<tipo>/<id>` — criador/mestre da mesa/ADMIN.
+
+## Equipar (personagem)
+- `POST /characters/<id>/equipar` *(owner/A)* — `{tipo:"arma"|"armadura", item_id}`. Aplica CA
+  (armadura) e ataques (armas) nos `derivados`.
+- `POST /characters/<id>/desequipar` *(owner/A)* — `{tipo, item_id?}`.
+
+Catálogo SRD/OGL global também via leitura em `GET /reference/{weapons,armor,items}`.
+
 ## Bestiary
 - `GET /bestiary?mesa_id=&q=&nd=` — SRD global + (se mesa_id) bestiário da mesa.
 - `GET /bestiary/<id>`.
