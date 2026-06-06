@@ -51,7 +51,11 @@ def register():
     )
     db.session.add(usuario)
     db.session.commit()
-    return created(usuario.to_dict())
+
+    # Auto-login: devolve o token já no registro (evita o passo manual de re-login,
+    # onde autofill do navegador ou erro de digitação causavam "credenciais inválidas").
+    token = create_access_token(identity=str(usuario.id))
+    return created({"access_token": token, "user": usuario.to_dict()})
 
 
 @bp.post("/auth/login")

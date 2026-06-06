@@ -27,7 +27,11 @@ export function renderLogin() {
             </div>
             <div class="field">
               <label>Senha</label>
-              <input class="input" name="password" type="password" placeholder="••••••" required>
+              <div class="field-inline" style="gap:6px">
+                <input class="input" name="password" type="password" placeholder="••••••" required minlength="6">
+                <button type="button" class="btn btn--ghost btn--sm" id="ver-senha" title="Mostrar/ocultar senha">👁️</button>
+              </div>
+              ${modoRegistro ? '<small class="muted" id="dica-senha">Mínimo de 6 caracteres.</small>' : ''}
             </div>
             <div class="field" ${modoRegistro ? '' : 'style="display:none"'} id="wrap-role">
               <label>Como você joga?</label>
@@ -54,20 +58,26 @@ export function renderLogin() {
       pintar();
     });
 
+    // Mostrar/ocultar senha (ajuda a evitar erro de digitação).
+    const campoSenha = wrap.querySelector('[name=password]');
+    wrap.querySelector('#ver-senha').addEventListener('click', () => {
+      campoSenha.type = campoSenha.type === 'password' ? 'text' : 'password';
+    });
+
     wrap.querySelector('#auth-form').addEventListener('submit', async (evento) => {
       evento.preventDefault();
       const dados = Object.fromEntries(new FormData(evento.target).entries());
+      if (modoRegistro && (dados.password || '').length < 6) {
+        toast('A senha precisa ter ao menos 6 caracteres.', 'err');
+        return;
+      }
       try {
-        if (modoRegistro) {
-          await api.auth.register({ name: dados.name, email: dados.email, password: dados.password, role: dados.role });
-          toast('Conta criada! Faça login.');
-          modoRegistro = false;
-          pintar();
-          return;
-        }
-        const sessao = await api.auth.login({ email: dados.email, password: dados.password });
+        // Tanto registro quanto login devolvem {access_token, user} -> entra direto.
+        const sessao = modoRegistro
+          ? await api.auth.register({ name: dados.name, email: dados.email, password: dados.password, role: dados.role })
+          : await api.auth.login({ email: dados.email, password: dados.password });
         setSession(sessao);
-        toast(`Bem-vindo, ${sessao.user.name}!`);
+        toast(modoRegistro ? `Conta criada! Bem-vindo, ${sessao.user.name}!` : `Bem-vindo, ${sessao.user.name}!`);
         navegar('#/dashboard');
       } catch (erro) {
         toast(erro.message || 'Falha na autenticação.', 'err');

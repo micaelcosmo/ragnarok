@@ -5,15 +5,28 @@ URL_LOGIN = "/api/v1/auth/login"
 URL_ME = "/api/v1/auth/me"
 
 
-def test_registro_valido(client):
+def test_registro_valido_faz_auto_login(client):
     resposta = client.post(URL_REGISTER, json={
         "email": "novo@teste.local", "name": "Novo", "password": "senha123",
     })
     assert resposta.status_code == 201
     corpo = resposta.get_json()["data"]
-    assert corpo["email"] == "novo@teste.local"
-    assert corpo["role"] == "JOGADOR"
-    assert "password_hash" not in corpo
+    # Auto-login: o registro já devolve token + usuário.
+    assert "access_token" in corpo
+    usuario = corpo["user"]
+    assert usuario["email"] == "novo@teste.local"
+    assert usuario["role"] == "JOGADOR"
+    assert "password_hash" not in usuario
+
+
+def test_registro_com_acentos_e_login(client):
+    """Senha com acentos/caracteres especiais registra e loga (não é bug)."""
+    payload = {"email": "acentos@teste.local", "name": "Ângela", "password": "áÇ@senh@2026"}
+    reg = client.post(URL_REGISTER, json=payload)
+    assert reg.status_code == 201
+    login = client.post(URL_LOGIN, json={"email": payload["email"], "password": payload["password"]})
+    assert login.status_code == 200
+    assert "access_token" in login.get_json()["data"]
 
 
 def test_registro_email_duplicado(client):
@@ -37,14 +50,14 @@ def test_registro_nunca_cria_admin(client):
         "email": "hacker@teste.local", "name": "H", "password": "senha123", "role": "ADMIN",
     })
     assert resposta.status_code == 201
-    assert resposta.get_json()["data"]["role"] == "JOGADOR"
+    assert resposta.get_json()["data"]["user"]["role"] == "JOGADOR"
 
 
 def test_registro_pode_ser_mestre(client):
     resposta = client.post(URL_REGISTER, json={
         "email": "mestre@teste.local", "name": "M", "password": "senha123", "role": "MESTRE",
     })
-    assert resposta.get_json()["data"]["role"] == "MESTRE"
+    assert resposta.get_json()["data"]["user"]["role"] == "MESTRE"
 
 
 def test_login_correto_e_incorreto(client):

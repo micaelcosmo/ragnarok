@@ -56,12 +56,10 @@ def main():
     magias = chamar("GET", "/reference/spells?nivel=3", token=token_admin)
     print(f"      raças={len(racas or [])}  magias_nivel3={len(magias or [])}")
 
-    print("\n[4] Registro + login de um JOGADOR")
-    chamar("POST", "/auth/register",
-           {"email": "heroi@ragnarok.local", "name": "Herói E2E", "password": "senha123"},
-           esperado=201)
-    sessao_jog = chamar("POST", "/auth/login",
-                        {"email": "heroi@ragnarok.local", "password": "senha123"})
+    print("\n[4] Registro de um JOGADOR (auto-login: token já vem no registro)")
+    sessao_jog = chamar("POST", "/auth/register",
+                       {"email": "heroi@ragnarok.local", "name": "Herói E2E", "password": "senha123"},
+                       esperado=201)
     token_jog = sessao_jog["access_token"] if sessao_jog else None
 
     print("\n[5] Criação de personagem + ficha com derivados")

@@ -3,6 +3,8 @@
 ## Endpoints
 - `POST /auth/register` — valida email único + senha mín. 6 chars. `role` recebido é **ignorado**
   se for ADMIN (segurança). Default `JOGADOR`. Mestre pode ser escolhido no registro (estudo).
+  **Auto-login**: devolve `{access_token, user}` (igual ao login), para o cliente entrar direto
+  sem um segundo passo de senha (evita erro de digitação/autofill no re-login).
 - `POST /auth/login` — retorna `access_token` (JWT, identity=user.id) + objeto user.
 - `GET /auth/me` — retorna user atual a partir do token.
 
@@ -11,7 +13,7 @@
 - `@role_required(*roles)` — 401 sem token, 403 se papel não permitido (ADMIN sempre passa).
 
 ## Critérios de aceite (tests/test_auth.py)
-1. registro válido → 201 + user sem `password_hash` no payload.
+1. registro válido → 201 + `{access_token, user}` (user sem `password_hash`).
 2. registro com email duplicado → 409 CONFLICT.
 3. registro com senha curta → 400 VALIDATION.
 4. registro tentando `role:"ADMIN"` → cria como JOGADOR.
