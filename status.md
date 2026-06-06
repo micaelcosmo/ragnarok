@@ -31,7 +31,7 @@
 | E17 | Auth: auto-login no registro + reset de senha por link (admin) | ✅ |
 | E18 | Banco: Alembic/Flask-Migrate (sem perder dados) + backup | ✅ |
 | E19 | Enriquecimento da ficha (efeitos, itens, wizard, compêndio, i18n) | ✅ (em prod) |
-| E20 | Identidade & Imagens do Personagem (retrato, símbolo, página de identidade) | 🔄 |
+| E20 | Identidade & Imagens do Personagem (retrato, símbolo, página de identidade) | ✅ (em prod) |
 
 ---
 
