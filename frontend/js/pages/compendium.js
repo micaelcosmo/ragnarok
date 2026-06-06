@@ -6,10 +6,13 @@ import { montarShell } from '../app.js';
 import { emptyState, esc, html, ligarTabs, modal, toast } from '../ui.js';
 
 const TABS = [
-  { tipo: 'spells', icone: '📜', titulo: 'Magias' },
-  { tipo: 'feats', icone: '⭐', titulo: 'Talentos' },
-  { tipo: 'races', icone: '🧬', titulo: 'Raças' },
-  { tipo: 'classes', icone: '⚔️', titulo: 'Classes' },
+  { tipo: 'spells', icone: '📜', titulo: 'Magias', crud: true },
+  { tipo: 'feats', icone: '⭐', titulo: 'Talentos', crud: true },
+  { tipo: 'races', icone: '🧬', titulo: 'Raças', crud: true },
+  { tipo: 'classes', icone: '⚔️', titulo: 'Classes', crud: true },
+  { tipo: 'weapons', icone: '🗡️', titulo: 'Armas', crud: false },
+  { tipo: 'armor', icone: '🛡️', titulo: 'Armaduras', crud: false },
+  { tipo: 'items', icone: '✨', titulo: 'Itens', crud: false },
 ];
 
 function selo(item) {
@@ -22,11 +25,12 @@ function podeEditar() {
   return u && (u.role === 'MESTRE' || u.role === 'ADMIN');
 }
 
-async function carregar(tipo) {
-  if (tipo === 'spells') return api.reference.spells({});
-  if (tipo === 'feats') return api.reference.feats({});
+async function carregar(tipo, q = '') {
+  if (tipo === 'spells') return api.reference.spells({ q });
+  if (tipo === 'feats') return api.reference.feats({ q });
   if (tipo === 'races') return api.reference.races();
   if (tipo === 'classes') return api.reference.classes();
+  if (tipo === 'weapons' || tipo === 'armor' || tipo === 'items') return api.reference.catalogGlobal(tipo, { q });
   return [];
 }
 
@@ -42,7 +46,7 @@ export async function renderCompendium() {
     ${TABS.map((t, i) => `<div data-panel="${t.tipo}" ${i === 0 ? '' : 'style="display:none"'}>
       <div class="row" style="margin-bottom:12px">
         <input class="input" data-busca="${t.tipo}" placeholder="🔎 Buscar ${t.titulo.toLowerCase()}..." style="max-width:280px">
-        ${podeEditar() ? `<button class="btn btn--gold btn--sm" data-criar="${t.tipo}">+ Criar (homebrew)</button>` : ''}
+        ${podeEditar() && t.crud ? `<button class="btn btn--gold btn--sm" data-criar="${t.tipo}">+ Criar (homebrew)</button>` : ''}
       </div>
       <div data-lista="${t.tipo}"><div class="spinner"></div></div>
     </div>`).join('')}`;
@@ -53,7 +57,7 @@ export async function renderCompendium() {
       const alvo = view.querySelector(`[data-lista="${t.tipo}"]`);
       alvo.innerHTML = '<div class="spinner"></div>';
       try {
-        let itens = await carregar(t.tipo);
+        let itens = await carregar(t.tipo, filtro);
         if (filtro) itens = itens.filter((it) => (it.nome || '').toLowerCase().includes(filtro.toLowerCase()));
         alvo.innerHTML = itens.length
           ? `<div class="grid grid--cards">${itens.map((it) => cardGenerico(t, it)).join('')}</div>`
@@ -79,6 +83,9 @@ function cardGenerico(t, item) {
   const meta = t.tipo === 'spells' ? (item.nivel === 0 ? 'Truque' : 'Nível ' + item.nivel)
     : t.tipo === 'classes' ? `d${item.dado_vida}`
     : t.tipo === 'races' ? (item.tamanho || '')
+    : t.tipo === 'weapons' ? (item.dano ? `${item.dano} ${item.tipo_dano || ''}` : '')
+    : t.tipo === 'armor' ? (item.ca_base ? `CA ${item.ca_base}` : '')
+    : t.tipo === 'items' ? (item.raridade || '')
     : (item.pre_requisito || '');
   return `<div class="card char-card" data-slug="${esc(item.slug)}">
     <div class="spread"><div class="ccard-name" style="font-size:1rem">${esc(item.nome)}</div>
@@ -89,7 +96,7 @@ function cardGenerico(t, item) {
 
 function detalhe(t, item, aoMudar) {
   const corpo = corpoDetalhe(t, item);
-  const editavel = podeEditar();
+  const editavel = podeEditar() && t.crud;
   const conteudo = html(`<div>
     <div class="spread"><h2 style="margin:0">${esc(item.nome)}</h2>${selo(item)}</div>
     <div style="margin-top:10px">${corpo}</div>
@@ -121,6 +128,22 @@ function corpoDetalhe(t, item) {
   if (t.tipo === 'races') return `<div class="muted">${esc(item.tamanho || '')} · ${item.deslocamento} m</div>
     <p style="white-space:pre-wrap">${esc(item.descricao || '')}</p>
     <div class="muted">Bônus: ${Object.entries(item.bonus_atributos || {}).map(([k, v]) => k.toUpperCase() + ' +' + v).join(', ') || '—'}</div>`;
+  if (t.tipo === 'weapons') return `<div class="row" style="margin-bottom:8px">
+      <span class="chip">${esc(item.categoria || '')}</span><span class="chip">${esc(item.alcance || '')}</span>
+      ${item.dano ? `<span class="chip">🎯 ${esc(item.dano)} ${esc(item.tipo_dano || '')}</span>` : ''}
+      ${(item.propriedades || []).map((p) => `<span class="chip">${esc(p)}</span>`).join('')}</div>
+      <p style="white-space:pre-wrap">${esc(item.descricao || '')}</p>`;
+  if (t.tipo === 'armor') return `<div class="row" style="margin-bottom:8px">
+      <span class="chip">${esc(item.categoria || '')}</span>
+      ${item.ca_base ? `<span class="chip">🛡️ CA base ${item.ca_base}</span>` : ''}
+      ${item.ca_soma_des ? `<span class="chip">+DES${item.ca_des_max != null ? ' (máx ' + item.ca_des_max + ')' : ''}</span>` : ''}
+      ${item.furtividade_desvantagem ? '<span class="chip">Furtividade em desvantagem</span>' : ''}</div>
+      <p style="white-space:pre-wrap">${esc(item.descricao || '')}</p>`;
+  if (t.tipo === 'items') return `<div class="row" style="margin-bottom:8px">
+      ${item.raridade ? `<span class="chip">${esc(item.raridade)}</span>` : ''}
+      ${item.requer_sintonia ? '<span class="chip">requer sintonia</span>' : ''}
+      ${item.tipo_item ? `<span class="chip">${esc(item.tipo_item)}</span>` : ''}</div>
+      <p style="white-space:pre-wrap">${esc(item.descricao || '')}</p>`;
   return `${item.pre_requisito ? `<div class="muted">Pré-requisito: ${esc(item.pre_requisito)}</div>` : ''}
     <p style="white-space:pre-wrap">${esc(item.descricao || '')}</p>`;
 }

@@ -115,6 +115,14 @@ export const api = {
       return apiFetch(`/reference/feats${qs ? `?${qs}` : ''}`);
     },
     sources: () => apiFetch('/reference/sources'),
+    // Catálogo global de equipamento (leitura). tipo ∈ weapons|armor|items
+    catalogGlobal: (tipo, { q } = {}) => {
+      const params = new URLSearchParams();
+      if (q) params.set('q', q);
+      if (getIdioma() === 'pt') params.set('idioma', 'pt');
+      const qs = params.toString();
+      return apiFetch(`/reference/${tipo}${qs ? `?${qs}` : ''}`);
+    },
     // CRUD do compêndio (MESTRE/ADMIN). tipo ∈ races|classes|backgrounds|feats|spells
     create: (tipo, dados) => apiFetch(`/reference/${tipo}`, { method: 'POST', body: dados }),
     update: (tipo, slug, dados) => apiFetch(`/reference/${tipo}/${slug}`, { method: 'PUT', body: dados }),
