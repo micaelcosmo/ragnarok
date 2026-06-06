@@ -2,9 +2,10 @@
 from flask import Blueprint, request
 
 from app.extensions import db
+from app.models.items import Arma, Armadura, Item
 from app.models.reference import Antecedente, Classe, Magia, Raca, Talento
-from app.utils.auth import auth_required, role_required
-from app.utils.errors import Conflict, NotFound
+from app.utils.auth import auth_required, current_user, role_required
+from app.utils.errors import Conflict, Forbidden, NotFound
 from app.utils.responses import corpo_json, created, ok
 
 bp = Blueprint("reference", __name__)
@@ -81,6 +82,47 @@ def obter_talento(slug):
     return ok(talento.to_dict())
 
 
+def _listar_itens(modelo):
+    """Lista o catálogo GLOBAL (SRD/OGL) de um tipo de item, com ?q=, ?fonte= e paginação."""
+    consulta = modelo.query.filter(modelo.personagem_id.is_(None), modelo.mesa_id.is_(None))
+    consulta = _filtrar_fonte(consulta, modelo)
+    busca = request.args.get("q")
+    if busca:
+        consulta = consulta.filter(modelo.nome.ilike(f"%{busca}%"))
+    consulta = consulta.order_by(modelo.nome)
+    total = consulta.count()
+    limite = min(max(int(request.args.get("limit", 80)), 1), 500)
+    registros = consulta.limit(limite).all()
+    dados = [r.to_dict() for r in registros]
+
+    # Tradução opcional (?idioma=pt) para conteúdo importado em inglês.
+    if request.args.get("idioma") == "pt":
+        from app.services.tradutor import Tradutor
+        tradutor = Tradutor("pt")
+        tipo_rota = {"Arma": "weapons", "Armadura": "armor", "Item": "items"}.get(modelo.__name__, "")
+        dados = [tradutor.aplicar(tipo_rota, d) for d in dados]
+
+    return ok(dados, meta={"total": total, "exibidos": len(registros), "limite": limite})
+
+
+@bp.get("/reference/weapons")
+@auth_required
+def listar_armas():
+    return _listar_itens(Arma)
+
+
+@bp.get("/reference/armor")
+@auth_required
+def listar_armaduras():
+    return _listar_itens(Armadura)
+
+
+@bp.get("/reference/items")
+@auth_required
+def listar_itens_magicos():
+    return _listar_itens(Item)
+
+
 @bp.get("/reference/sources")
 @auth_required
 def listar_fontes():
@@ -128,34 +170,99 @@ def obter_magia(slug):
     return ok(magia.to_dict())
 
 
-# ---- Escrita (somente ADMIN) — exemplo para magias (compêndio editável) ----
+# ============================================================================
+# Escrita do compêndio — MESTRE + ADMIN. Fonte OBRIGATÓRIA; conteúdo criado na UI
+# é sempre HOMEBREW (nunca "oficial"). Editar um oficial cria uma CÓPIA homebrew.
+# ============================================================================
 
-@bp.post("/reference/spells")
-@role_required("ADMIN")
-def criar_magia():
-    dados = corpo_json(["slug", "nome"])
-    if Magia.query.filter_by(slug=dados["slug"]).first():
-        raise Conflict("Já existe magia com esse slug.")
-    magia = Magia(**_campos_magia(dados))
-    db.session.add(magia)
+# tipo de rota -> (Model, campos editáveis)
+_TIPOS_REF = {
+    "races": (Raca, ["slug", "nome", "descricao", "deslocamento", "tamanho",
+                     "bonus_atributos", "tracos", "subracas", "efeitos"]),
+    "classes": (Classe, ["slug", "nome", "descricao", "dado_vida", "atributo_principal",
+                        "salvaguardas", "pericias_disponiveis", "num_pericias",
+                        "conjurador", "atributo_conjuracao", "efeitos"]),
+    "backgrounds": (Antecedente, ["slug", "nome", "descricao", "pericias", "idiomas",
+                                 "equipamento", "efeitos"]),
+    "feats": (Talento, ["slug", "nome", "descricao", "pre_requisito", "efeitos"]),
+    "spells": (Magia, ["slug", "nome", "nivel", "escola", "tempo_conjuracao", "alcance",
+                      "componentes", "duracao", "concentracao", "ritual", "classes", "descricao"]),
+}
+
+
+def _modelo_ref(tipo):
+    if tipo not in _TIPOS_REF:
+        raise NotFound("Tipo de conteúdo inválido.")
+    return _TIPOS_REF[tipo]
+
+
+@bp.post("/reference/<tipo>")
+@role_required("MESTRE")
+def criar_referencia(tipo):
+    """Cria conteúdo homebrew no compêndio (MESTRE/ADMIN). `fonte` é obrigatória."""
+    modelo, campos = _modelo_ref(tipo)
+    dados = corpo_json(["slug", "nome", "fonte"])
+    if modelo.query.filter_by(slug=dados["slug"]).first():
+        raise Conflict("Já existe conteúdo com esse slug.")
+    registro = modelo(**{campo: dados[campo] for campo in campos if campo in dados})
+    registro.fonte = dados["fonte"]
+    registro.homebrew = True
+    registro.criado_por = current_user().id
+    db.session.add(registro)
     db.session.commit()
-    return created(magia.to_dict())
+    return created(registro.to_dict())
 
 
-@bp.delete("/reference/spells/<slug>")
-@role_required("ADMIN")
-def remover_magia(slug):
-    magia = Magia.query.filter_by(slug=slug).first()
-    if magia is None:
-        raise NotFound("Magia não encontrada.")
-    db.session.delete(magia)
+@bp.put("/reference/<tipo>/<slug>")
+@role_required("MESTRE")
+def atualizar_referencia(tipo, slug):
+    """
+    Edita conteúdo. Editar um item OFICIAL cria uma CÓPIA homebrew (preserva a procedência);
+    editar homebrew altera no lugar.
+    """
+    modelo, campos = _modelo_ref(tipo)
+    registro = modelo.query.filter_by(slug=slug).first()
+    if registro is None:
+        raise NotFound("Conteúdo não encontrado.")
+    dados = corpo_json()
+
+    if not registro.homebrew:
+        # Não corrompe o oficial: cria variante homebrew.
+        novo = modelo(**{campo: getattr(registro, campo) for campo in campos
+                        if hasattr(registro, campo)})
+        novo.slug = dados.get("slug") or f"{slug}-homebrew-{current_user().id}"
+        if modelo.query.filter_by(slug=novo.slug).first():
+            raise Conflict("Já existe uma variante com esse slug.")
+        for campo in campos:
+            if campo in dados:
+                setattr(novo, campo, dados[campo])
+        novo.homebrew = True
+        novo.criado_por = current_user().id
+        novo.fonte = dados.get("fonte") or f"Homebrew — {current_user().name}"
+        db.session.add(novo)
+        db.session.commit()
+        return created(novo.to_dict())
+
+    for campo in campos:
+        if campo in dados:
+            setattr(registro, campo, dados[campo])
+    if dados.get("fonte"):
+        registro.fonte = dados["fonte"]
+    db.session.commit()
+    return ok(registro.to_dict())
+
+
+@bp.delete("/reference/<tipo>/<slug>")
+@role_required("MESTRE")
+def remover_referencia(tipo, slug):
+    """Remove conteúdo. Mestre só remove homebrew; ADMIN remove qualquer um."""
+    modelo, _campos = _modelo_ref(tipo)
+    registro = modelo.query.filter_by(slug=slug).first()
+    if registro is None:
+        raise NotFound("Conteúdo não encontrado.")
+    usuario = current_user()
+    if not registro.homebrew and not usuario.is_admin:
+        raise Forbidden("Apenas ADMIN remove conteúdo oficial.")
+    db.session.delete(registro)
     db.session.commit()
     return ok({"removido": slug})
-
-
-def _campos_magia(dados):
-    permitidos = (
-        "slug", "nome", "nivel", "escola", "tempo_conjuracao", "alcance",
-        "componentes", "duracao", "concentracao", "ritual", "classes", "descricao",
-    )
-    return {campo: dados[campo] for campo in permitidos if campo in dados}

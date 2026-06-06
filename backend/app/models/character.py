@@ -1,7 +1,6 @@
 """Modelo de Personagem (ficha completa de D&D 5E)."""
 from app.extensions import db
 from app.models.base import TimestampMixin
-from app.rules import dnd5e
 
 
 class Personagem(TimestampMixin, db.Model):
@@ -33,6 +32,7 @@ class Personagem(TimestampMixin, db.Model):
 
     # Combate
     ca = db.Column(db.Integer, default=10, nullable=False)
+    ca_ajuste = db.Column(db.Integer, default=0, nullable=False)  # ajuste manual de CA (+/-)
     iniciativa_bonus = db.Column(db.Integer, default=0, nullable=False)
     deslocamento = db.Column(db.String(20), default="9 m", nullable=True)
     pv_max = db.Column(db.Integer, default=1, nullable=False)
@@ -45,6 +45,13 @@ class Personagem(TimestampMixin, db.Model):
     pericias_proficientes = db.Column(db.JSON, default=list)
     salvaguardas_proficientes = db.Column(db.JSON, default=list)
     outras_proficiencias = db.Column(db.Text, nullable=True)
+
+    # Fontes de efeitos (bônus reversíveis): talentos escolhidos (slugs).
+    talentos = db.Column(db.JSON, default=list)
+
+    # Equipamento ativo (fontes de efeitos de itens).
+    armadura_equipada_id = db.Column(db.Integer, db.ForeignKey("armaduras.id"), nullable=True)
+    armas_equipadas = db.Column(db.JSON, default=list)   # lista de ids de Arma
 
     # Magia
     classe_conjuradora = db.Column(db.String(60), nullable=True)
@@ -82,15 +89,14 @@ class Personagem(TimestampMixin, db.Model):
         }
 
     def derivados(self):
-        """Bloco de campos calculados (modificadores, perícias, salvaguardas, etc.)."""
-        return dnd5e.ficha_derivada(
-            self.atributos_dict(),
-            self.nivel,
-            pericias_proficientes=self.pericias_proficientes or [],
-            salvaguardas_proficientes=self.salvaguardas_proficientes or [],
-            atributo_conjuracao=self.atributo_conjuracao,
-            iniciativa_bonus_extra=self.iniciativa_bonus or 0,
-        )
+        """
+        Bloco de campos calculados, já com os efeitos das fontes (raça/classe/antecedente/
+        talentos) aplicados sobre a camada base. Ver ConstrutorDeFicha.
+        """
+        # Import tardio para evitar import circular (service -> models).
+        from app.services.construtor import construir_derivados
+
+        return construir_derivados(self)
 
     def to_dict(self, incluir_derivados=True):
         """Serializa a ficha; inclui o bloco `derivados` por padrão."""
@@ -108,6 +114,7 @@ class Personagem(TimestampMixin, db.Model):
             "xp": self.xp,
             "atributos": self.atributos_dict(),
             "ca": self.ca,
+            "ca_ajuste": self.ca_ajuste,
             "iniciativa_bonus": self.iniciativa_bonus,
             "deslocamento": self.deslocamento,
             "pv_max": self.pv_max,
@@ -117,6 +124,9 @@ class Personagem(TimestampMixin, db.Model):
             "inspiracao": self.inspiracao,
             "pericias_proficientes": self.pericias_proficientes or [],
             "salvaguardas_proficientes": self.salvaguardas_proficientes or [],
+            "talentos": self.talentos or [],
+            "armadura_equipada_id": self.armadura_equipada_id,
+            "armas_equipadas": self.armas_equipadas or [],
             "outras_proficiencias": self.outras_proficiencias,
             "classe_conjuradora": self.classe_conjuradora,
             "atributo_conjuracao": self.atributo_conjuracao,

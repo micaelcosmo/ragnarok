@@ -1,14 +1,17 @@
 """Modelos SQLAlchemy do Ragnarok."""
 from app.models.user import User
-from app.models.campaign import Mesa, MembroMesa
+from app.models.campaign import Mesa, MembroMesa, MesaFonteAceita
 from app.models.character import Personagem
 from app.models.monster import Monstro
 from app.models.reference import Raca, Classe, Antecedente, Magia, Talento
+from app.models.items import Arma, Armadura, Item
+from app.models.translation import Traducao
 
 __all__ = [
     "User",
     "Mesa",
     "MembroMesa",
+    "MesaFonteAceita",
     "Personagem",
     "Monstro",
     "Raca",
@@ -16,4 +19,8 @@ __all__ = [
     "Antecedente",
     "Magia",
     "Talento",
+    "Arma",
+    "Armadura",
+    "Item",
+    "Traducao",
 ]

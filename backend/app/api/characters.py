@@ -22,10 +22,10 @@ _CAMPOS_TEXTO = (
     "idiomas", "equipamento", "ataques", "dinheiro", "avatar_url",
 )
 _CAMPOS_INT = (
-    "nivel", "xp", "ca", "iniciativa_bonus", "pv_max", "pv_atual", "pv_temp",
+    "nivel", "xp", "ca", "ca_ajuste", "iniciativa_bonus", "pv_max", "pv_atual", "pv_temp",
 )
 _CAMPOS_LISTA = (
-    "pericias_proficientes", "salvaguardas_proficientes", "truques", "magias",
+    "pericias_proficientes", "salvaguardas_proficientes", "truques", "magias", "talentos",
 )
 
 
@@ -129,6 +129,69 @@ def atualizar(personagem_id):
         raise Forbidden("Você não pode editar este personagem.")
     dados = corpo_json()
     _aplicar_campos(personagem, dados)
+    db.session.commit()
+    return ok(personagem.to_dict())
+
+
+def _usavel_pelo_personagem(modelo, item_id, personagem):
+    """Item é usável se for global (sem dono) ou pertencer a este personagem."""
+    item = modelo.query.get(int(item_id))
+    if item is None:
+        return None
+    ehGlobal = item.personagem_id is None and item.mesa_id is None
+    if ehGlobal or item.personagem_id == personagem.id:
+        return item
+    return None
+
+
+@bp.post("/characters/<int:personagem_id>/equipar")
+@auth_required
+def equipar(personagem_id):
+    """Equipa uma arma (adiciona) ou armadura (substitui) — aplica CA/ataque na ficha."""
+    from app.models.items import Arma, Armadura
+
+    usuario = current_user()
+    personagem = Personagem.query.get(personagem_id)
+    if personagem is None:
+        raise NotFound("Personagem não encontrado.")
+    if not (usuario.is_admin or personagem.user_id == usuario.id):
+        raise Forbidden("Você não pode equipar itens deste personagem.")
+    dados = corpo_json(["tipo", "item_id"])
+
+    if dados["tipo"] == "armadura":
+        if _usavel_pelo_personagem(Armadura, dados["item_id"], personagem) is None:
+            raise NotFound("Armadura indisponível para este personagem.")
+        personagem.armadura_equipada_id = int(dados["item_id"])
+    elif dados["tipo"] == "arma":
+        if _usavel_pelo_personagem(Arma, dados["item_id"], personagem) is None:
+            raise NotFound("Arma indisponível para este personagem.")
+        equipadas = list(personagem.armas_equipadas or [])
+        if int(dados["item_id"]) not in equipadas:
+            equipadas.append(int(dados["item_id"]))
+        personagem.armas_equipadas = equipadas
+    else:
+        raise ValidationError("tipo deve ser 'arma' ou 'armadura'.")
+
+    db.session.commit()
+    return ok(personagem.to_dict())
+
+
+@bp.post("/characters/<int:personagem_id>/desequipar")
+@auth_required
+def desequipar(personagem_id):
+    """Remove uma arma equipada ou tira a armadura."""
+    usuario = current_user()
+    personagem = Personagem.query.get(personagem_id)
+    if personagem is None:
+        raise NotFound("Personagem não encontrado.")
+    if not (usuario.is_admin or personagem.user_id == usuario.id):
+        raise Forbidden("Você não pode alterar este personagem.")
+    dados = corpo_json(["tipo"])
+    if dados["tipo"] == "armadura":
+        personagem.armadura_equipada_id = None
+    elif dados["tipo"] == "arma":
+        equipadas = [a for a in (personagem.armas_equipadas or []) if a != int(dados.get("item_id", -1))]
+        personagem.armas_equipadas = equipadas
     db.session.commit()
     return ok(personagem.to_dict())
 

@@ -94,19 +94,34 @@ class SeedRunner:
 
     def semear_racas(self):
         campos = ["slug", "nome", "descricao", "deslocamento", "tamanho",
-                  "bonus_atributos", "tracos", "subracas"]
-        self._upsert(Raca, self._carregar_json("races.json"), campos)
+                  "bonus_atributos", "tracos", "subracas", "efeitos"]
+        registros = self._carregar_json("races.json")
+        for registro in registros:
+            # Raça concede bônus de atributo automaticamente (efeito).
+            registro.setdefault("efeitos", {})
+            registro["efeitos"].setdefault("atributos", registro.get("bonus_atributos") or {})
+        self._upsert(Raca, registros, campos)
 
     def semear_classes(self):
         campos = ["slug", "nome", "descricao", "dado_vida", "atributo_principal",
                   "salvaguardas", "pericias_disponiveis", "num_pericias",
                   "conjurador", "atributo_conjuracao", "proficiencias_armadura",
-                  "proficiencias_arma"]
-        self._upsert(Classe, self._carregar_json("classes.json"), campos)
+                  "proficiencias_arma", "efeitos"]
+        registros = self._carregar_json("classes.json")
+        for registro in registros:
+            # Classe concede proficiência nas salvaguardas automaticamente.
+            registro.setdefault("efeitos", {})
+            registro["efeitos"].setdefault("salvaguardas", registro.get("salvaguardas") or [])
+        self._upsert(Classe, registros, campos)
 
     def semear_antecedentes(self):
-        campos = ["slug", "nome", "descricao", "pericias", "idiomas", "equipamento"]
-        self._upsert(Antecedente, self._carregar_json("backgrounds.json"), campos)
+        campos = ["slug", "nome", "descricao", "pericias", "idiomas", "equipamento", "efeitos"]
+        registros = self._carregar_json("backgrounds.json")
+        for registro in registros:
+            # Antecedente concede proficiência nas perícias automaticamente.
+            registro.setdefault("efeitos", {})
+            registro["efeitos"].setdefault("pericias", registro.get("pericias") or [])
+        self._upsert(Antecedente, registros, campos)
 
     def semear_magias(self):
         campos = ["slug", "nome", "nivel", "escola", "tempo_conjuracao", "alcance",
@@ -120,7 +135,7 @@ class SeedRunner:
         self._upsert(Monstro, self._carregar_json("monsters.json"), campos)
 
     def semear_talentos(self):
-        campos = ["slug", "nome", "descricao", "pre_requisito", "fonte"]
+        campos = ["slug", "nome", "descricao", "pre_requisito", "fonte", "efeitos"]
         self._upsert(Talento, self._carregar_json("feats.json"), campos)
 
     def executar(self):

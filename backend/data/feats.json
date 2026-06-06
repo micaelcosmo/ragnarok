@@ -4,6 +4,12 @@
     "nome": "Lutador Agarrador (Grappler)",
     "descricao": "Você desenvolveu técnicas de combate corpo a corpo. Você tem vantagem em jogadas de ataque contra uma criatura que esteja agarrada por você. Você pode usar sua ação para tentar prender uma criatura agarrada por você; para isso, faça uma nova jogada de agarrar. Se você for bem-sucedido, você e a criatura ficam contidos até o fim do agarrão.",
     "pre_requisito": "Força 13 ou mais",
-    "fonte": "SRD 5.1"
+    "fonte": "SRD 5.1",
+    "efeitos": {
+      "recursos": [
+        "Vantagem em jogadas de ataque contra uma criatura agarrada por você.",
+        "Você pode usar uma ação para prender uma criatura agarrada."
+      ]
+    }
   }
 ]

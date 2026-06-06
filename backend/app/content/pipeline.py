@@ -2,6 +2,7 @@
 from sqlalchemy import String
 
 from app.extensions import db
+from app.models.items import Arma, Armadura, Item
 from app.models.monster import Monstro
 from app.models.reference import Antecedente, Classe, Magia, Raca, Talento
 from app.content.base import Relatorio
@@ -41,7 +42,19 @@ TIPOS_CONFIG = {
         "deslocamento", "atributos", "nd", "xp", "pericias", "sentidos", "idiomas",
         "habilidades", "acoes",
     ]),
-    "feats": (Talento, ["slug", "nome", "descricao", "pre_requisito"]),
+    "feats": (Talento, ["slug", "nome", "descricao", "pre_requisito", "efeitos"]),
+    "weapons": (Arma, [
+        "slug", "nome", "descricao", "categoria", "alcance", "dano", "tipo_dano",
+        "propriedades", "bonus_magico", "efeitos", "homebrew", "idioma",
+    ]),
+    "armor": (Armadura, [
+        "slug", "nome", "descricao", "categoria", "ca_base", "ca_soma_des", "ca_des_max",
+        "ca_bonus", "requisito_forca", "furtividade_desvantagem", "efeitos", "homebrew", "idioma",
+    ]),
+    "items": (Item, [
+        "slug", "nome", "descricao", "tipo_item", "raridade", "requer_sintonia",
+        "homebrew", "idioma",
+    ]),
 }
 
 

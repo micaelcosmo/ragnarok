@@ -74,6 +74,19 @@ class Mesa(TimestampMixin, db.Model):
         return dados
 
 
+class MesaFonteAceita(TimestampMixin, db.Model):
+    """Fonte homebrew que o mestre aceitou na sua mesa (fica visível p/ os jogadores)."""
+
+    __tablename__ = "mesa_fontes_aceitas"
+    __table_args__ = (
+        db.UniqueConstraint("mesa_id", "fonte", name="uq_mesa_fonte"),
+    )
+
+    id = db.Column(db.Integer, primary_key=True)
+    mesa_id = db.Column(db.Integer, db.ForeignKey("mesas.id"), nullable=False, index=True)
+    fonte = db.Column(db.String(120), nullable=False)
+
+
 class MembroMesa(TimestampMixin, db.Model):
     """Vínculo N:M entre jogador e mesa."""
 

@@ -30,7 +30,7 @@
 | E16 | Ficha 100% editável + tooltips no hover | ✅ |
 | E17 | Auth: auto-login no registro + reset de senha por link (admin) | ✅ |
 | E18 | Banco: Alembic/Flask-Migrate (sem perder dados) + backup | ✅ |
-| E19 | Enriquecimento da ficha (branch `enrichment`) | 🔄 planejado |
+| E19 | Enriquecimento da ficha (branch `enrichment`) | 🔄 F1 ok |
 
 ---
 
@@ -163,7 +163,7 @@
 - [x] T18.4 scripts/backup.ps1 e restore.ps1 + docs
 
 ### E19 — Enriquecimento (planejado; spec em `spec/enrichment/`)
-- [ ] F1 Motor de efeitos (`efeitos` em raça/classe/antec./talento + `ConstrutorDeFicha` base+fontes reversível) + testes
+- [x] F1 Motor de efeitos (`efeitos` em raça/classe/antec./talento + `ConstrutorDeFicha` base+fontes reversível) + testes
 - [ ] F2 Conteúdo: ingestão weapons/armor/(magic)items + derivar efeitos + curar talentos
 - [ ] F3 Modelos Arma/Armadura/Item + editor + ownership + equipar (CA/ataque; CA com ajuste manual)
 - [ ] F4 Wizard enriquecido (seletores reais + preview ao vivo dos bônus)

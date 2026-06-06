@@ -21,7 +21,10 @@
 |------|:-----:|:------:|:-------:|
 | Registrar/login | ✓ | ✓ | ✓ |
 | Ver catálogo SRD | ✓ | ✓ | ✓ |
-| Editar catálogo SRD | ✓ | ✗ | ✗ |
+| Criar/editar conteúdo do compêndio | ✓ | ✓ | ✗ |
+| Editar conteúdo **oficial** | ✓ (no lugar) | ✓ (cria variante homebrew) | ✗ |
+| Excluir conteúdo oficial | ✓ | ✗ | ✗ |
+| Aceitar fonte homebrew na própria mesa | ✓ | ✓ | ✗ |
 | Criar/editar personagem próprio | ✓ | ✓ | ✓ |
 | Ver personagem de outro | ✓ | só da sua mesa | ✗ |
 | Criar mesa | ✓ | ✓ | ✗ |

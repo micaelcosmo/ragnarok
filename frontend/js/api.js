@@ -1,5 +1,5 @@
 // Cliente HTTP da API do Ragnarok.
-import { getToken, logout } from './auth.js';
+import { getToken, getIdioma, logout } from './auth.js';
 
 export const API_BASE = '/api/v1';
 
@@ -54,6 +54,21 @@ export const api = {
     create: (dados) => apiFetch('/characters', { method: 'POST', body: dados }),
     update: (id, dados) => apiFetch(`/characters/${id}`, { method: 'PUT', body: dados }),
     remove: (id) => apiFetch(`/characters/${id}`, { method: 'DELETE' }),
+    equipar: (id, tipo, itemId) => apiFetch(`/characters/${id}/equipar`, { method: 'POST', body: { tipo, item_id: itemId } }),
+    desequipar: (id, tipo, itemId) => apiFetch(`/characters/${id}/desequipar`, { method: 'POST', body: { tipo, item_id: itemId } }),
+  },
+  catalog: {
+    list: (tipo, { personagemId, q } = {}) => {
+      const params = new URLSearchParams();
+      if (personagemId) params.set('personagem_id', personagemId);
+      if (q) params.set('q', q);
+      if (getIdioma() === 'pt') params.set('idioma', 'pt');
+      const qs = params.toString();
+      return apiFetch(`/catalog/${tipo}${qs ? `?${qs}` : ''}`);
+    },
+    create: (tipo, dados) => apiFetch(`/catalog/${tipo}`, { method: 'POST', body: dados }),
+    update: (tipo, id, dados) => apiFetch(`/catalog/${tipo}/${id}`, { method: 'PUT', body: dados }),
+    remove: (tipo, id) => apiFetch(`/catalog/${tipo}/${id}`, { method: 'DELETE' }),
   },
   campaigns: {
     list: () => apiFetch('/campaigns'),
@@ -100,6 +115,10 @@ export const api = {
       return apiFetch(`/reference/feats${qs ? `?${qs}` : ''}`);
     },
     sources: () => apiFetch('/reference/sources'),
+    // CRUD do compêndio (MESTRE/ADMIN). tipo ∈ races|classes|backgrounds|feats|spells
+    create: (tipo, dados) => apiFetch(`/reference/${tipo}`, { method: 'POST', body: dados }),
+    update: (tipo, slug, dados) => apiFetch(`/reference/${tipo}/${slug}`, { method: 'PUT', body: dados }),
+    remove: (tipo, slug) => apiFetch(`/reference/${tipo}/${slug}`, { method: 'DELETE' }),
   },
   admin: {
     users: ({ q, role } = {}) => {
