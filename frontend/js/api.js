@@ -114,6 +114,10 @@ export const api = {
       return apiFetch(`/reference/feats${qs ? `?${qs}` : ''}`);
     },
     sources: () => apiFetch('/reference/sources'),
+    // CRUD do compêndio (MESTRE/ADMIN). tipo ∈ races|classes|backgrounds|feats|spells
+    create: (tipo, dados) => apiFetch(`/reference/${tipo}`, { method: 'POST', body: dados }),
+    update: (tipo, slug, dados) => apiFetch(`/reference/${tipo}/${slug}`, { method: 'PUT', body: dados }),
+    remove: (tipo, slug) => apiFetch(`/reference/${tipo}/${slug}`, { method: 'DELETE' }),
   },
   admin: {
     users: ({ q, role } = {}) => {

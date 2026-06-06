@@ -2,7 +2,7 @@
 from flask import Blueprint
 
 from app.extensions import db
-from app.models.campaign import MembroMesa, Mesa
+from app.models.campaign import MembroMesa, Mesa, MesaFonteAceita
 from app.models.character import Personagem
 from app.utils.auth import auth_required, current_user, role_required
 from app.utils.errors import Forbidden, NotFound, ValidationError
@@ -132,6 +132,38 @@ def expulsar(mesa_id):
     db.session.delete(membro)
     db.session.commit()
     return ok(mesa.to_dict(detalhado=True))
+
+
+@bp.post("/campaigns/<int:mesa_id>/fontes")
+@auth_required
+def aceitar_fonte(mesa_id):
+    """Mestre/ADMIN aceita uma fonte homebrew na mesa (fica visível p/ os jogadores)."""
+    usuario = current_user()
+    mesa = _mesa_ou_404(mesa_id)
+    if not (usuario.is_admin or mesa.mestre_id == usuario.id):
+        raise Forbidden("Apenas o mestre aceita fontes na mesa.")
+    dados = corpo_json(["fonte"])
+    if not MesaFonteAceita.query.filter_by(mesa_id=mesa.id, fonte=dados["fonte"]).first():
+        db.session.add(MesaFonteAceita(mesa_id=mesa.id, fonte=dados["fonte"]))
+        db.session.commit()
+    fontes = [f.fonte for f in MesaFonteAceita.query.filter_by(mesa_id=mesa.id).all()]
+    return ok({"mesa_id": mesa.id, "fontes_aceitas": fontes})
+
+
+@bp.delete("/campaigns/<int:mesa_id>/fontes")
+@auth_required
+def remover_fonte(mesa_id):
+    """Remove uma fonte homebrew aceita na mesa."""
+    usuario = current_user()
+    mesa = _mesa_ou_404(mesa_id)
+    if not (usuario.is_admin or mesa.mestre_id == usuario.id):
+        raise Forbidden("Apenas o mestre gerencia fontes na mesa.")
+    dados = corpo_json(["fonte"])
+    registro = MesaFonteAceita.query.filter_by(mesa_id=mesa.id, fonte=dados["fonte"]).first()
+    if registro:
+        db.session.delete(registro)
+        db.session.commit()
+    return ok({"mesa_id": mesa.id, "removida": dados["fonte"]})
 
 
 @bp.post("/campaigns/<int:mesa_id>/personagens")

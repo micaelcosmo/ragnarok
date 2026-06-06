@@ -14,6 +14,19 @@
 - Testes: motor puro (4) + integração add/remove talento reversível + raça/antecedente + CA (3).
 - Validado em stack Docker **isolada** (`docker-compose.dev.yml`, projeto `ragnarok-dev`).
 
+### Fase 5 — Compêndio editável (feat)
+- Campos `homebrew`/`criado_por` em Raca/Classe/Antecedente/Magia/Talento (+ `oficial` no to_dict).
+  Modelo `MesaFonteAceita`. Migração `0ba57e6c8e18`.
+- CRUD genérico `POST/PUT/DELETE /reference/<tipo>` (MESTRE/ADMIN): **fonte obrigatória**,
+  conteúdo criado é **homebrew**; editar **oficial** cria **variante homebrew** (preserva o oficial);
+  só ADMIN exclui oficial.
+- Aceitação por mesa: `POST/DELETE /campaigns/<id>/fontes` (mestre/admin).
+- RBAC atualizado (compêndio passa de só-ADMIN para MESTRE+ADMIN).
+- Frontend: compêndio com **cards clicáveis** (todos os tipos), **selo de fonte 🛡️ Oficial / 🧪
+  Homebrew**, busca e **Criar/Editar/Excluir** para MESTRE/ADMIN.
+- Naming convention nas constraints (corrige batch-mode do Alembic em SQLite).
+- +4 testes (99 no total).
+
 ### Fase 4 — Wizard enriquecido (feat)
 - Novo passo **Talentos** (multi-seleção do catálogo `/reference/feats`).
 - **Preview ao vivo dos bônus**: mostra o que raça (atributos), antecedente (perícias),

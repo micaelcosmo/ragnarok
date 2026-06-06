@@ -21,7 +21,9 @@ def upgrade():
     with op.batch_alter_table('personagens', schema=None) as batch_op:
         batch_op.add_column(sa.Column('armadura_equipada_id', sa.Integer(), nullable=True))
         batch_op.add_column(sa.Column('armas_equipadas', sa.JSON(), nullable=True))
-        batch_op.create_foreign_key(None, 'armaduras', ['armadura_equipada_id'], ['id'])
+        batch_op.create_foreign_key(
+            'fk_personagens_armadura_equipada_id_armaduras',
+            'armaduras', ['armadura_equipada_id'], ['id'])
 
     # ### end Alembic commands ###
 
