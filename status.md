@@ -30,6 +30,7 @@
 | E16 | Ficha 100% editável + tooltips no hover | ✅ |
 | E17 | Auth: auto-login no registro + reset de senha por link (admin) | ✅ |
 | E18 | Banco: Alembic/Flask-Migrate (sem perder dados) + backup | ✅ |
+| E19 | Enriquecimento da ficha (branch `enrichment`) | 🔄 planejado |
 
 ---
 
@@ -160,6 +161,18 @@
 - [x] T18.2 Baseline (autogenerate) + stamp head no banco vivo (dados preservados)
 - [x] T18.3 entrypoint roda flask db upgrade no boot; ADR-0002
 - [x] T18.4 scripts/backup.ps1 e restore.ps1 + docs
+
+### E19 — Enriquecimento (planejado; spec em `spec/enrichment/`)
+- [ ] F1 Motor de efeitos (`efeitos` em raça/classe/antec./talento + `ConstrutorDeFicha` base+fontes reversível) + testes
+- [ ] F2 Conteúdo: ingestão weapons/armor/(magic)items + derivar efeitos + curar talentos
+- [ ] F3 Modelos Arma/Armadura/Item + editor + ownership + equipar (CA/ataque; CA com ajuste manual)
+- [ ] F4 Wizard enriquecido (seletores reais + preview ao vivo dos bônus)
+- [ ] F5 Compêndio editável: cards clicáveis + CRUD MESTRE/ADMIN + fonte obrigatória + homebrew + aceitação por mesa
+- [ ] F6 Traços não-numéricos exibidos + toggle de idioma EN/PT (tradução offline grátis + cache)
+
+> Decisões registradas: bônus reversível (base+fontes), magias sem efeito numérico,
+> 3 modelos separados, CA editável com ajuste, fonte obrigatória/homebrew, entrega por fase
+> com commit+push. Detalhes em `spec/enrichment/planning/`.
 
 ---
 
