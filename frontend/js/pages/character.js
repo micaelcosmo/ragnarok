@@ -38,7 +38,9 @@ function pintarFicha(view, personagem) {
 
     <div class="card card--parch">
       <div class="sheet-head">
-        <span class="sheet-portrait">${iniciais(personagem.nome)}</span>
+        ${personagem.avatar_url
+          ? `<img class="sheet-portrait" src="${esc(personagem.avatar_url)}" alt="retrato" style="object-fit:cover">`
+          : `<span class="sheet-portrait">${iniciais(personagem.nome)}</span>`}
         <div style="flex:1">
           <div class="sh-name" style="font-family:var(--font-title)">${esc(personagem.nome)}</div>
           <div>${esc([personagem.raca_slug, personagem.classe_slug, personagem.antecedente_slug].filter(Boolean).join(' · ') || 'Aventureiro')}</div>
@@ -96,6 +98,7 @@ function pintarFicha(view, personagem) {
             <div class="tab active" data-tab="ataques">Ataques & Magias</div>
             <div class="tab" data-tab="equip">Equipamento</div>
             <div class="tab" data-tab="tracos">Traços</div>
+            <div class="tab" data-tab="identidade">Identidade</div>
             <div class="tab" data-tab="historia">História</div>
           </div>
           <div data-panel="ataques">
@@ -125,6 +128,24 @@ function pintarFicha(view, personagem) {
             ${campo('Fraquezas', personagem.fraquezas)}
             ${campo('Características e Talentos', personagem.caracteristicas)}
             ${campo('Idiomas e Proficiências', personagem.idiomas || personagem.outras_proficiencias)}
+          </div>
+          <div data-panel="identidade" style="display:none">
+            <div class="row" style="gap:16px; align-items:flex-start; margin-bottom:12px">
+              <div style="text-align:center">
+                ${personagem.avatar_url ? `<img src="${esc(personagem.avatar_url)}" alt="retrato" style="width:120px;height:120px;object-fit:cover;border-radius:10px;border:1px solid var(--gold-dim)">` : '<div class="sheet-portrait" style="width:120px;height:120px">' + iniciais(personagem.nome) + '</div>'}
+                <div class="muted" style="font-size:.75rem;margin-top:4px">Retrato</div>
+              </div>
+              ${personagem.simbolo_faccao_url ? `<div style="text-align:center">
+                <img src="${esc(personagem.simbolo_faccao_url)}" alt="símbolo" style="width:120px;height:120px;object-fit:contain;border-radius:10px;border:1px solid var(--gold-dim);background:#0f0d0b">
+                <div class="muted" style="font-size:.75rem;margin-top:4px">${esc(personagem.faccao || 'Facção')}</div></div>` : ''}
+            </div>
+            <div class="row" style="gap:8px;flex-wrap:wrap;margin-bottom:8px">
+              ${[['Idade', personagem.idade], ['Altura', personagem.altura], ['Peso', personagem.peso], ['Olhos', personagem.olhos], ['Pele', personagem.pele], ['Cabelo', personagem.cabelo]].filter(([, v]) => v).map(([k, v]) => `<span class="chip">${k}: ${esc(v)}</span>`).join('') || '<span class="muted">Sem dados físicos.</span>'}
+            </div>
+            ${personagem.faccao ? campo('Facção', personagem.faccao) : ''}
+            ${campo('Aparência', personagem.aparencia)}
+            ${campo('Aliados & Organizações', personagem.aliados)}
+            ${campo('Tesouro', personagem.tesouro)}
           </div>
           <div data-panel="historia" style="display:none">${blocoTexto(personagem.historia, 'História ainda não escrita.')}</div>
         </div>
@@ -222,11 +243,16 @@ function formItem(tipo, personagem, aoCriar) {
 
 function renderStats(personagem, derivados) {
   return Object.keys(NOMES_ATRIBUTOS).map((chave) => {
-    const valor = personagem.atributos[chave];
-    return `<div class="stat-block has-tip" data-tip="${esc(NOMES_ATRIBUTOS[chave])} — ${esc(DESC_ATRIBUTOS[chave])}">
+    // Mostra o valor FINAL (base + bônus de fontes) para bater com o modificador.
+    const base = personagem.atributos[chave];
+    const final = (derivados.atributos_final || personagem.atributos)[chave];
+    const temBonus = final !== base;
+    const dica = `${esc(NOMES_ATRIBUTOS[chave])} — ${esc(DESC_ATRIBUTOS[chave])}`
+      + (temBonus ? ` (base ${base} + ${final - base} de fontes)` : '');
+    return `<div class="stat-block has-tip" data-tip="${dica}">
       <div class="stat-label">${chave.toUpperCase()}</div>
       <div class="stat-mod">${sinal(derivados.modificadores[chave])}</div>
-      <div class="stat-score">${valor}</div>
+      <div class="stat-score">${final}${temBonus ? ' <span style="opacity:.6;font-size:.7em">▲</span>' : ''}</div>
     </div>`;
   }).join('');
 }
@@ -345,7 +371,35 @@ function abrirEdicao(view, personagem) {
           <div class="field" style="flex:1"><label>Classe</label><input class="input" name="classe_slug" value="${texto('', personagem.classe_slug)}"></div>
           <div class="field" style="flex:1"><label>Antecedente</label><input class="input" name="antecedente_slug" value="${texto('', personagem.antecedente_slug)}"></div>
         </div>
-        <div class="field"><label>URL do Avatar</label><input class="input" name="avatar_url" value="${texto('', personagem.avatar_url)}"></div>
+        <div class="field"><label>Retrato (URL ou enviar imagem)</label>
+          <div class="field-inline" style="gap:6px">
+            <input class="input" name="avatar_url" id="campo-avatar" value="${texto('', personagem.avatar_url)}" placeholder="cole uma URL ou use Enviar →">
+            <input type="file" id="up-avatar" accept="image/png,image/jpeg,image/webp" style="display:none">
+            <button type="button" class="btn btn--ghost btn--sm" id="btn-up-avatar">📤 Enviar</button>
+          </div>
+        </div>
+        <h4 style="margin-top:8px">Identidade</h4>
+        <div class="row" style="gap:8px">
+          <div class="field" style="flex:1"><label>Idade</label><input class="input" name="idade" value="${texto('', personagem.idade)}"></div>
+          <div class="field" style="flex:1"><label>Altura</label><input class="input" name="altura" value="${texto('', personagem.altura)}"></div>
+          <div class="field" style="flex:1"><label>Peso</label><input class="input" name="peso" value="${texto('', personagem.peso)}"></div>
+        </div>
+        <div class="row" style="gap:8px">
+          <div class="field" style="flex:1"><label>Olhos</label><input class="input" name="olhos" value="${texto('', personagem.olhos)}"></div>
+          <div class="field" style="flex:1"><label>Pele</label><input class="input" name="pele" value="${texto('', personagem.pele)}"></div>
+          <div class="field" style="flex:1"><label>Cabelo</label><input class="input" name="cabelo" value="${texto('', personagem.cabelo)}"></div>
+        </div>
+        <div class="field"><label>Facção</label><input class="input" name="faccao" value="${texto('', personagem.faccao)}"></div>
+        <div class="field"><label>Símbolo da Facção (URL ou enviar)</label>
+          <div class="field-inline" style="gap:6px">
+            <input class="input" name="simbolo_faccao_url" id="campo-simbolo" value="${texto('', personagem.simbolo_faccao_url)}" placeholder="cole uma URL ou use Enviar →">
+            <input type="file" id="up-simbolo" accept="image/png,image/jpeg,image/webp" style="display:none">
+            <button type="button" class="btn btn--ghost btn--sm" id="btn-up-simbolo">📤 Enviar</button>
+          </div>
+        </div>
+        <div class="field"><label>Aparência</label><textarea class="textarea" name="aparencia">${texto('', personagem.aparencia)}</textarea></div>
+        <div class="field"><label>Aliados & Organizações</label><textarea class="textarea" name="aliados">${texto('', personagem.aliados)}</textarea></div>
+        <div class="field"><label>Tesouro</label><textarea class="textarea" name="tesouro">${texto('', personagem.tesouro)}</textarea></div>
       </div>
 
       <div data-panel="e-attr" style="display:none">
@@ -402,6 +456,24 @@ function abrirEdicao(view, personagem) {
     </form></div>`);
   const fechar = modal(conteudo);
   ligarTabs(conteudo);
+  // Botões de upload: dispara o seletor de arquivo, envia e preenche o campo de URL.
+  const ligarUpload = (botaoId, fileId, campoId) => {
+    const botao = conteudo.querySelector('#' + botaoId);
+    const file = conteudo.querySelector('#' + fileId);
+    botao.addEventListener('click', () => file.click());
+    file.addEventListener('change', async () => {
+      if (!file.files[0]) return;
+      botao.textContent = '⏳...';
+      try {
+        const res = await api.upload(file.files[0]);
+        conteudo.querySelector('#' + campoId).value = res.url;
+        toast('Imagem enviada!');
+      } catch (erro) { toast(erro.message, 'err'); }
+      botao.textContent = '📤 Enviar';
+    });
+  };
+  ligarUpload('btn-up-avatar', 'up-avatar', 'campo-avatar');
+  ligarUpload('btn-up-simbolo', 'up-simbolo', 'campo-simbolo');
   conteudo.querySelector('#cancelar').addEventListener('click', fechar);
   conteudo.querySelector('#form-edit').addEventListener('submit', async (evento) => {
     evento.preventDefault();
@@ -428,6 +500,10 @@ function abrirEdicao(view, personagem) {
       tracos_personalidade: bruto.tracos_personalidade, ideais: bruto.ideais, vinculos: bruto.vinculos,
       fraquezas: bruto.fraquezas, caracteristicas: bruto.caracteristicas, idiomas: bruto.idiomas,
       historia: bruto.historia, atributos,
+      idade: bruto.idade, altura: bruto.altura, peso: bruto.peso,
+      olhos: bruto.olhos, pele: bruto.pele, cabelo: bruto.cabelo, faccao: bruto.faccao,
+      aparencia: bruto.aparencia, aliados: bruto.aliados, tesouro: bruto.tesouro,
+      simbolo_faccao_url: bruto.simbolo_faccao_url,
     };
     try {
       const atualizado = await api.characters.update(personagem.id, payload);

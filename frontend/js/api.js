@@ -12,6 +12,23 @@ export class ApiError extends Error {
   }
 }
 
+// Upload de arquivo (multipart) — separado do apiFetch (que é JSON).
+export async function apiUpload(file) {
+  const fd = new FormData();
+  fd.append('arquivo', file);
+  const headers = {};
+  const token = getToken();
+  if (token) headers['Authorization'] = `Bearer ${token}`;
+  const res = await fetch(`${API_BASE}/uploads`, { method: 'POST', headers, body: fd });
+  let payload = null;
+  try { payload = await res.json(); } catch (_) { payload = null; }
+  if (!res.ok) {
+    if (res.status === 401) { logout(); location.hash = '#/login'; }
+    throw new ApiError(res.status, (payload && payload.error) || {});
+  }
+  return payload ? payload.data : null;
+}
+
 export async function apiFetch(path, { method = 'GET', body, auth = true } = {}) {
   const headers = { 'Content-Type': 'application/json' };
   if (auth) {
@@ -41,6 +58,7 @@ export async function apiFetch(path, { method = 'GET', body, auth = true } = {})
 
 // Atalhos por recurso (POO leve via objetos namespaced).
 export const api = {
+  upload: (file) => apiUpload(file),
   auth: {
     register: (dados) => apiFetch('/auth/register', { method: 'POST', body: dados, auth: false }),
     login: (dados) => apiFetch('/auth/login', { method: 'POST', body: dados, auth: false }),

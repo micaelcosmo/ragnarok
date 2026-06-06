@@ -39,6 +39,8 @@ services:
       SEED_ADMIN_EMAIL: ${SEED_ADMIN_EMAIL:-admin@ragnarok.local}
       SEED_ADMIN_PASSWORD: ${SEED_ADMIN_PASSWORD:?defina SEED_ADMIN_PASSWORD no .env}
       SEED_ADMIN_NAME: ${SEED_ADMIN_NAME:-Administrador}
+    volumes:
+      - ragnarok_uploads:/app/uploads   # imagens enviadas (persistem entre rebuilds)
     ports:
       - "5050:5050"
     restart: unless-stopped
@@ -54,3 +56,4 @@ services:
 
 volumes:
   ragnarok_pgdata:
+  ragnarok_uploads:

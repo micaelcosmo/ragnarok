@@ -1,5 +1,16 @@
 # Changelog — Enriquecimento
 
+## [E20 — Identidade & Imagens]
+### feat
+- Personagem: campos de identidade (idade/altura/peso/olhos/pele/cabelo/facção/aparência/
+  aliados/tesouro) + `simbolo_faccao_url`; `avatar_url` vira o retrato. Migração `18f5cd8545e6`.
+- **Upload seguro** `POST /api/v1/uploads` (allowlist + magic-bytes + uuid + limite 2 MB +
+  servir sem execução); volume `ragnarok_uploads`; nginx `client_max_body_size 4m`.
+- Frontend: retrato no cabeçalho da ficha + **aba Identidade** (editável, com símbolo da facção)
+  + botões de **upload** (retrato/símbolo) no formulário.
+- **Fix #1**: stat block passa a exibir o **valor final** do atributo (DES 18/+4), batendo com o mod.
+- +5 testes de upload (108 no total). Planning: `planning/identidade-imagens.md`.
+
 ## [Pós-lançamento]
 ### content/docs
 - **Roadmap de gaps** (`planning/roadmap-gaps.md`) gerado a partir da importação da ficha do

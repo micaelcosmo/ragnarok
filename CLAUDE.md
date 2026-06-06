@@ -142,5 +142,11 @@ flask db upgrade                           # aplica preservando os dados
   e padrões de segredo. Opcional: `pre-commit` + gitleaks (`.pre-commit-config.yaml`).
 - Linha de segredo de teste consciente: marque com `# gitleaks:allow`.
 
+## 7.1 Uploads de imagem
+- `POST /api/v1/uploads` (autenticado) recebe imagem (`png/jpg/webp`, ≤2 MB), valida por
+  **magic-bytes**, gera nome aleatório (uuid) e salva em `UPLOAD_DIR` (`/app/uploads`, volume
+  `ragnarok_uploads`). Servida em `GET /api/v1/uploads/<nome>`. nginx tem `client_max_body_size 4m`.
+- Usada para **retrato** (`avatar_url`) e **símbolo da facção** (`simbolo_faccao_url`).
+
 ## 8. Estado atual
 Veja **`status.md`** para a lista completa de tasks e o que está pronto/pendente.
