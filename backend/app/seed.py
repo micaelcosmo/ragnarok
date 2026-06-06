@@ -62,6 +62,21 @@ class SeedRunner:
         db.session.commit()
         self.resumo["admin"] = f"criado ({email})"
 
+    def semear_demo(self):
+        """Cria contas demo (MESTRE e JOGADOR) para facilitar os testes."""
+        demos = [
+            ("mestre@ragnarok.local", "Mestre Demo", "mestre123", "MESTRE"),
+            ("jogador@ragnarok.local", "Jogador Demo", "jogador123", "JOGADOR"),
+        ]
+        criados = 0
+        for email, nome, senha, papel in demos:
+            if User.query.filter_by(email=email).first():
+                continue
+            db.session.add(User(email=email, name=nome, password=senha, role=papel))
+            criados += 1
+        db.session.commit()
+        self.resumo["demo"] = f"{criados} conta(s) demo"
+
     def semear_racas(self):
         campos = ["slug", "nome", "descricao", "deslocamento", "tamanho",
                   "bonus_atributos", "tracos", "subracas"]
@@ -93,6 +108,7 @@ class SeedRunner:
         with self.app.app_context():
             db.create_all()
             self.semear_admin()
+            self.semear_demo()
             self.semear_racas()
             self.semear_classes()
             self.semear_antecedentes()
