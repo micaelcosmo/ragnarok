@@ -4,7 +4,7 @@
 > **planning → spec → teste (RED) → código (GREEN) → refatora → atualiza status**.
 > Legenda: ✅ feito · 🔄 em andamento · ⏳ pendente · ❌ bloqueado/falhando
 
-Última atualização: 2026-06-06 (E19+E20 em produção; Kzen importado)
+Última atualização: 2026-06-06 (ciclo ao vivo → #6 → #3 → #2 concluído; E21–E24 em produção)
 
 ---
 
@@ -33,6 +33,9 @@
 | E19 | Enriquecimento da ficha (efeitos, itens, wizard, compêndio, i18n) | ✅ (em prod) |
 | E20 | Identidade & Imagens do Personagem (retrato, símbolo, página de identidade) | ✅ (em prod) |
 | E21 | Atualização ao vivo (sem F5): reativo + polling | ✅ (em prod) |
+| E22 | Traços/recursos como cards incrementais (descritivo × numérico, reversível) + Aumentos de Habilidade | ✅ (em prod) |
+| E23 | Equipamento mundano no catálogo (gear + pacotes SRD) | ✅ (em prod) |
+| E24 | Tradução PT de armas/armaduras (de-para curado offline + cache) | ✅ (em prod) |
 
 ---
 

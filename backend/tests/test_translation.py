@@ -42,3 +42,20 @@ def test_endpoint_catalog_idioma_pt(client, app, make_user, auth):
     dados = client.get("/api/v1/catalog/weapons?idioma=pt", headers=auth(token)).get_json()["data"]
     club = next(a for a in dados if a["slug"] == "club")
     assert club["nome"] == "Clava"
+
+
+def test_seed_traducoes_idempotente(app):
+    """O de-para PT curado é semeado uma vez e re-rodar não duplica (idempotente)."""
+    from app.seed import SeedRunner
+
+    with app.app_context():
+        runner = SeedRunner(app)
+        runner.semear_traducoes()
+        primeiro = Traducao.query.filter_by(idioma="pt").count()
+        assert primeiro > 0
+        greataxe = Traducao.query.filter_by(tipo="weapons", slug="greataxe", campo="nome").first()
+        assert greataxe is not None and greataxe.texto == "Machado Grande"
+
+        runner.semear_traducoes()  # segunda passada: nada novo
+        assert Traducao.query.filter_by(idioma="pt").count() == primeiro
+        assert runner.resumo["traducoes"] == 0

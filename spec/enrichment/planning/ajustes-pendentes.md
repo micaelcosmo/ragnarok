@@ -16,14 +16,19 @@ Ex.: 13 → +1, 14 → +2, 8 → −1, 9 → −1. (Nossa engine `app/rules/dnd5
 do stat block (mantendo o valor **base** editável no formulário de edição). Assim número e
 modificador batem (DES 18/+4, CON 16/+3). Avaliar mostrar um "(base 16 +2)" discreto p/ transparência.
 
-## 2. Nomes de armas/itens em inglês (catálogo open5e) 🟡
+## 2. Nomes de armas/itens em inglês (catálogo open5e) 🟡 — ✅ FEITO
 **Sintoma:** as armas equipadas no Kzen aparecem como "Greataxe/Handaxe/Javelin" (open5e em
 inglês), enquanto a ficha-fonte usa PT (Machado Grande/Machadinha/Azagaia).
 **Opções:** (a) ativar tradução real (Argos) e exibir em PT via toggle; (b) criar **aliases/
 homebrew PT** dos itens comuns; (c) curar um de-para PT para armas/armaduras básicas do SRD.
-**Status:** Greataxe/Javelin/Handaxe equipados (id 95/101/100); ataque/dano corretos (+8, 1d12+4 etc.).
+**Escolha (Micael):** opção **(c)** — de-para curado PT, rápido/offline, sem instalar o Argos.
+**Status:** ✅ FEITO. `backend/data/traducoes_pt.json` (47 entradas weapons/armor) semeado de forma
+idempotente por `SeedRunner.semear_traducoes()` no cache `Traducao`. O endpoint
+`/api/v1/reference|catalog/weapons?idioma=pt` aplica via `Tradutor` (ex.: greataxe → "Machado Grande",
+leather → "Armadura de Couro"). Fallback gracioso mantém o original quando não há tradução. O motor
+Argos continua opcional (degrada sem quebrar). Testes em `tests/test_translation.py`.
 
-## 3. Equipamento mundano não está no catálogo 🟡
+## 3. Equipamento mundano não está no catálogo 🟡 — ✅ FEITO
 **Sintoma:** Pacote de Explorador, Roupas de Viajante, Armadilha de Caça, Tatuagens, Bolsa,
 Corda 30 m — não existem como itens cadastráveis (open5e só trouxe weapons/armor/magicitems).
 Hoje ficam no campo de texto `equipamento` do Kzen.
@@ -41,7 +46,7 @@ Queremos exibir/anexar imagens ao personagem.
 facção, **aparência**, **aliados & organizações**, **tesouro** (além de história, que já existe).
 **Proposta:** novos campos no `Personagem` + aba "Identidade" na ficha (editável). ✅ FEITO (E20).
 
-## 6. Aumentos de Habilidade "tipo joguinho" (alocar pontos + talentos que somam) 🔴 — FEATURE
+## 6. Aumentos de Habilidade "tipo joguinho" (alocar pontos + talentos que somam) 🔴 — ✅ FEITO
 **Pedido:** ao **editar/criar**, poder **marcar pontos** de atributo (Aumentos de Habilidade) de
 forma **mecânica e reversível** (não só editar o número base) — mostrando o ▲. E ao escolher um
 **talento** que concede +atributo, **somar** no atributo (já funciona p/ talentos com
