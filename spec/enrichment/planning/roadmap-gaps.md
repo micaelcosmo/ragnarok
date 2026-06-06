@@ -6,6 +6,10 @@
 ## Mecânicas de personagem
 - 🔴 **Aumentos de Habilidade (ASI)**: não há mecanismo de ASI por nível (4/8/12/16/19). Hoje
   são "embutidos" no atributo base na importação. Futuro: trilha de progressão por nível.
+- 🟡 **Validação de `tracos_extras`**: o campo aceita JSON livre do usuário (nome/descrição/efeitos)
+  sem validar forma nem clampar a magnitude dos números (ex.: `efeitos.atributos.con: 9999`).
+  Afeta só a própria ficha (risco de balanceamento, não de plataforma), mas vale um schema/limites
+  no backend e, idealmente, traços incrementais sujeitos à aprovação do Mestre da mesa.
 - 🔴 **Sub-raças aplicando efeitos**: a raça aplica `efeitos`, mas **sub-raça** (ex.: Halfling
   Robusto +1 CON, resistência a veneno) não é auto-aplicada. Hoje embutimos na base/descrição.
 - 🟡 **Talentos vs ASI**: feats reais (Sortudo, Bravura) existem como conteúdo, mas a escolha

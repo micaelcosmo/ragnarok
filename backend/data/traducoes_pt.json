@@ -1,0 +1,331 @@
+[
+  {
+    "tipo": "weapons",
+    "slug": "battleaxe",
+    "campo": "nome",
+    "idioma": "pt",
+    "texto": "Machado de Batalha"
+  },
+  {
+    "tipo": "weapons",
+    "slug": "blowgun",
+    "campo": "nome",
+    "idioma": "pt",
+    "texto": "Zarabatana"
+  },
+  {
+    "tipo": "weapons",
+    "slug": "club",
+    "campo": "nome",
+    "idioma": "pt",
+    "texto": "Clava"
+  },
+  {
+    "tipo": "weapons",
+    "slug": "dagger",
+    "campo": "nome",
+    "idioma": "pt",
+    "texto": "Adaga"
+  },
+  {
+    "tipo": "weapons",
+    "slug": "dart",
+    "campo": "nome",
+    "idioma": "pt",
+    "texto": "Dardo"
+  },
+  {
+    "tipo": "weapons",
+    "slug": "flail",
+    "campo": "nome",
+    "idioma": "pt",
+    "texto": "Mangual"
+  },
+  {
+    "tipo": "weapons",
+    "slug": "glaive",
+    "campo": "nome",
+    "idioma": "pt",
+    "texto": "Glaive"
+  },
+  {
+    "tipo": "weapons",
+    "slug": "greataxe",
+    "campo": "nome",
+    "idioma": "pt",
+    "texto": "Machado Grande"
+  },
+  {
+    "tipo": "weapons",
+    "slug": "greatclub",
+    "campo": "nome",
+    "idioma": "pt",
+    "texto": "Clava Grande"
+  },
+  {
+    "tipo": "weapons",
+    "slug": "greatsword",
+    "campo": "nome",
+    "idioma": "pt",
+    "texto": "Espada Grande"
+  },
+  {
+    "tipo": "weapons",
+    "slug": "halberd",
+    "campo": "nome",
+    "idioma": "pt",
+    "texto": "Alabarda"
+  },
+  {
+    "tipo": "weapons",
+    "slug": "handaxe",
+    "campo": "nome",
+    "idioma": "pt",
+    "texto": "Machadinha"
+  },
+  {
+    "tipo": "weapons",
+    "slug": "javelin",
+    "campo": "nome",
+    "idioma": "pt",
+    "texto": "Azagaia"
+  },
+  {
+    "tipo": "weapons",
+    "slug": "lance",
+    "campo": "nome",
+    "idioma": "pt",
+    "texto": "Lança Montada"
+  },
+  {
+    "tipo": "weapons",
+    "slug": "light-hammer",
+    "campo": "nome",
+    "idioma": "pt",
+    "texto": "Martelo Leve"
+  },
+  {
+    "tipo": "weapons",
+    "slug": "longbow",
+    "campo": "nome",
+    "idioma": "pt",
+    "texto": "Arco Longo"
+  },
+  {
+    "tipo": "weapons",
+    "slug": "longsword",
+    "campo": "nome",
+    "idioma": "pt",
+    "texto": "Espada Longa"
+  },
+  {
+    "tipo": "weapons",
+    "slug": "mace",
+    "campo": "nome",
+    "idioma": "pt",
+    "texto": "Maça"
+  },
+  {
+    "tipo": "weapons",
+    "slug": "maul",
+    "campo": "nome",
+    "idioma": "pt",
+    "texto": "Marreta"
+  },
+  {
+    "tipo": "weapons",
+    "slug": "morningstar",
+    "campo": "nome",
+    "idioma": "pt",
+    "texto": "Estrela-da-manhã"
+  },
+  {
+    "tipo": "weapons",
+    "slug": "net",
+    "campo": "nome",
+    "idioma": "pt",
+    "texto": "Rede"
+  },
+  {
+    "tipo": "weapons",
+    "slug": "pike",
+    "campo": "nome",
+    "idioma": "pt",
+    "texto": "Pique"
+  },
+  {
+    "tipo": "weapons",
+    "slug": "quarterstaff",
+    "campo": "nome",
+    "idioma": "pt",
+    "texto": "Bordão"
+  },
+  {
+    "tipo": "weapons",
+    "slug": "rapier",
+    "campo": "nome",
+    "idioma": "pt",
+    "texto": "Rapieira"
+  },
+  {
+    "tipo": "weapons",
+    "slug": "scimitar",
+    "campo": "nome",
+    "idioma": "pt",
+    "texto": "Cimitarra"
+  },
+  {
+    "tipo": "weapons",
+    "slug": "shortbow",
+    "campo": "nome",
+    "idioma": "pt",
+    "texto": "Arco Curto"
+  },
+  {
+    "tipo": "weapons",
+    "slug": "shortsword",
+    "campo": "nome",
+    "idioma": "pt",
+    "texto": "Espada Curta"
+  },
+  {
+    "tipo": "weapons",
+    "slug": "sickle",
+    "campo": "nome",
+    "idioma": "pt",
+    "texto": "Foice Curta"
+  },
+  {
+    "tipo": "weapons",
+    "slug": "sling",
+    "campo": "nome",
+    "idioma": "pt",
+    "texto": "Funda"
+  },
+  {
+    "tipo": "weapons",
+    "slug": "spear",
+    "campo": "nome",
+    "idioma": "pt",
+    "texto": "Lança"
+  },
+  {
+    "tipo": "weapons",
+    "slug": "trident",
+    "campo": "nome",
+    "idioma": "pt",
+    "texto": "Tridente"
+  },
+  {
+    "tipo": "weapons",
+    "slug": "war-pick",
+    "campo": "nome",
+    "idioma": "pt",
+    "texto": "Picareta de Guerra"
+  },
+  {
+    "tipo": "weapons",
+    "slug": "warhammer",
+    "campo": "nome",
+    "idioma": "pt",
+    "texto": "Martelo de Guerra"
+  },
+  {
+    "tipo": "weapons",
+    "slug": "whip",
+    "campo": "nome",
+    "idioma": "pt",
+    "texto": "Chicote"
+  },
+  {
+    "tipo": "armor",
+    "slug": "breastplate",
+    "campo": "nome",
+    "idioma": "pt",
+    "texto": "Peitoral"
+  },
+  {
+    "tipo": "armor",
+    "slug": "chain-shirt",
+    "campo": "nome",
+    "idioma": "pt",
+    "texto": "Camisão de Malha"
+  },
+  {
+    "tipo": "armor",
+    "slug": "chain-mail",
+    "campo": "nome",
+    "idioma": "pt",
+    "texto": "Cota de Malha"
+  },
+  {
+    "tipo": "armor",
+    "slug": "half-plate",
+    "campo": "nome",
+    "idioma": "pt",
+    "texto": "Meia-Armadura"
+  },
+  {
+    "tipo": "armor",
+    "slug": "hide",
+    "campo": "nome",
+    "idioma": "pt",
+    "texto": "Armadura de Peles"
+  },
+  {
+    "tipo": "armor",
+    "slug": "leather",
+    "campo": "nome",
+    "idioma": "pt",
+    "texto": "Armadura de Couro"
+  },
+  {
+    "tipo": "armor",
+    "slug": "padded",
+    "campo": "nome",
+    "idioma": "pt",
+    "texto": "Armadura Acolchoada"
+  },
+  {
+    "tipo": "armor",
+    "slug": "plate",
+    "campo": "nome",
+    "idioma": "pt",
+    "texto": "Armadura de Placas"
+  },
+  {
+    "tipo": "armor",
+    "slug": "ring-mail",
+    "campo": "nome",
+    "idioma": "pt",
+    "texto": "Cota de Anéis"
+  },
+  {
+    "tipo": "armor",
+    "slug": "scale-mail",
+    "campo": "nome",
+    "idioma": "pt",
+    "texto": "Cota de Escamas"
+  },
+  {
+    "tipo": "armor",
+    "slug": "shield",
+    "campo": "nome",
+    "idioma": "pt",
+    "texto": "Escudo"
+  },
+  {
+    "tipo": "armor",
+    "slug": "splint",
+    "campo": "nome",
+    "idioma": "pt",
+    "texto": "Armadura de Lâminas"
+  },
+  {
+    "tipo": "armor",
+    "slug": "studded-leather",
+    "campo": "nome",
+    "idioma": "pt",
+    "texto": "Couro Batido"
+  }
+]

@@ -14,6 +14,7 @@ from app.extensions import db
 from app.models.reference import Antecedente, Classe, Magia, Raca, Talento
 from app.models.monster import Monstro
 from app.models.items import Item
+from app.models.translation import Traducao
 from app.models.user import User
 
 DATA_DIR = Path(__file__).resolve().parent.parent / "data"
@@ -169,6 +170,19 @@ class SeedRunner:
         db.session.commit()
         self.resumo["backfill_efeitos"] = preenchidos
 
+    def semear_traducoes(self):
+        """Popula o cache de traduções PT (nomes de armas/armaduras). Idempotente."""
+        inseridos = 0
+        for registro in self._carregar_json("traducoes_pt.json"):
+            chave = dict(tipo=registro["tipo"], slug=registro["slug"],
+                         campo=registro["campo"], idioma=registro["idioma"])
+            if Traducao.query.filter_by(**chave).first():
+                continue
+            db.session.add(Traducao(texto=registro["texto"], **chave))
+            inseridos += 1
+        db.session.commit()
+        self.resumo["traducoes"] = inseridos
+
     def executar(self):
         with self.app.app_context():
             db.create_all()
@@ -181,6 +195,7 @@ class SeedRunner:
             self.semear_monstros()
             self.semear_talentos()
             self.semear_equipamento()
+            self.semear_traducoes()
             self.backfill_efeitos()
         return self.resumo
 
