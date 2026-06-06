@@ -4,7 +4,7 @@
 > **planning → spec → teste (RED) → código (GREEN) → refatora → atualiza status**.
 > Legenda: ✅ feito · 🔄 em andamento · ⏳ pendente · ❌ bloqueado/falhando
 
-Última atualização: 2026-06-05 (stack verificada E2E)
+Última atualização: 2026-06-06 (E19+E20 em produção; Kzen importado)
 
 ---
 
@@ -163,17 +163,24 @@
 - [x] T18.3 entrypoint roda flask db upgrade no boot; ADR-0002
 - [x] T18.4 scripts/backup.ps1 e restore.ps1 + docs
 
-### E19 — Enriquecimento (planejado; spec em `spec/enrichment/`)
+### E19 — Enriquecimento (✅ em produção; spec em `spec/enrichment/`)
 - [x] F1 Motor de efeitos (`efeitos` em raça/classe/antec./talento + `ConstrutorDeFicha` base+fontes reversível) + testes
-- [ ] F2 Conteúdo: ingestão weapons/armor/(magic)items + derivar efeitos + curar talentos
-- [ ] F3 Modelos Arma/Armadura/Item + editor + ownership + equipar (CA/ataque; CA com ajuste manual)
-- [ ] F4 Wizard enriquecido (seletores reais + preview ao vivo dos bônus)
-- [ ] F5 Compêndio editável: cards clicáveis + CRUD MESTRE/ADMIN + fonte obrigatória + homebrew + aceitação por mesa
-- [ ] F6 Traços não-numéricos exibidos + toggle de idioma EN/PT (tradução offline grátis + cache)
+- [x] F2 Conteúdo: ingestão weapons/armor/(magic)items + derivar efeitos + curar talentos
+- [x] F3 Modelos Arma/Armadura/Item + editor + ownership + equipar (CA/ataque; CA com ajuste manual)
+- [x] F4 Wizard enriquecido (seletores reais + preview ao vivo dos bônus)
+- [x] F5 Compêndio editável: cards clicáveis + CRUD MESTRE/ADMIN + fonte obrigatória + homebrew + aceitação por mesa
+- [x] F6 Traços não-numéricos exibidos + toggle de idioma EN/PT (tradução offline grátis + cache)
 
-> Decisões registradas: bônus reversível (base+fontes), magias sem efeito numérico,
-> 3 modelos separados, CA editável com ajuste, fonte obrigatória/homebrew, entrega por fase
-> com commit+push. Detalhes em `spec/enrichment/planning/`.
+### E20 — Identidade & Imagens (✅ em produção)
+- [x] T20.1 Campos de identidade no `Personagem` (idade/altura/peso/olhos/pele/cabelo/facção/aparência/aliados/tesouro) + `simbolo_faccao_url`; migração `18f5cd8545e6`
+- [x] T20.2 Upload seguro `POST /uploads` (allowlist + magic-bytes + uuid + limite 2MB + servir sem execução) + 5 testes
+- [x] T20.3 Fix #1: stat block mostra o valor FINAL do atributo (bate com o modificador)
+- [x] T20.4 Frontend: retrato no cabeçalho + aba Identidade editável + upload (retrato/símbolo)
+- [x] T20.5 Infra: volume `ragnarok_uploads` + nginx `client_max_body_size 4m` + `^~ /api/` (fix 404 de imagem)
+- [x] T20.6 Backup + deploy (sem -v) + smoke público; `progresso.html` no Dockerfile (não some em rebuild)
+
+> Backlog de ideias/pendências fica em `spec/enrichment/planning/ajustes-pendentes.md`
+> (correções pedidas) e `spec/enrichment/planning/roadmap-gaps.md` (gaps de mecânica/conteúdo).
 
 ---
 
@@ -183,4 +190,6 @@
 - Conteúdo SRD 5.1 + ingestões OGL (open5e: Kobold Press, Level Up A5e, etc.) com `fonte` rastreável.
 - ADMIN é governança (contas/moderação/conteúdo), NÃO um super-mestre de jogo.
 - Online via túnel Cloudflare (URL trycloudflare). DNS estável fica para quando o dono logar.
-- Testes: 73 pytest verdes. Total de conteúdo: ~20 raças, 12 classes, 74 talentos, ~1436 magias, 3208 monstros.
+- Testes: **108 pytest verdes**. Conteúdo: ~20 raças, 12 classes, 74 talentos, ~1436 magias,
+  3208 monstros, 68 armas, 23 armaduras, 1618 itens. 12 migrações Alembic.
+- Personagem-exemplo **Kzen** (Bárbaro 9 Halfling) importado na conta admin com retrato + símbolo.
