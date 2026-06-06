@@ -13,6 +13,7 @@ from app import create_app
 from app.extensions import db
 from app.models.reference import Antecedente, Classe, Magia, Raca, Talento
 from app.models.monster import Monstro
+from app.models.items import Item
 from app.models.user import User
 
 DATA_DIR = Path(__file__).resolve().parent.parent / "data"
@@ -138,6 +139,15 @@ class SeedRunner:
         campos = ["slug", "nome", "descricao", "pre_requisito", "fonte", "efeitos"]
         self._upsert(Talento, self._carregar_json("feats.json"), campos)
 
+    def semear_equipamento(self):
+        """Equipamento mundano do SRD (gear + pacotes) como Itens globais oficiais."""
+        campos = ["slug", "nome", "descricao", "tipo_item", "fonte", "homebrew", "idioma"]
+        registros = self._carregar_json("gear.json")
+        for registro in registros:
+            registro.setdefault("homebrew", False)
+            registro.setdefault("idioma", "pt")
+        self._upsert(Item, registros, campos)
+
     def backfill_efeitos(self):
         """
         Preenche `efeitos` em conteúdo de referência JÁ EXISTENTE que ainda não tem
@@ -170,6 +180,7 @@ class SeedRunner:
             self.semear_magias()
             self.semear_monstros()
             self.semear_talentos()
+            self.semear_equipamento()
             self.backfill_efeitos()
         return self.resumo
 
