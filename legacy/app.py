@@ -1,4 +1,6 @@
 import json
+import os
+import secrets
 
 from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
@@ -7,7 +9,8 @@ from models import db, User, Modelo, Campo, Personagem, Valor
 
 app = Flask(__name__)
 
-app.config['SECRET_KEY'] = 'uma_chave_secreta_muito_segura_aqui'
+# Protótipo arquivado. Segredo NUNCA hardcoded: vem do ambiente ou é efêmero por execução.
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY') or secrets.token_hex(32)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///ragnarok.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 

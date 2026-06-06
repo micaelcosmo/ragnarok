@@ -12,7 +12,7 @@ services:
     container_name: ragnarok-db
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-ragnarok}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-ragnarok}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?defina POSTGRES_PASSWORD no .env}
       POSTGRES_DB: ${POSTGRES_DB:-ragnarok}
     ports:
       - "5433:5432"
@@ -32,12 +32,13 @@ services:
         condition: service_healthy
     environment:
       FLASK_CONFIG: prod
-      DATABASE_URL: postgresql+psycopg2://${POSTGRES_USER:-ragnarok}:${POSTGRES_PASSWORD:-ragnarok}@db:5432/${POSTGRES_DB:-ragnarok}
-      JWT_SECRET_KEY: ${JWT_SECRET_KEY:-troque-esta-chave-em-producao-32bytes}
-      SECRET_KEY: ${SECRET_KEY:-troque-esta-chave-em-producao}
+      # Segredos OBRIGATÓRIOS (${VAR:?} faz o compose recusar subir se não vierem do .env).
+      DATABASE_URL: postgresql+psycopg2://${POSTGRES_USER:-ragnarok}:${POSTGRES_PASSWORD:?defina POSTGRES_PASSWORD no .env}@db:5432/${POSTGRES_DB:-ragnarok}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY:?defina JWT_SECRET_KEY no .env (>=32 bytes)}
+      SECRET_KEY: ${SECRET_KEY:?defina SECRET_KEY no .env}
       SEED_ADMIN_EMAIL: ${SEED_ADMIN_EMAIL:-admin@ragnarok.local}
-      SEED_ADMIN_PASSWORD: ${SEED_ADMIN_PASSWORD:-admin123}
-      SEED_ADMIN_NAME: ${SEED_ADMIN_NAME:-Mestre Supremo}
+      SEED_ADMIN_PASSWORD: ${SEED_ADMIN_PASSWORD:?defina SEED_ADMIN_PASSWORD no .env}
+      SEED_ADMIN_NAME: ${SEED_ADMIN_NAME:-Administrador}
     ports:
       - "5050:5050"
     restart: unless-stopped

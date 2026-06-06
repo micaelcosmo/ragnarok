@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+# Hook de pre-commit SEM dependência externa: bloqueia .env e padrões óbvios de segredo.
+# Instale com:  git config core.hooksPath scripts/git-hooks
+set -e
+
+arquivos=$(git diff --cached --name-only --diff-filter=ACM)
+
+# 1) Nunca commitar arquivos de segredo.
+for f in $arquivos; do
+  case "$f" in
+    .env|*/.env|*.pem|*.key|*_rsa)
+      echo "❌ pre-commit: arquivo de segredo bloqueado: $f"
+      echo "   (remova do commit; .env deve ficar gitignored)"
+      exit 1
+      ;;
+  esac
+done
+
+# 2) Padrões de segredo no conteúdo staged (ignora .example/.md/docs e o próprio hook).
+padrao='(SECRET_KEY|JWT_SECRET_KEY|PASSWORD|API_KEY|TOKEN)[[:space:]]*[:=][[:space:]]*["'"'"'][A-Za-z0-9_!@#%.-]{12,}["'"'"']'
+encontrados=""
+for f in $arquivos; do
+  case "$f" in
+    *.example|*.md|scripts/git-hooks/*|*.lock) continue ;;
+  esac
+  # Linhas marcadas com "gitleaks:allow" são ignoradas (segredos de teste conscientes).
+  if git show ":$f" 2>/dev/null | grep -vE 'gitleaks:allow' | grep -nE "$padrao" >/dev/null 2>&1; then
+    encontrados="$encontrados $f"
+  fi
+done
+
+if [ -n "$encontrados" ]; then
+  echo "❌ pre-commit: possível segredo hardcoded em:$encontrados"
+  echo "   Use variáveis de ambiente (.env). Se for falso-positivo, revise e use --no-verify conscientemente."
+  exit 1
+fi
+
+exit 0

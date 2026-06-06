@@ -1,0 +1,8 @@
+# Prevenção de vazamento de segredos. Requer `pre-commit` (pip install pre-commit) e então
+#   pre-commit install
+# Roda o gitleaks em cada commit, bloqueando segredos antes de entrarem no git.
+repos:
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.18.4
+    hooks:
+      - id: gitleaks

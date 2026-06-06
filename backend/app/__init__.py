@@ -9,7 +9,9 @@ from app.utils.errors import register_error_handlers
 def create_app(config_name=None):
     """Cria e configura a aplicação Flask (padrão app factory)."""
     app = Flask(__name__)
-    app.config.from_object(get_config(config_name))
+    config = get_config(config_name)
+    config.validate()  # fail-fast: aborta em prod se faltar segredo obrigatório
+    app.config.from_object(config)
 
     _registrar_extensoes(app)
     _registrar_jwt_handlers(app)
