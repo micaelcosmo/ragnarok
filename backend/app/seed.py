@@ -138,6 +138,27 @@ class SeedRunner:
         campos = ["slug", "nome", "descricao", "pre_requisito", "fonte", "efeitos"]
         self._upsert(Talento, self._carregar_json("feats.json"), campos)
 
+    def backfill_efeitos(self):
+        """
+        Preenche `efeitos` em conteúdo de referência JÁ EXISTENTE que ainda não tem
+        (ex.: seedado/ingerido antes da feature de efeitos). Idempotente: só toca em vazios.
+        """
+        preenchidos = 0
+        for raca in Raca.query.all():
+            if not raca.efeitos and raca.bonus_atributos:
+                raca.efeitos = {"atributos": raca.bonus_atributos}
+                preenchidos += 1
+        for classe in Classe.query.all():
+            if not classe.efeitos and classe.salvaguardas:
+                classe.efeitos = {"salvaguardas": classe.salvaguardas}
+                preenchidos += 1
+        for antecedente in Antecedente.query.all():
+            if not antecedente.efeitos and antecedente.pericias:
+                antecedente.efeitos = {"pericias": antecedente.pericias}
+                preenchidos += 1
+        db.session.commit()
+        self.resumo["backfill_efeitos"] = preenchidos
+
     def executar(self):
         with self.app.app_context():
             db.create_all()
@@ -149,6 +170,7 @@ class SeedRunner:
             self.semear_magias()
             self.semear_monstros()
             self.semear_talentos()
+            self.backfill_efeitos()
         return self.resumo
 
 
