@@ -39,5 +39,21 @@ Queremos exibir/anexar imagens ao personagem.
 ## 5. Página de Identidade (página 2 da ficha oficial) 🟡 — FEATURE
 **Pedido implícito:** dados de identidade/história — idade, altura, peso, olhos, pele, cabelo,
 facção, **aparência**, **aliados & organizações**, **tesouro** (além de história, que já existe).
-**Proposta:** novos campos no `Personagem` + aba "Identidade" na ficha (editável).
+**Proposta:** novos campos no `Personagem` + aba "Identidade" na ficha (editável). ✅ FEITO (E20).
+
+## 6. Aumentos de Habilidade "tipo joguinho" (alocar pontos + talentos que somam) 🔴 — FEATURE
+**Pedido:** ao **editar/criar**, poder **marcar pontos** de atributo (Aumentos de Habilidade) de
+forma **mecânica e reversível** (não só editar o número base) — mostrando o ▲. E ao escolher um
+**talento** que concede +atributo, **somar** no atributo (já funciona p/ talentos com
+`efeitos.atributos`; ex.: Bênção do Kzen +2 CON).
+**Ideia construída (a planejar — E21):**
+- Novo campo `bonus_atributos_manuais` (JSON {for..car}, default 0) no `Personagem` — uma "pool"
+  de pontos alocáveis. O `ConstrutorDeFicha` soma como **fonte** → final = base + manuais + talentos
+  + raça/classe/antec. (mantém o ▲ e a reversibilidade).
+- **Editar:** seção "Aumentos de Habilidade" com +/- por atributo (gasta/devolve pontos).
+- **Wizard:** passo/preview já mostra talentos com bônus; opcional: distribuir os ASIs por nível
+  (níveis 4/8/12/16/19 → +2 pts) — versão guiada.
+- **Curar talentos "meio-talento"** (half-feats) do catálogo com `efeitos.atributos` (+1 a um
+  atributo) — e, no futuro, talentos com **escolha** de atributo (precisa de UI de escolha).
+- Migração Alembic (campo nullable/default 0). Testes do motor (somar/zerar reversível).
 
