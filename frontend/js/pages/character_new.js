@@ -5,16 +5,16 @@ import { montarShell } from '../app.js';
 import { esc, toast } from '../ui.js';
 import { NOMES_ATRIBUTOS, modificador } from '../rules.js';
 
-const PASSOS = ['Raça', 'Classe', 'Antecedente', 'Atributos', 'Perícias'];
+const PASSOS = ['Raça', 'Classe', 'Antecedente', 'Atributos', 'Perícias', 'Talentos'];
 
 export async function renderCharacterNew() {
   const view = montarShell('Novo Herói', '#/characters/new');
   view.innerHTML = '<div class="spinner"></div>';
 
-  let racas = [], classes = [], antecedentes = [];
+  let racas = [], classes = [], antecedentes = [], talentos = [];
   try {
-    [racas, classes, antecedentes] = await Promise.all([
-      api.reference.races(), api.reference.classes(), api.reference.backgrounds(),
+    [racas, classes, antecedentes, talentos] = await Promise.all([
+      api.reference.races(), api.reference.classes(), api.reference.backgrounds(), api.reference.feats(),
     ]);
   } catch (erro) {
     toast('Não foi possível carregar o catálogo: ' + erro.message, 'err');
@@ -26,9 +26,37 @@ export async function renderCharacterNew() {
     raca: null, classe: null, antecedente: null,
     atributos: { for: 10, des: 10, con: 10, int: 10, sab: 10, car: 10 },
     pericias: new Set(),
+    talentos: new Set(),
   };
 
   function classeAtual() { return classes.find((classe) => classe.slug === estado.classe); }
+  function racaAtual() { return racas.find((raca) => raca.slug === estado.raca); }
+  function antecedenteAtual() { return antecedentes.find((a) => a.slug === estado.antecedente); }
+
+  // Preview ao vivo dos bônus que as escolhas concedem (lido dos `efeitos` do catálogo).
+  function previewBonus() {
+    const linhas = [];
+    const raca = racaAtual();
+    if (raca) {
+      const attr = (raca.efeitos && raca.efeitos.atributos) || raca.bonus_atributos || {};
+      const txt = Object.entries(attr).map(([k, v]) => `${k.toUpperCase()} +${v}`).join(', ');
+      if (txt) linhas.push(`🧬 <b>${esc(raca.nome)}</b>: ${esc(txt)}`);
+    }
+    const ant = antecedenteAtual();
+    if (ant && (ant.pericias || []).length) linhas.push(`📜 <b>${esc(ant.nome)}</b>: perícias ${esc(ant.pericias.join(', '))}`);
+    const classe = classeAtual();
+    if (classe && (classe.salvaguardas || []).length) linhas.push(`⚔️ <b>${esc(classe.nome)}</b>: salvaguardas ${esc(classe.salvaguardas.map((s) => s.toUpperCase()).join(', '))}`);
+    estado.talentos.forEach((slug) => {
+      const t = talentos.find((x) => x.slug === slug);
+      const ef = (t && t.efeitos) || {};
+      const partes = [];
+      if (ef.iniciativa) partes.push(`iniciativa +${ef.iniciativa}`);
+      if (ef.atributos) partes.push(Object.entries(ef.atributos).map(([k, v]) => `${k.toUpperCase()} +${v}`).join(', '));
+      if (t) linhas.push(`⭐ <b>${esc(t.nome)}</b>${partes.length ? ': ' + esc(partes.join(', ')) : ''}`);
+    });
+    if (!linhas.length) return '';
+    return `<div class="card" style="margin-top:14px"><div class="muted" style="font-size:.78rem;text-transform:uppercase;letter-spacing:.5px;color:var(--gold)">Bônus que serão aplicados</div>${linhas.map((l) => `<div style="margin-top:4px">${l}</div>`).join('')}</div>`;
+  }
 
   function pintar() {
     view.innerHTML = `
@@ -56,10 +84,23 @@ export async function renderCharacterNew() {
       case 0: return passoSelecao('raca', racas, 'deslocamento', 'm de deslocamento');
       case 1: return passoSelecao('classe', classes, 'dado_vida', 'd de vida', (item) => `d${item.dado_vida} · ${item.conjurador ? 'conjurador' : 'marcial'}`);
       case 2: return passoSelecao('antecedente', antecedentes, null, '');
-      case 3: return passoAtributos();
-      case 4: return passoPericias();
+      case 3: return passoAtributos() + previewBonus();
+      case 4: return passoPericias() + previewBonus();
+      case 5: return passoTalentos() + previewBonus();
       default: return '';
     }
+  }
+
+  function passoTalentos() {
+    const opcoes = talentos.map((t) => `
+      <div class="option ${estado.talentos.has(t.slug) ? 'selected' : ''}" data-talento="${esc(t.slug)}">
+        <div class="opt-name" style="font-size:.95rem">${esc(t.nome)}</div>
+        <div class="opt-meta">${esc(t.fonte || '')}${t.pre_requisito ? ' · ' + esc(t.pre_requisito) : ''}</div>
+      </div>`).join('');
+    return `<h3>Talentos (opcional)</h3>
+      <p class="muted">Escolha talentos — os efeitos (atributos, iniciativa, etc.) entram na ficha
+      automaticamente e podem ser removidos depois.</p>
+      <div class="option-grid" style="margin-top:12px">${opcoes || '<p class="muted">Nenhum talento no catálogo.</p>'}</div>`;
   }
 
   function passoSelecao(tipo, lista, _campo, _sufixo, metaFn) {
@@ -88,12 +129,10 @@ export async function renderCharacterNew() {
         <input class="input stat-score-input" data-attr="${chave}" type="number" min="1" max="30" value="${estado.atributos[chave]}">
         <div class="stat-score" id="mod-${chave}">${fmtMod(estado.atributos[chave])}</div>
       </div>`).join('');
-    const bonus = estado.raca ? (racas.find((r) => r.slug === estado.raca) || {}).bonus_atributos || {} : {};
-    const dica = Object.keys(bonus).length
-      ? `<p class="muted">Bônus racial: ${Object.entries(bonus).map(([k, v]) => `${k.toUpperCase()} +${v}`).join(', ')} (some manualmente).</p>` : '';
-    return `<h3>Distribua os Atributos</h3>
-      <p class="muted">Digite os valores finais (point-buy, rolagem ou array padrão 15,14,13,12,10,8). O modificador é calculado automaticamente.</p>
-      ${dica}<div class="stats-row" style="margin-top:18px">${linhas}</div>`;
+    return `<h3>Distribua os Atributos (base)</h3>
+      <p class="muted">Digite os valores <b>base</b> (point-buy, rolagem ou array 15,14,13,12,10,8).
+      Os bônus de raça/talento são somados <b>automaticamente</b> na ficha (veja abaixo).</p>
+      <div class="stats-row" style="margin-top:18px">${linhas}</div>`;
   }
 
   function passoPericias() {
@@ -145,6 +184,13 @@ export async function renderCharacterNew() {
         const contador = conteudo.querySelector('#contador-pericias');
         if (contador) contador.textContent = `${estado.pericias.size}/${limite}`;
       }));
+    conteudo.querySelectorAll('.option[data-talento]').forEach((no) =>
+      no.addEventListener('click', () => {
+        const slug = no.dataset.talento;
+        if (estado.talentos.has(slug)) estado.talentos.delete(slug);
+        else estado.talentos.add(slug);
+        pintar();   // re-renderiza para atualizar o preview de bônus
+      }));
   }
 
   async function avancar() {
@@ -170,7 +216,7 @@ export async function renderCharacterNew() {
       pv_max: Math.max(1, pv), pv_atual: Math.max(1, pv),
       ca: 10 + modificador(estado.atributos.des),
       pericias_proficientes: Array.from(estado.pericias),
-      salvaguardas_proficientes: (classe && classe.salvaguardas) || [],
+      talentos: Array.from(estado.talentos),
       classe_conjuradora: classe && classe.conjurador ? classe.nome : null,
       atributo_conjuracao: classe ? classe.atributo_conjuracao : null,
     };

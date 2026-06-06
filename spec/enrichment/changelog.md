@@ -14,6 +14,13 @@
 - Testes: motor puro (4) + integração add/remove talento reversível + raça/antecedente + CA (3).
 - Validado em stack Docker **isolada** (`docker-compose.dev.yml`, projeto `ragnarok-dev`).
 
+### Fase 4 — Wizard enriquecido (feat)
+- Novo passo **Talentos** (multi-seleção do catálogo `/reference/feats`).
+- **Preview ao vivo dos bônus**: mostra o que raça (atributos), antecedente (perícias),
+  classe (salvaguardas) e talentos concedem — lido dos `efeitos` do catálogo.
+- Atributos passam a ser **base** (bônus racial/talento somados pelo motor, não mais "manual").
+- Criação envia `talentos` (e deixa salvaguardas/atributos para o motor aplicar).
+
 ### Fase 3 — Editor de itens + equipar (feat)
 - CRUD `/catalog/{weapons,armor,items}` com ownership: JOGADOR vincula ao seu personagem;
   MESTRE/ADMIN ao acervo geral; tudo homebrew + fonte obrigatória.
