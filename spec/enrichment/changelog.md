@@ -1,5 +1,15 @@
 # Changelog — Enriquecimento
 
+## [Pós-lançamento]
+### content/docs
+- **Roadmap de gaps** (`planning/roadmap-gaps.md`) gerado a partir da importação da ficha do
+  Kzen (Bárbaro 9 Halfling): ASI, sub-raça automática, recursos de classe, moedas, testes de
+  morte, oficial-vs-homebrew para admin, etc.
+- Antecedente **Forasteiro (Outlander)** adicionado ao seed (`backgrounds.json`) + efeitos
+  (perícias Atletismo/Sobrevivência) — gap que a ficha revelou.
+- Personagem de exemplo **Kzen** importado (corrigido) e **Bênção da Grande Serpente [+2 CON]**
+  modelada como talento homebrew de campanha (in-game → out-game).
+
 ## [Não lançado]
 
 ### Fase 1 — Motor de efeitos (feat)
