@@ -25,6 +25,12 @@ class Config:
     JWT_ACCESS_TOKEN_EXPIRES = int(os.getenv("JWT_EXPIRES_SECONDS", str(60 * 60 * 12)))
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     JSON_SORT_KEYS = False
+    # Uploads de imagem (retrato/símbolo). Pasta servida por nginx (volume) em runtime.
+    UPLOAD_DIR = os.getenv(
+        "UPLOAD_DIR",
+        os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "uploads"),
+    )
+    MAX_CONTENT_LENGTH = int(os.getenv("MAX_UPLOAD_BYTES", str(2 * 1024 * 1024 + 8192)))  # ~2MB + overhead
     # Admin inicial criado pelo seed (sem senha default — o seed gera uma se faltar).
     SEED_ADMIN_EMAIL = os.getenv("SEED_ADMIN_EMAIL", "admin@ragnarok.local")
     SEED_ADMIN_PASSWORD = os.getenv("SEED_ADMIN_PASSWORD")  # sem default

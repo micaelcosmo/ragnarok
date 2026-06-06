@@ -20,6 +20,8 @@ _CAMPOS_TEXTO = (
     "classe_conjuradora", "atributo_conjuracao", "tracos_personalidade",
     "ideais", "vinculos", "fraquezas", "historia", "caracteristicas",
     "idiomas", "equipamento", "ataques", "dinheiro", "avatar_url",
+    "idade", "altura", "peso", "olhos", "pele", "cabelo", "faccao",
+    "aparencia", "aliados", "tesouro", "simbolo_faccao_url",
 )
 _CAMPOS_INT = (
     "nivel", "xp", "ca", "ca_ajuste", "iniciativa_bonus", "pv_max", "pv_atual", "pv_temp",

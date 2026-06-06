@@ -9,3 +9,6 @@ tools/
 
 # Backups de banco (não versionar)
 backups/
+
+# Uploads de imagem (runtime/volume)
+backend/uploads/

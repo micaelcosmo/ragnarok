@@ -70,7 +70,20 @@ class Personagem(TimestampMixin, db.Model):
     equipamento = db.Column(db.Text, nullable=True)
     ataques = db.Column(db.Text, nullable=True)
     dinheiro = db.Column(db.String(120), nullable=True)
-    avatar_url = db.Column(db.String(300), nullable=True)
+    avatar_url = db.Column(db.String(300), nullable=True)  # retrato do personagem
+
+    # Identidade / aparência (página 2 da ficha oficial)
+    idade = db.Column(db.String(40), nullable=True)
+    altura = db.Column(db.String(40), nullable=True)
+    peso = db.Column(db.String(40), nullable=True)
+    olhos = db.Column(db.String(40), nullable=True)
+    pele = db.Column(db.String(40), nullable=True)
+    cabelo = db.Column(db.String(40), nullable=True)
+    faccao = db.Column(db.String(120), nullable=True)
+    aparencia = db.Column(db.Text, nullable=True)
+    aliados = db.Column(db.Text, nullable=True)
+    tesouro = db.Column(db.Text, nullable=True)
+    simbolo_faccao_url = db.Column(db.String(300), nullable=True)
 
     ATRIBUTOS_COLUNAS = {
         "for": "forca",
@@ -143,6 +156,17 @@ class Personagem(TimestampMixin, db.Model):
             "ataques": self.ataques,
             "dinheiro": self.dinheiro,
             "avatar_url": self.avatar_url,
+            "idade": self.idade,
+            "altura": self.altura,
+            "peso": self.peso,
+            "olhos": self.olhos,
+            "pele": self.pele,
+            "cabelo": self.cabelo,
+            "faccao": self.faccao,
+            "aparencia": self.aparencia,
+            "aliados": self.aliados,
+            "tesouro": self.tesouro,
+            "simbolo_faccao_url": self.simbolo_faccao_url,
         }
         if incluir_derivados:
             dados["derivados"] = self.derivados()

@@ -54,6 +54,7 @@ def _registrar_blueprints(app):
     from app.api.bestiary import bp as bestiary_bp
     from app.api.admin import bp as admin_bp
     from app.api.items import bp as items_bp
+    from app.api.uploads import bp as uploads_bp
 
     for blueprint in (
         health_bp,
@@ -64,5 +65,6 @@ def _registrar_blueprints(app):
         bestiary_bp,
         admin_bp,
         items_bp,
+        uploads_bp,
     ):
         app.register_blueprint(blueprint, url_prefix="/api/v1")
