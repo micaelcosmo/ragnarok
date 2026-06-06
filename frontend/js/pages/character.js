@@ -3,6 +3,7 @@ import { api } from '../api.js';
 import { navegar } from '../router.js';
 import { montarShell } from '../app.js';
 import { esc, iniciais, ligarTabs, modal, html, sinal, toast } from '../ui.js';
+import { iniciarPolling } from '../live.js';
 import { NOMES_ATRIBUTOS, PERICIAS, DESC_ATRIBUTOS, DESC_PERICIAS, DESC_COMBATE } from '../rules.js';
 
 const COLUNA_ATRIBUTO = {
@@ -21,6 +22,12 @@ export async function renderCharacter(id) {
     return;
   }
   pintarFicha(view, personagem);
+  // Ao vivo: re-renderiza se a ficha mudar (ex.: o mestre editou) sem precisar de F5.
+  iniciarPolling(
+    () => api.characters.get(id),
+    (dados) => pintarFicha(view, dados),
+    { inicial: personagem, ms: 7000 },
+  );
 }
 
 function pintarFicha(view, personagem) {

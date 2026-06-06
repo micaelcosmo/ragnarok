@@ -32,6 +32,7 @@
 | E18 | Banco: Alembic/Flask-Migrate (sem perder dados) + backup | ✅ |
 | E19 | Enriquecimento da ficha (efeitos, itens, wizard, compêndio, i18n) | ✅ (em prod) |
 | E20 | Identidade & Imagens do Personagem (retrato, símbolo, página de identidade) | ✅ (em prod) |
+| E21 | Atualização ao vivo (sem F5): reativo + polling | ✅ (em prod) |
 
 ---
 

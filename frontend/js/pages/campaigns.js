@@ -3,6 +3,7 @@ import { api } from '../api.js';
 import { getUser } from '../auth.js';
 import { navegar } from '../router.js';
 import { montarShell } from '../app.js';
+import { iniciarPolling } from '../live.js';
 import { emptyState, esc, html, modal, toast } from '../ui.js';
 
 export async function renderCampaigns() {
@@ -160,6 +161,13 @@ export async function renderCampaignDetail(id) {
 
   const botaoVincular = view.querySelector('#vincular');
   if (botaoVincular) botaoVincular.addEventListener('click', () => dialogoVincular(mesa, id));
+
+  // Ao vivo: jogadores entrando, personagens vinculados etc. aparecem sem F5.
+  iniciarPolling(
+    () => api.campaigns.get(id),
+    () => renderCampaignDetail(id),
+    { inicial: mesa, ms: 8000 },
+  );
 }
 
 async function dialogoVincular(mesa, id) {

@@ -1,4 +1,6 @@
 // Hash router minimalista com suporte a parâmetros e guardas.
+import { pararPolling } from './live.js';
+
 const rotas = [];
 
 export function rota(padrao, handler, opcoes = {}) {
@@ -15,6 +17,7 @@ let aoNavegar = null;
 export function definirGuard(fn) { aoNavegar = fn; }
 
 async function resolver() {
+  pararPolling();  // encerra o polling "ao vivo" da tela anterior
   const hash = location.hash || '#/';
   for (const definicao of rotas) {
     const encontrado = definicao.regex.exec(hash.split('?')[0]);
