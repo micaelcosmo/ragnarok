@@ -1,0 +1,204 @@
+[
+  {
+    "slug": "dwarf",
+    "nome": "Anão",
+    "descricao": "Robustos e resistentes, os anões são conhecidos por sua habilidade na guerra, sua resistência a venenos e magias, seu conhecimento dos segredos da terra e da pedra, e sua devoção ao trabalho árduo.",
+    "deslocamento": 25,
+    "tamanho": "Médio",
+    "bonus_atributos": {"con": 2},
+    "tracos": [
+      {"nome": "Visão no Escuro", "descricao": "Você enxerga na penumbra a até 18 metros como se fosse luz plena, e no escuro como se fosse penumbra (apenas tons de cinza)."},
+      {"nome": "Resiliência Anã", "descricao": "Você tem vantagem em testes de resistência contra veneno e resistência a dano de veneno."},
+      {"nome": "Treinamento de Combate Anão", "descricao": "Você tem proficiência com machados de batalha, machadinhas, martelos leves e martelos de guerra."},
+      {"nome": "Especialização em Ferramentas", "descricao": "Você tem proficiência com uma ferramenta de artesão à sua escolha: ferramentas de ferreiro, de cervejeiro ou de pedreiro."},
+      {"nome": "Especialização em Pedra", "descricao": "Sempre que fizer um teste de Inteligência (História) relacionado à origem de trabalhos em pedra, você é considerado proficiente e adiciona o dobro de seu bônus de proficiência."}
+    ],
+    "subracas": [
+      {
+        "slug": "hill-dwarf",
+        "nome": "Anão da Colina",
+        "bonus_atributos": {"sab": 1},
+        "tracos": [
+          {"nome": "Tenacidade Anã", "descricao": "Seu máximo de pontos de vida aumenta em 1, e aumenta em mais 1 cada vez que você sobe de nível."}
+        ]
+      },
+      {
+        "slug": "mountain-dwarf",
+        "nome": "Anão da Montanha",
+        "bonus_atributos": {"for": 2},
+        "tracos": [
+          {"nome": "Treinamento Anão com Armaduras", "descricao": "Você tem proficiência com armaduras leves e médias."}
+        ]
+      }
+    ]
+  },
+  {
+    "slug": "elf",
+    "nome": "Elfo",
+    "descricao": "Povo mágico de graça sobrenatural, os elfos vivem no mundo mas não fazem totalmente parte dele. Habitam lugares de beleza etérea, em meio a florestas antigas ou em torres prateadas reluzentes de magia.",
+    "deslocamento": 30,
+    "tamanho": "Médio",
+    "bonus_atributos": {"des": 2},
+    "tracos": [
+      {"nome": "Visão no Escuro", "descricao": "Você enxerga na penumbra a até 18 metros como se fosse luz plena, e no escuro como se fosse penumbra (apenas tons de cinza)."},
+      {"nome": "Sentidos Aguçados", "descricao": "Você tem proficiência na perícia Percepção."},
+      {"nome": "Ancestralidade Feérica", "descricao": "Você tem vantagem em testes de resistência contra ser enfeitiçado, e magia não pode colocá-lo para dormir."},
+      {"nome": "Transe", "descricao": "Você não precisa dormir; em vez disso, medita profundamente por 4 horas ao dia, obtendo os mesmos benefícios de 8 horas de sono."}
+    ],
+    "subracas": [
+      {
+        "slug": "high-elf",
+        "nome": "Alto Elfo",
+        "bonus_atributos": {"int": 1},
+        "tracos": [
+          {"nome": "Treinamento Élfico com Armas", "descricao": "Você tem proficiência com espadas longas, espadas curtas, arcos curtos e arcos longos."},
+          {"nome": "Truque", "descricao": "Você conhece um truque à sua escolha da lista de magias do mago. Inteligência é sua habilidade de conjuração para ele."},
+          {"nome": "Idioma Adicional", "descricao": "Você pode falar, ler e escrever um idioma adicional à sua escolha."}
+        ]
+      },
+      {
+        "slug": "wood-elf",
+        "nome": "Elfo da Floresta",
+        "bonus_atributos": {"sab": 1},
+        "tracos": [
+          {"nome": "Treinamento Élfico com Armas", "descricao": "Você tem proficiência com espadas longas, espadas curtas, arcos curtos e arcos longos."},
+          {"nome": "Pés Ligeiros", "descricao": "Seu deslocamento base de caminhada aumenta para 10,5 metros."},
+          {"nome": "Máscara da Natureza", "descricao": "Você pode tentar se esconder mesmo quando estiver apenas levemente obscurecido por folhagem, chuva forte, neve, névoa ou outro fenômeno natural."}
+        ]
+      }
+    ]
+  },
+  {
+    "slug": "halfling",
+    "nome": "Halfling",
+    "descricao": "O confortável lar é o lugar predileto de um halfling. Práticos e diretos, valorizam paz e prosperidade, mas escondem uma coragem surpreendente sob sua aparência simples e tranquila.",
+    "deslocamento": 25,
+    "tamanho": "Pequeno",
+    "bonus_atributos": {"des": 2},
+    "tracos": [
+      {"nome": "Sortudo", "descricao": "Quando você obtém um 1 num d20 para um ataque, teste de habilidade ou salvaguarda, você pode rolar o dado novamente e deve usar o novo resultado."},
+      {"nome": "Bravura", "descricao": "Você tem vantagem em testes de resistência contra ser amedrontado."},
+      {"nome": "Agilidade Halfling", "descricao": "Você pode se mover através do espaço de qualquer criatura que tenha um tamanho maior que o seu."}
+    ],
+    "subracas": [
+      {
+        "slug": "lightfoot",
+        "nome": "Pés Leves",
+        "bonus_atributos": {"car": 1},
+        "tracos": [
+          {"nome": "Furtividade Natural", "descricao": "Você pode tentar se esconder mesmo quando estiver obscurecido apenas por uma criatura ao menos um tamanho maior que o seu."}
+        ]
+      },
+      {
+        "slug": "stout",
+        "nome": "Robusto",
+        "bonus_atributos": {"con": 1},
+        "tracos": [
+          {"nome": "Resiliência Robusta", "descricao": "Você tem vantagem em testes de resistência contra veneno e resistência a dano de veneno."}
+        ]
+      }
+    ]
+  },
+  {
+    "slug": "human",
+    "nome": "Humano",
+    "descricao": "Os mais adaptáveis e ambiciosos entre os povos comuns, os humanos têm grande diversidade de aparência e costumes. Vivem pouco em comparação a outras raças, o que os impulsiona a realizar tanto quanto possível.",
+    "deslocamento": 30,
+    "tamanho": "Médio",
+    "bonus_atributos": {"for": 1, "des": 1, "con": 1, "int": 1, "sab": 1, "car": 1},
+    "tracos": [
+      {"nome": "Idioma Adicional", "descricao": "Você pode falar, ler e escrever um idioma adicional à sua escolha, além do Comum."}
+    ],
+    "subracas": []
+  },
+  {
+    "slug": "dragonborn",
+    "nome": "Draconato",
+    "descricao": "Nascidos de dragões, os draconatos andam orgulhosamente por um mundo que os recebe com medo e incompreensão. Têm forma humanoide com traços reptilianos e um forte senso de honra e clã.",
+    "deslocamento": 30,
+    "tamanho": "Médio",
+    "bonus_atributos": {"for": 2, "car": 1},
+    "tracos": [
+      {"nome": "Ancestralidade Dracônica", "descricao": "Você tem ancestralidade dracônica ligada a um tipo de dragão, o que determina o tipo de dano de sua arma de sopro e sua resistência."},
+      {"nome": "Arma de Sopro", "descricao": "Você pode usar sua ação para exalar energia destrutiva. As criaturas na área devem fazer uma salvaguarda; em caso de falha, sofrem 2d6 de dano (aumentando com o nível) do tipo correspondente à sua ancestralidade."},
+      {"nome": "Resistência a Dano", "descricao": "Você tem resistência ao tipo de dano associado à sua ancestralidade dracônica."}
+    ],
+    "subracas": []
+  },
+  {
+    "slug": "gnome",
+    "nome": "Gnomo",
+    "descricao": "Os gnomos provam que pode haver muita energia e entusiasmo concentrados em um corpo pequeno. Curiosos e inventivos, abordam a vida com uma alegria que poucos outros povos conseguem igualar.",
+    "deslocamento": 25,
+    "tamanho": "Pequeno",
+    "bonus_atributos": {"int": 2},
+    "tracos": [
+      {"nome": "Visão no Escuro", "descricao": "Você enxerga na penumbra a até 18 metros como se fosse luz plena, e no escuro como se fosse penumbra (apenas tons de cinza)."},
+      {"nome": "Astúcia Gnômica", "descricao": "Você tem vantagem em todas as salvaguardas de Inteligência, Sabedoria e Carisma contra magia."}
+    ],
+    "subracas": [
+      {
+        "slug": "forest-gnome",
+        "nome": "Gnomo da Floresta",
+        "bonus_atributos": {"des": 1},
+        "tracos": [
+          {"nome": "Ilusionista Nato", "descricao": "Você conhece o truque ilusão menor. Inteligência é sua habilidade de conjuração para ele."},
+          {"nome": "Falar com Pequenos Animais", "descricao": "Por meio de sons e gestos, você pode comunicar ideias simples a pequenos animais."}
+        ]
+      },
+      {
+        "slug": "rock-gnome",
+        "nome": "Gnomo das Rochas",
+        "bonus_atributos": {"con": 1},
+        "tracos": [
+          {"nome": "Conhecimento de Artífice", "descricao": "Sempre que fizer um teste de Inteligência (História) relacionado a itens mágicos, alquímicos ou tecnológicos, você adiciona o dobro de seu bônus de proficiência."},
+          {"nome": "Engenhoqueiro", "descricao": "Você tem proficiência com ferramentas de funileiro e pode usá-las para construir pequenos dispositivos mecânicos."}
+        ]
+      }
+    ]
+  },
+  {
+    "slug": "half-elf",
+    "nome": "Meio-Elfo",
+    "descricao": "Andando entre dois mundos sem pertencer totalmente a nenhum, os meio-elfos combinam as melhores qualidades de seus pais elfos e humanos: curiosidade, inventividade e ambição temperadas por sentidos refinados e amor pela natureza.",
+    "deslocamento": 30,
+    "tamanho": "Médio",
+    "bonus_atributos": {"car": 2},
+    "tracos": [
+      {"nome": "Aumento de Atributo", "descricao": "Dois atributos diferentes à sua escolha aumentam em 1."},
+      {"nome": "Visão no Escuro", "descricao": "Você enxerga na penumbra a até 18 metros como se fosse luz plena, e no escuro como se fosse penumbra (apenas tons de cinza)."},
+      {"nome": "Ancestralidade Feérica", "descricao": "Você tem vantagem em testes de resistência contra ser enfeitiçado, e magia não pode colocá-lo para dormir."},
+      {"nome": "Versatilidade em Perícias", "descricao": "Você ganha proficiência em duas perícias à sua escolha."}
+    ],
+    "subracas": []
+  },
+  {
+    "slug": "half-orc",
+    "nome": "Meio-Orc",
+    "descricao": "Marcados por sua herança orc, os meio-orcs combinam a força bruta com determinação ferrenha. Quando enfurecidos, são adversários temíveis, mas muitos buscam provar que valem mais do que sua aparência sugere.",
+    "deslocamento": 30,
+    "tamanho": "Médio",
+    "bonus_atributos": {"for": 2, "con": 1},
+    "tracos": [
+      {"nome": "Visão no Escuro", "descricao": "Você enxerga na penumbra a até 18 metros como se fosse luz plena, e no escuro como se fosse penumbra (apenas tons de cinza)."},
+      {"nome": "Ameaçador", "descricao": "Você tem proficiência na perícia Intimidação."},
+      {"nome": "Resistência Implacável", "descricao": "Quando seus pontos de vida chegam a 0, mas você não é morto instantaneamente, você pode ficar com 1 ponto de vida. Você só pode usar isso uma vez por descanso longo."},
+      {"nome": "Ataques Selvagens", "descricao": "Quando você acerta um acerto crítico com um ataque corpo a corpo, você pode rolar um dado de dano da arma adicional e somar ao dano extra do crítico."}
+    ],
+    "subracas": []
+  },
+  {
+    "slug": "tiefling",
+    "nome": "Tiefling",
+    "descricao": "Descendentes de uma linhagem tocada por influências infernais, os tieflings carregam traços demoníacos e a desconfiança alheia. Aprendem a depender de si mesmos e a confiar em sua própria astúcia e força de vontade.",
+    "deslocamento": 30,
+    "tamanho": "Médio",
+    "bonus_atributos": {"int": 1, "car": 2},
+    "tracos": [
+      {"nome": "Visão no Escuro", "descricao": "Você enxerga na penumbra a até 18 metros como se fosse luz plena, e no escuro como se fosse penumbra (apenas tons de cinza)."},
+      {"nome": "Resistência Infernal", "descricao": "Você tem resistência a dano de fogo."},
+      {"nome": "Legado Infernal", "descricao": "Você conhece o truque taumaturgia. No 3º nível você pode conjurar repreensão infernal; no 5º, escuridão. Carisma é sua habilidade de conjuração para essas magias."}
+    ],
+    "subracas": []
+  }
+]

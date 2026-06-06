@@ -4,3 +4,8 @@ env/
 .env
 __pycache__/
 *.db
+# Túnel (binário local, não versionar)
+tools/
+
+# Backups de banco (não versionar)
+backups/

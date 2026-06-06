@@ -1,0 +1,55 @@
+# Stack completa do Ragnarok: PostgreSQL + backend (Flask/gunicorn) + frontend (nginx).
+# Portas escolhidas para não conflitar com outros projetos: 8080 / 5050 / 5433.
+#
+# Uso:
+#   docker compose down              # derruba a stack (faça isso antes de subir de novo)
+#   docker compose up --build -d     # sobe tudo
+#   docker compose logs -f backend   # acompanha o backend
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: ragnarok-db
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-ragnarok}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-ragnarok}
+      POSTGRES_DB: ${POSTGRES_DB:-ragnarok}
+    ports:
+      - "5433:5432"
+    volumes:
+      - ragnarok_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-ragnarok}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build: ./backend
+    container_name: ragnarok-backend
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      FLASK_CONFIG: prod
+      DATABASE_URL: postgresql+psycopg2://${POSTGRES_USER:-ragnarok}:${POSTGRES_PASSWORD:-ragnarok}@db:5432/${POSTGRES_DB:-ragnarok}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY:-troque-esta-chave-em-producao-32bytes}
+      SECRET_KEY: ${SECRET_KEY:-troque-esta-chave-em-producao}
+      SEED_ADMIN_EMAIL: ${SEED_ADMIN_EMAIL:-admin@ragnarok.local}
+      SEED_ADMIN_PASSWORD: ${SEED_ADMIN_PASSWORD:-admin123}
+      SEED_ADMIN_NAME: ${SEED_ADMIN_NAME:-Mestre Supremo}
+    ports:
+      - "5050:5050"
+    restart: unless-stopped
+
+  frontend:
+    build: ./frontend
+    container_name: ragnarok-frontend
+    depends_on:
+      - backend
+    ports:
+      - "8080:80"
+    restart: unless-stopped
+
+volumes:
+  ragnarok_pgdata:
