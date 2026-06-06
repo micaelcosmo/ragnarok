@@ -7,6 +7,7 @@ COPY nginx.conf /etc/nginx/conf.d/ragnarok.conf
 
 # Copia os arquivos estáticos da aplicação.
 COPY index.html /usr/share/nginx/html/index.html
+COPY progresso.html /usr/share/nginx/html/progresso.html
 COPY css /usr/share/nginx/html/css
 COPY js /usr/share/nginx/html/js
 

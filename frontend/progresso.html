@@ -1,35 +1,5 @@
-<!DOCTYPE html><html lang="pt-br"><head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<meta http-equiv="refresh" content="20"><title>Ragnarok — Identidade & Imagens</title>
-<style>
-:root{--bg:#0f0d0b;--pane:#1a1510;--gold:#d4af37;--red:#c5303a;--ok:#4c9a5e;--txt:#e8e2d4;--dim:#a99e88;--line:rgba(212,175,55,.25)}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--txt);font-family:system-ui,Segoe UI,Roboto,sans-serif;padding:16px;line-height:1.45}
-h1{font-size:1.22rem;margin:.2em 0;color:var(--gold)}.sub{color:var(--dim);font-size:.85rem;margin-bottom:14px}
-.now{background:linear-gradient(180deg,rgba(197,48,58,.18),transparent);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:16px}
-.now .lbl{font-size:.7rem;letter-spacing:1px;text-transform:uppercase;color:var(--gold)}.now .doing{font-size:1.02rem;margin:4px 0}
-.bar{height:10px;background:#241d15;border:1px solid var(--line);border-radius:99px;overflow:hidden;margin:10px 0 18px}.bar>span{display:block;height:100%;background:linear-gradient(90deg,var(--gold),var(--red))}
-.ph{border:1px solid var(--line);border-radius:10px;padding:11px;margin-bottom:9px;background:var(--pane)}.ph .top{display:flex;align-items:center;gap:8px}
-.badge{font-size:.7rem;font-weight:700;padding:2px 8px;border-radius:99px;white-space:nowrap}
-.b-ok{background:rgba(76,154,94,.2);color:#bfe6c8;border:1px solid rgba(76,154,94,.5)}
-.b-do{background:rgba(212,175,55,.18);color:#ffe9b0;border:1px solid var(--line)}
-.b-wait{background:rgba(0,0,0,.25);color:var(--dim);border:1px solid var(--line)}
-.ph .nm{font-weight:700}.ph .ds{color:var(--dim);font-size:.86rem;margin-top:3px}
-.foot{color:var(--dim);font-size:.75rem;text-align:center;margin-top:16px}
-</style></head><body>
-<h1>🖼️ E20 — Identidade & Imagens do Personagem</h1>
-<div class="sub">retrato + símbolo da facção + página de identidade · atualiza a cada 20s</div>
-<div class="now"><div class="lbl">✅ Concluído</div><div class="doing" id="agora">E20 no ar! Abra a ficha do Kzen → aba Identidade. 🐉</div></div>
-<div class="bar"><span id="bar" style="width:100%"></span></div>
-
-<div class="ph"><div class="top"><span class="badge b-ok" id="s1">✓ FEITO</span><span class="nm">1. Specs (planning + units) + status.md (E20)</span></div><div class="ds">Planning aprovado, data-model/api-contract/pages/roles atualizados.</div></div>
-<div class="ph"><div class="top"><span class="badge b-ok" id="s2">✓ FEITO</span><span class="nm">2. Backend: campos de identidade + migração Alembic</span></div><div class="ds">idade/altura/peso/olhos/pele/cabelo/facção/aparência/aliados/tesouro/símbolo + migração não-destrutiva.</div></div>
-<div class="ph"><div class="top"><span class="badge b-ok" id="s3">✓ FEITO</span><span class="nm">3. Backend: upload seguro de imagem</span></div><div class="ds">POST /uploads: allowlist + magic-bytes + uuid + limite de tamanho + servir sem execução. Testes.</div></div>
-<div class="ph"><div class="top"><span class="badge b-ok" id="s4">✓ FEITO</span><span class="nm">4. Fix #1: stat block (valor final × modificador)</span></div><div class="ds">Mostra o valor final do atributo (DES 18/+4).</div></div>
-<div class="ph"><div class="top"><span class="badge b-ok" id="s5">✓ FEITO</span><span class="nm">5. Frontend: aba Identidade + retrato + upload</span></div><div class="ds">Cabeçalho com retrato; aba editável com símbolo da facção, aparência, aliados, tesouro.</div></div>
-<div class="ph"><div class="top"><span class="badge b-ok" id="s6">✓ FEITO</span><span class="nm">6. Infra: volume uploads + nginx (client_max_body_size)</span></div><div class="ds">docker-compose main+dev: volume + servir /uploads/.</div></div>
-<div class="ph"><div class="top"><span class="badge b-ok" id="s7">✓ FEITO</span><span class="nm">7. Docs (README/CLAUDE/changelogs) + stack DEV de teste</span></div><div class="ds">Testar upload/identidade na stack isolada (ragnarok-dev).</div></div>
-<div class="ph"><div class="top"><span class="badge b-ok" id="s8">✓ FEITO</span><span class="nm">8. Backup + deploy prod (sem -v) + smoke</span></div><div class="ds">backup.ps1 → up --build → migra preservando dados → smoke público. Mantém o link.</div></div>
-
-<div class="foot">Aprovado: upload+volume · identidade completa · fix #1 junto. 🐉</div>
-<script>setTimeout(function(){location.reload();}, 15000);</script>
-</body></html>
+<!DOCTYPE html><html lang="pt-br"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="refresh" content="20"><title>Ragnarok — Imagens do Kzen</title>
+<style>body{margin:0;background:#0f0d0b;color:#e8e2d4;font-family:system-ui,sans-serif;padding:20px;line-height:1.5}h1{color:#d4af37}.ok{background:linear-gradient(180deg,rgba(76,154,94,.25),transparent);border:1px solid rgba(76,154,94,.6);border-radius:12px;padding:18px;text-align:center}.big{font-size:1.3rem;color:#bfe6c8;font-weight:800}.dim{color:#a99e88}</style></head><body>
+<h1>🖼️ Imagens do Kzen</h1><div class="ok"><div class="big">✅ Retrato + Símbolo adicionados!</div><div class="dim" style="margin-top:6px">Abra a ficha do Kzen → aba Identidade (recarregue se preciso). 🐉</div></div>
+<p class="dim">Corrigido também: /progresso some em rebuild (agora está no Dockerfile). A imagem de corpo inteiro fica pra galeria (roadmap).</p>
+<script>setTimeout(()=>location.reload(),20000)</script></body></html>
