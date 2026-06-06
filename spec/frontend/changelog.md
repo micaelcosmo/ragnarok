@@ -20,3 +20,12 @@ Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/) + commits semânt
 
 ### style
 - PEP8-equivalente em JS: nomes descritivos, módulos coesos, sem variáveis de laço genéricas.
+
+### feat (iteração 2)
+- **Ficha 100% editável**: edição completa do personagem em abas (identidade, atributos/combate,
+  proficiências como toggles, magia/itens, roleplay); monstro/PDM editável (PUT).
+- **Tooltips no hover** em atributos/perícias/salvaguardas/combate (`data-tip` + CSS),
+  sem interferir na digitação (nunca sobre inputs).
+- Compêndio: aba de **Talentos** + cliente para feats/sources + filtro por fonte.
+- Painel admin: aba de **moderação de mesas** (listar todas / desbugar).
+- Dica de "refine a busca" quando o bestiário atinge o limite de exibição.

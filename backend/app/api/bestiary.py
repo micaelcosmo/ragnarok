@@ -48,8 +48,13 @@ def listar():
     if busca:
         consulta = consulta.filter(Monstro.nome.ilike(f"%{busca}%"))
 
-    monstros = consulta.order_by(Monstro.nome).all()
-    return ok([monstro.to_dict() for monstro in monstros], meta={"total": len(monstros)})
+    total = consulta.count()
+    limite = min(max(int(request.args.get("limit", 60)), 1), 500)
+    monstros = consulta.order_by(Monstro.nome).limit(limite).all()
+    return ok(
+        [monstro.to_dict() for monstro in monstros],
+        meta={"total": total, "exibidos": len(monstros), "limite": limite},
+    )
 
 
 @bp.get("/bestiary/<int:monstro_id>")

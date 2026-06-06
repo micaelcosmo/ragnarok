@@ -106,11 +106,17 @@ def listar_magias():
     if busca:
         consulta = consulta.filter(Magia.nome.ilike(f"%{busca}%"))
 
-    magias = consulta.order_by(Magia.nivel, Magia.nome).all()
+    consulta = consulta.order_by(Magia.nivel, Magia.nome)
+    total = consulta.count()
+    limite = min(max(int(request.args.get("limit", 80)), 1), 500)
+    magias = consulta.limit(limite if not classe else 500).all()
     if classe:
-        magias = [magia for magia in magias if classe in (magia.classes or [])]
+        magias = [magia for magia in magias if classe in (magia.classes or [])][:limite]
 
-    return ok([magia.to_dict() for magia in magias], meta={"total": len(magias)})
+    return ok(
+        [magia.to_dict() for magia in magias],
+        meta={"total": total, "exibidos": len(magias), "limite": limite},
+    )
 
 
 @bp.get("/reference/spells/<slug>")

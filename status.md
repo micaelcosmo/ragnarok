@@ -24,6 +24,10 @@
 | E10 | Frontend — UI estilo D&D Beyond | ✅ |
 | E11 | Infra — Docker (backend/frontend/postgres) | ✅ |
 | E12 | Integração & verificação end-to-end | ✅ |
+| E13 | ADMIN como gerente da plataforma (não super-mestre) | ✅ |
+| E14 | Pipeline de Conteúdo Base (talentos, fontes, ingestão OGL) | ✅ |
+| E15 | Exposição online (hardening + túnel Cloudflare) | ✅ |
+| E16 | Ficha 100% editável + tooltips no hover | ✅ |
 
 ---
 
@@ -114,7 +118,39 @@
 
 ---
 
+### E13 — ADMIN = gerente da plataforma
+- [x] T13.1 Reescrever specs RBAC/API/CLAUDE.md (governança ≠ jogo)
+- [x] T13.2 Renomear admin do seed (Administrador)
+- [x] T13.3 Endpoints de moderação: GET/DELETE /admin/campaigns, kick (desbugar)
+- [x] T13.4 Aba de moderação de mesas no painel admin (front) + teste
+
+### E14 — Pipeline de Conteúdo Base
+- [x] T14.1 Spec dedicada spec/content/ (overview, pipeline, importers)
+- [x] T14.2 Modelo Talento + campo `fonte` em todas as referências
+- [x] T14.3 Pipeline POO: ContentSource, LocalSource, Open5eSource, ContentPipeline, CLI
+- [x] T14.4 Endpoints /reference/feats, /reference/sources, filtro ?fonte=
+- [x] T14.5 Testes offline (FakeSource, idempotência, fonte, truncamento) — +9
+- [x] T14.6 Ingestão real open5e: +73 talentos, +1389 magias, +3181 monstros, +11 raças
+- [x] T14.7 Limite/paginação nas listas grandes (bestiário/magias)
+
+### E15 — Exposição online
+- [x] T15.1 Hardening: segredos fortes (.env) + senha admin
+- [x] T15.2 cloudflared (binário) + túnel para :8080
+- [x] T15.3 URL pública validada (frontend + API)
+- [ ] T15.4 (futuro/opcional) DNS estável via named tunnel — requer login Cloudflare do dono
+
+### E16 — Ficha editável + tooltips
+- [x] T16.1 Edição COMPLETA do personagem (todos os campos, proficiências como toggles)
+- [x] T16.2 Monstro/PDM editável (PUT) pelo dono/mestre/admin
+- [x] T16.3 Tooltips no hover (atributos/perícias/salvaguardas/combate) sem afetar inputs
+- [x] T16.4 Compêndio: aba de Talentos + filtro por fonte
+
+---
+
 ## 📝 Notas / decisões rápidas
 - Portas escolhidas: 8080 (front), 5050 (api), 5433 (postgres host) para evitar conflito.
 - SQLite em memória nos testes para velocidade; Postgres em runtime.
-- Conteúdo apenas SRD 5.1 (CC-BY/OGL).
+- Conteúdo SRD 5.1 + ingestões OGL (open5e: Kobold Press, Level Up A5e, etc.) com `fonte` rastreável.
+- ADMIN é governança (contas/moderação/conteúdo), NÃO um super-mestre de jogo.
+- Online via túnel Cloudflare (URL trycloudflare). DNS estável fica para quando o dono logar.
+- Testes: 73 pytest verdes. Total de conteúdo: ~20 raças, 12 classes, 74 talentos, ~1436 magias, 3208 monstros.

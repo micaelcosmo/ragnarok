@@ -22,8 +22,11 @@ export async function renderBestiary() {
     lista.innerHTML = '<div class="spinner"></div>';
     try {
       const monstros = await api.bestiary.list({ mesaId, q: busca });
+      const dica = monstros.length >= 60
+        ? '<p class="muted" style="grid-column:1/-1">Mostrando os primeiros 60 — use a busca para refinar. 🔎</p>'
+        : '';
       lista.innerHTML = monstros.length
-        ? monstros.map(card).join('')
+        ? dica + monstros.map(card).join('')
         : emptyState('🐉', 'Bestiário vazio', 'Nenhuma criatura encontrada.');
       lista.querySelectorAll('[data-mon]').forEach((no) =>
         no.addEventListener('click', () => abrirDetalhe(Number(no.dataset.mon), ehMestre, () => carregar(busca))));

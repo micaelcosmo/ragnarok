@@ -21,8 +21,17 @@ Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/) + commits semânt
 - Seed idempotente (`SeedRunner`) cria ADMIN + popula SRD (9 raças, 12 classes,
   8 antecedentes, 47 magias, 27 monstros).
 
+### refactor
+- ADMIN reposicionado como **gerente da plataforma** (não super-mestre): specs, nome do seed
+  (Administrador) e endpoints de moderação de mesas (`/admin/campaigns`, kick para desbugar).
+
+### feat (conteúdo)
+- Modelo `Talento` (feats) + campo `fonte` em Raca/Classe/Antecedente/Magia/Monstro.
+- Endpoints `/reference/feats`, `/reference/sources` e filtro `?fonte=`.
+- Limite/paginação nas listas grandes (bestiário, magias) com `meta.total`.
+
 ### test
-- 63 testes pytest verdes (37 unitários de regras + 26 de integração da API).
+- 73 testes pytest verdes (regras + API + conteúdo + admin), todos offline.
 
 ### style
 - PEP8, nomes de laço descritivos, exemplos em ```yaml nas specs (convenção do projeto).
