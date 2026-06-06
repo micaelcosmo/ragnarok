@@ -1,13 +1,19 @@
 # Backend — Papéis & Permissões (RBAC)
 
 ## Papéis
-- **ADMIN** — superusuário da plataforma. Faz tudo. Gerencia usuários e catálogo SRD.
-- **MESTRE** — cria/gerencia mesas, gerencia jogadores, CRUD de bestiário (monstros/PDMs).
-  Também pode ter personagens (um mestre pode jogar).
+- **ADMIN** — **gerente da plataforma** (governança), NÃO um super-mestre de jogo. Cuida de:
+  gestão de **contas** (listar/promover/rebaixar/remover usuários), **moderação de mesas**
+  ("desbugar": ver/remover qualquer mesa, tirar membro preso), curadoria do **catálogo de
+  conteúdo** (SRD + ingestões via pipeline) e **métricas** da plataforma.
+  > O admin tem override técnico (passa em `@role_required`) para poder moderar, mas o papel
+  > **não é de jogo**: ele não "mestra" mesas nem é jogador por definição. Foco = administrar.
+- **MESTRE** — papel de **jogo**: cria/gerencia mesas, gerencia jogadores, CRUD de bestiário
+  (monstros/PDMs). Também pode ter personagens (um mestre pode jogar).
 - **JOGADOR** — cria/edita os próprios personagens; entra em mesas por código.
 
-> Hierarquia: ADMIN ⊇ MESTRE ⊇ JOGADOR em capacidade, **mas papéis são exclusivos**
-> (um usuário tem 1 papel). ADMIN consegue agir como qualquer um via permissões explícitas.
+> Papéis são **exclusivos** (um usuário tem 1 papel). ADMIN ≠ MESTRE: separamos governança
+> da plataforma (admin) das mecânicas de jogo (mestre). O override do admin existe só para
+> moderação/suporte, não para "ser mestre".
 
 ## Matriz de permissões
 
@@ -25,6 +31,8 @@
 | CRUD bestiário SRD global | ✓ | ✗ | ✗ |
 | Gerenciar usuários / promover papel | ✓ | ✗ | ✗ |
 | Ver métricas da plataforma | ✓ | ✗ | ✗ |
+| **Moderar mesas** (listar todas / desbugar / remover qualquer) | ✓ | ✗ | ✗ |
+| Curar catálogo de conteúdo (ingestão/edição) | ✓ | ✗ | ✗ |
 
 ## Implementação
 - Decorator `@role_required(*roles)` — checa `current_user.role in roles` (ADMIN sempre passa).

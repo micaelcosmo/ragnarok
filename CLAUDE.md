@@ -13,8 +13,8 @@ A plataforma atende três perfis de usuário:
 
 | Perfil      | Pode fazer |
 |-------------|------------|
-| **ADMIN**   | Controla a plataforma: gerencia usuários, conteúdo de referência (raças, classes, magias), promove/rebaixa papéis, vê métricas. |
-| **MESTRE**  | Monta mesas (campanhas), gerencia jogadores convidados, cria/edita/adiciona PDMs (NPCs) e monstros ao bestiário da mesa. |
+| **ADMIN**   | **Gerente da plataforma** (governança, não é papel de jogo): gere contas/papéis, **modera mesas** (lista todas, desbuga/remove, tira membro preso), cura o **catálogo de conteúdo** (SRD + ingestões) e vê métricas. |
+| **MESTRE**  | Papel de jogo: monta mesas (campanhas), gerencia jogadores convidados, cria/edita/adiciona PDMs (NPCs) e monstros ao bestiário da mesa. |
 | **JOGADOR** | Entra em mesas, cria e edita personagens com ficha 5E completa e automatizada. |
 
 ## 2. Arquitetura (resumo)

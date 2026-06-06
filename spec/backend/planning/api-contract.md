@@ -46,11 +46,14 @@ GET /health:           # público
 - `PUT /bestiary/<id>` *(criador/mestre da mesa/A)*.
 - `DELETE /bestiary/<id>` *(criador/mestre da mesa/A)*.
 
-## Admin
+## Admin (governança da plataforma)
 - `GET /admin/users?q=&role=` *(A)*.
 - `PUT /admin/users/<id>/role` *(A)* — `{role}`.
 - `DELETE /admin/users/<id>` *(A)*.
 - `GET /admin/stats` *(A)* — contagens (usuários por papel, personagens, mesas, monstros).
+- `GET /admin/campaigns?q=` *(A)* — lista **todas** as mesas (moderação).
+- `DELETE /admin/campaigns/<id>` *(A)* — remove qualquer mesa ("desbugar").
+- `POST /admin/campaigns/<id>/kick` *(A)* — `{user_id}` — tira um membro preso de qualquer mesa.
 
 ## Códigos de erro
 `VALIDATION` (400), `UNAUTHORIZED` (401), `FORBIDDEN` (403), `NOT_FOUND` (404),

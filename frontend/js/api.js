@@ -101,5 +101,7 @@ export const api = {
     setRole: (id, role) => apiFetch(`/admin/users/${id}/role`, { method: 'PUT', body: { role } }),
     removeUser: (id) => apiFetch(`/admin/users/${id}`, { method: 'DELETE' }),
     stats: () => apiFetch('/admin/stats'),
+    campaigns: (q) => apiFetch(`/admin/campaigns${q ? `?q=${encodeURIComponent(q)}` : ''}`),
+    removeCampaign: (id) => apiFetch(`/admin/campaigns/${id}`, { method: 'DELETE' }),
   },
 };

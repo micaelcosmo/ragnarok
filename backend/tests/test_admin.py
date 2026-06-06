@@ -28,6 +28,27 @@ def test_admin_nao_deleta_a_si_mesmo(client, make_user, auth):
     assert resposta.status_code == 400
 
 
+def test_admin_modera_mesas(client, make_user, auth):
+    # Mestre cria uma mesa.
+    _mestre, token_mestre = make_user(role="MESTRE")
+    mesa = client.post(
+        "/api/v1/campaigns", json={"nome": "Mesa Bugada"}, headers=auth(token_mestre)
+    ).get_json()["data"]
+
+    _admin, token_admin = make_user(role="ADMIN")
+    # Admin lista todas as mesas.
+    listagem = client.get("/api/v1/admin/campaigns", headers=auth(token_admin))
+    assert listagem.status_code == 200
+    assert any(item["id"] == mesa["id"] for item in listagem.get_json()["data"])
+
+    # Mestre comum não pode moderar.
+    assert client.get("/api/v1/admin/campaigns", headers=auth(token_mestre)).status_code == 403
+
+    # Admin desbuga (remove) a mesa.
+    remocao = client.delete(f"/api/v1/admin/campaigns/{mesa['id']}", headers=auth(token_admin))
+    assert remocao.status_code == 200
+
+
 def test_stats_conta_corretamente(client, make_user, auth):
     _admin, token_admin = make_user(role="ADMIN")
     make_user(role="JOGADOR")

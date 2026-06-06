@@ -2,7 +2,7 @@
 import { api } from '../api.js';
 import { getUser } from '../auth.js';
 import { montarShell } from '../app.js';
-import { esc, html, modal, toast } from '../ui.js';
+import { esc, html, ligarTabs, modal, toast } from '../ui.js';
 
 const PAPEIS = ['ADMIN', 'MESTRE', 'JOGADOR'];
 
@@ -16,7 +16,8 @@ export async function renderAdmin() {
 
   view.innerHTML = `
     <h2>Painel de Administração</h2>
-    <div class="grid grid--cards" style="margin-bottom:24px">
+    <p class="muted" style="margin-top:-8px">Governança da plataforma — contas, moderação de mesas e métricas.</p>
+    <div class="grid grid--cards" style="margin:14px 0 24px">
       ${cardStat('👑', 'Admins', stats.usuarios.ADMIN)}
       ${cardStat('🎲', 'Mestres', stats.usuarios.MESTRE)}
       ${cardStat('🛡️', 'Jogadores', stats.usuarios.JOGADOR)}
@@ -25,12 +26,29 @@ export async function renderAdmin() {
       ${cardStat('🐉', 'Criaturas', stats.monstros)}
     </div>
 
-    <div class="section-title"><h3>Usuários</h3>
-      <input class="input" id="busca" placeholder="🔎 Buscar por nome/email" style="max-width:280px"></div>
-    <div class="card"><table class="table">
-      <thead><tr><th>Nome</th><th>Email</th><th>Papel</th><th>Ações</th></tr></thead>
-      <tbody id="corpo-usuarios"><tr><td colspan="4"><div class="spinner"></div></td></tr></tbody>
-    </table></div>`;
+    <div class="tabs">
+      <div class="tab active" data-tab="usuarios">👥 Usuários</div>
+      <div class="tab" data-tab="mesas">🛡️ Mesas (moderação)</div>
+    </div>
+
+    <div data-panel="usuarios">
+      <div class="section-title"><h3>Usuários</h3>
+        <input class="input" id="busca" placeholder="🔎 Buscar por nome/email" style="max-width:280px"></div>
+      <div class="card"><table class="table">
+        <thead><tr><th>Nome</th><th>Email</th><th>Papel</th><th>Ações</th></tr></thead>
+        <tbody id="corpo-usuarios"><tr><td colspan="4"><div class="spinner"></div></td></tr></tbody>
+      </table></div>
+    </div>
+
+    <div data-panel="mesas" style="display:none">
+      <div class="section-title"><h3>Todas as mesas</h3>
+        <input class="input" id="busca-mesas" placeholder="🔎 Buscar mesa" style="max-width:280px"></div>
+      <div class="card"><table class="table">
+        <thead><tr><th>Mesa</th><th>Mestre</th><th>Código</th><th>Jogadores</th><th>Ações</th></tr></thead>
+        <tbody id="corpo-mesas"><tr><td colspan="5"><div class="spinner"></div></td></tr></tbody>
+      </table></div>
+    </div>`;
+  ligarTabs(view);
 
   async function carregar(busca) {
     const corpo = view.querySelector('#corpo-usuarios');
@@ -59,12 +77,51 @@ export async function renderAdmin() {
     } catch (erro) { toast(erro.message, 'err'); }
   }
 
+  async function carregarMesas(busca) {
+    const corpo = view.querySelector('#corpo-mesas');
+    try {
+      const mesas = await api.admin.campaigns(busca);
+      corpo.innerHTML = mesas.length ? mesas.map((mesa) => `
+        <tr data-mid="${mesa.id}">
+          <td>${esc(mesa.nome)}</td>
+          <td class="muted">${esc(mesa.mestre_nome || '—')}</td>
+          <td><span class="chip">${esc(mesa.codigo_convite)}</span></td>
+          <td>${mesa.total_membros}</td>
+          <td><button class="btn btn--danger btn--sm" data-delmesa="${mesa.id}" data-nome="${esc(mesa.nome)}">Desbugar/Excluir</button></td>
+        </tr>`).join('') : '<tr><td colspan="5" class="muted">Nenhuma mesa.</td></tr>';
+      corpo.querySelectorAll('[data-delmesa]').forEach((botao) =>
+        botao.addEventListener('click', () => confirmarRemocaoMesa(Number(botao.dataset.delmesa), botao.dataset.nome, () => carregarMesas(busca))));
+    } catch (erro) { toast(erro.message, 'err'); }
+  }
+
   let timer = null;
   view.querySelector('#busca').addEventListener('input', (evento) => {
     clearTimeout(timer);
     timer = setTimeout(() => carregar(evento.target.value.trim()), 250);
   });
+  let timerMesas = null;
+  view.querySelector('#busca-mesas').addEventListener('input', (evento) => {
+    clearTimeout(timerMesas);
+    timerMesas = setTimeout(() => carregarMesas(evento.target.value.trim()), 250);
+  });
   carregar('');
+  carregarMesas('');
+}
+
+function confirmarRemocaoMesa(id, nome, aoRemover) {
+  const conteudo = html(`<div>
+    <h3>Excluir a mesa "${esc(nome)}"?</h3>
+    <p class="muted">Remove a mesa e desvincula os personagens. Use para "desbugar" mesas quebradas.</p>
+    <div class="row" style="justify-content:flex-end">
+      <button class="btn btn--ghost" id="cancelar">Cancelar</button>
+      <button class="btn btn--primary" id="confirmar">Excluir</button>
+    </div></div>`);
+  const fechar = modal(conteudo);
+  conteudo.querySelector('#cancelar').addEventListener('click', fechar);
+  conteudo.querySelector('#confirmar').addEventListener('click', async () => {
+    try { await api.admin.removeCampaign(id); toast('Mesa removida.'); fechar(); aoRemover(); }
+    catch (erro) { toast(erro.message, 'err'); }
+  });
 }
 
 function cardStat(icone, rotulo, valor) {

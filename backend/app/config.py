@@ -11,7 +11,7 @@ class Config:
     # Admin inicial criado pelo seed.
     SEED_ADMIN_EMAIL = os.getenv("SEED_ADMIN_EMAIL", "admin@ragnarok.local")
     SEED_ADMIN_PASSWORD = os.getenv("SEED_ADMIN_PASSWORD", "admin123")
-    SEED_ADMIN_NAME = os.getenv("SEED_ADMIN_NAME", "Mestre Supremo")
+    SEED_ADMIN_NAME = os.getenv("SEED_ADMIN_NAME", "Administrador")
 
 
 class DevConfig(Config):
