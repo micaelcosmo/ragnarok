@@ -9,6 +9,7 @@ export async function renderCompendium() {
     <h2>Compêndio do SRD</h2>
     <div class="tabs">
       <div class="tab active" data-tab="magias">📜 Magias</div>
+      <div class="tab" data-tab="talentos">⭐ Talentos</div>
       <div class="tab" data-tab="racas">🧬 Raças</div>
       <div class="tab" data-tab="classes">⚔️ Classes</div>
     </div>
@@ -22,9 +23,34 @@ export async function renderCompendium() {
       </div>
       <div id="lista-magias"><div class="spinner"></div></div>
     </div>
+    <div data-panel="talentos" style="display:none">
+      <div class="row" style="margin-bottom:12px">
+        <input class="input" id="busca-talento" placeholder="🔎 Buscar talento..." style="max-width:280px">
+      </div>
+      <div id="lista-talentos"><div class="spinner"></div></div>
+    </div>
     <div data-panel="racas" style="display:none"><div id="lista-racas"><div class="spinner"></div></div></div>
     <div data-panel="classes" style="display:none"><div id="lista-classes"><div class="spinner"></div></div></div>`;
   ligarTabs(view);
+
+  async function carregarTalentos() {
+    const alvo = view.querySelector('#lista-talentos');
+    const busca = view.querySelector('#busca-talento').value.trim();
+    alvo.innerHTML = '<div class="spinner"></div>';
+    try {
+      const talentos = await api.reference.feats({ q: busca });
+      alvo.innerHTML = talentos.length ? `<div class="grid grid--cards">${talentos.map((talento) => `
+        <div class="card">
+          <div class="spread"><h3 style="margin:0;font-size:1rem">${esc(talento.nome)}</h3>
+            <span class="chip">${esc(talento.fonte || '')}</span></div>
+          ${talento.pre_requisito ? `<div class="muted" style="font-size:.8rem">Pré-requisito: ${esc(talento.pre_requisito)}</div>` : ''}
+          <p style="font-size:.86rem; white-space:pre-wrap">${esc(talento.descricao || '')}</p>
+        </div>`).join('')}</div>` : emptyState('⭐', 'Nenhum talento', 'Importe mais via pipeline de conteúdo.');
+    } catch (erro) { toast(erro.message, 'err'); }
+  }
+  let timerTal = null;
+  view.querySelector('#busca-talento').addEventListener('input', () => { clearTimeout(timerTal); timerTal = setTimeout(carregarTalentos, 250); });
+  carregarTalentos();
 
   async function carregarMagias() {
     const alvo = view.querySelector('#lista-magias');

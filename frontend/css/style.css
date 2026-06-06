@@ -184,6 +184,24 @@ h1,h2,h3,h4 { font-family:var(--font-title); margin:0 0 .4em; color:var(--parch)
 .option .opt-name { font-family:var(--font-title); color:var(--parch); }
 .option .opt-meta { font-size:.78rem; color:var(--text-dim); }
 
+/* ----- Tooltips (dica no hover; nunca sobre inputs) ----- */
+.has-tip { position:relative; cursor:help; }
+.has-tip::after {
+  content:attr(data-tip); position:absolute; left:50%; bottom:calc(100% + 8px);
+  transform:translateX(-50%) translateY(4px); background:var(--bg-900); color:var(--text);
+  border:1px solid var(--gold-dim); border-radius:8px; padding:8px 10px; width:max-content;
+  max-width:260px; font-size:.8rem; font-weight:400; line-height:1.35; white-space:normal;
+  box-shadow:var(--shadow); opacity:0; pointer-events:none; transition:opacity .15s, transform .15s;
+  z-index:4000;
+}
+.has-tip::before {
+  content:""; position:absolute; left:50%; bottom:calc(100% + 2px); transform:translateX(-50%);
+  border:6px solid transparent; border-top-color:var(--gold-dim); opacity:0; transition:opacity .15s; z-index:4000;
+}
+.has-tip:hover::after { opacity:1; transform:translateX(-50%) translateY(0); }
+.has-tip:hover::before { opacity:1; }
+.card--parch .has-tip::after { background:#2c241b; color:var(--parch); }
+
 @media (max-width:900px){
   .app-shell { grid-template-columns:1fr; grid-template-rows:60px auto 1fr;
     grid-template-areas:"brand" "topbar" "main"; }

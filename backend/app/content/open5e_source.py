@@ -6,7 +6,6 @@ Normaliza o formato da API para o schema canônico do Ragnarok. Cada registro re
 Conteúdo em inglês (a API é em inglês); a tradução não faz parte desta etapa.
 """
 import json
-import urllib.parse
 import urllib.request
 
 from app.content.base import ContentSource
@@ -65,7 +64,11 @@ class Open5eSource(ContentSource):
         resultados = []
         url = f"{BASE_URL}/{recurso}/?limit=50"
         while url:
-            with urllib.request.urlopen(url, timeout=self.timeout) as resposta:
+            # Alguns servidores bloqueiam o User-Agent padrão do urllib; identificamos a app.
+            requisicao = urllib.request.Request(
+                url, headers={"User-Agent": "Ragnarok/1.0 (projeto acadêmico)"}
+            )
+            with urllib.request.urlopen(requisicao, timeout=self.timeout) as resposta:
                 pagina = json.loads(resposta.read().decode())
             resultados.extend(pagina.get("results", []))
             if self.limite and len(resultados) >= self.limite:
@@ -78,13 +81,17 @@ class Open5eSource(ContentSource):
         return bruto.get("document__title") or self.nome
 
     def _norm_feats(self, bruto):
-        pre = bruto.get("prerequisite") or None
+        pre = (bruto.get("prerequisite") or "").strip()
+        if not pre or pre.lower() == "none":
+            pre = None
+        elif len(pre) > 155:  # o campo é curto; metadados longos vão pra descrição
+            pre = pre[:152] + "…"
         return {
-            "slug": bruto.get("slug"),
-            "nome": bruto.get("name"),
+            "slug": (bruto.get("slug") or "")[:80],
+            "nome": (bruto.get("name") or "")[:120],
             "descricao": (bruto.get("desc") or "").strip(),
-            "pre_requisito": pre if pre and pre.lower() != "none" else None,
-            "fonte": self._fonte(bruto),
+            "pre_requisito": pre,
+            "fonte": self._fonte(bruto)[:120],
         }
 
     def _norm_races(self, bruto):

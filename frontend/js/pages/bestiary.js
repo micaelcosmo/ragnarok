@@ -95,11 +95,17 @@ async function abrirDetalhe(id, ehMestre, aoMudar) {
     ${habilidades ? `<h4>Habilidades</h4>${habilidades}` : ''}
     ${acoes ? `<h4>Ações</h4>${acoes}` : ''}
     <div class="row" style="justify-content:flex-end; margin-top:14px">
+      ${ehMestre ? '<button class="btn btn--gold btn--sm" id="editar">✏️ Editar</button>' : ''}
       ${ehMestre && !monstro.global ? '<button class="btn btn--danger btn--sm" id="excluir">Excluir</button>' : ''}
       <button class="btn btn--ghost" id="fechar">Fechar</button>
     </div></div>`);
   const fechar = modal(conteudo);
   conteudo.querySelector('#fechar').addEventListener('click', fechar);
+  const botaoEditar = conteudo.querySelector('#editar');
+  if (botaoEditar) botaoEditar.addEventListener('click', () => {
+    fechar();
+    abrirFormulario(monstro.mesa_id, aoMudar, monstro);
+  });
   const botaoExcluir = conteudo.querySelector('#excluir');
   if (botaoExcluir) botaoExcluir.addEventListener('click', async () => {
     try { await api.bestiary.remove(id); toast('Criatura removida.'); fechar(); aoMudar(); }
@@ -107,36 +113,52 @@ async function abrirDetalhe(id, ehMestre, aoMudar) {
   });
 }
 
-function abrirFormulario(mesaId, aoCriar) {
+// Formulário de criação OU edição (quando `existente` é passado).
+function abrirFormulario(mesaId, aoMudar, existente = null) {
+  const m = existente || {};
+  const attr = m.atributos || {};
+  const acoesTexto = (m.acoes || []).map((a) => `${a.nome} | ${a.descricao}`).join('\n');
+  const habilidadesTexto = (m.habilidades || []).map((h) => `${h.nome} | ${h.descricao}`).join('\n');
+  const v = (valor, padrao = '') => esc(valor !== undefined && valor !== null ? valor : padrao);
+  const titulo = existente ? `Editar ${esc(m.nome)}` : `Nova criatura ${mesaId ? '(mesa)' : '(SRD global)'}`;
+
   const conteudo = html(`<div>
-    <h3>Nova criatura ${mesaId ? '(mesa)' : '(SRD global)'}</h3>
+    <h3>${titulo}</h3>
     <form id="form-mon">
       <div class="row" style="gap:10px">
-        <div class="field" style="flex:2"><label>Nome</label><input class="input" name="nome" required></div>
-        <div class="field" style="flex:1"><label>ND</label><input class="input" name="nd" placeholder="1/2"></div>
-        <div class="field" style="flex:1"><label>XP</label><input class="input" name="xp" type="number" value="0"></div>
+        <div class="field" style="flex:2"><label>Nome</label><input class="input" name="nome" value="${v(m.nome)}" required></div>
+        <div class="field" style="flex:1"><label>ND</label><input class="input" name="nd" value="${v(m.nd)}" placeholder="1/2"></div>
+        <div class="field" style="flex:1"><label>XP</label><input class="input" name="xp" type="number" value="${v(m.xp, 0)}"></div>
       </div>
       <div class="row" style="gap:10px">
-        <div class="field" style="flex:1"><label>Tipo</label><input class="input" name="tipo" placeholder="Humanoide"></div>
-        <div class="field" style="flex:1"><label>Tamanho</label><input class="input" name="tamanho" placeholder="Médio"></div>
-        <div class="field" style="flex:1"><label>Alinhamento</label><input class="input" name="alinhamento"></div>
+        <div class="field" style="flex:1"><label>Tipo</label><input class="input" name="tipo" value="${v(m.tipo)}" placeholder="Humanoide"></div>
+        <div class="field" style="flex:1"><label>Tamanho</label><input class="input" name="tamanho" value="${v(m.tamanho)}" placeholder="Médio"></div>
+        <div class="field" style="flex:1"><label>Alinhamento</label><input class="input" name="alinhamento" value="${v(m.alinhamento)}"></div>
       </div>
       <div class="row" style="gap:10px">
-        <div class="field" style="flex:1"><label>CA</label><input class="input" name="ca" type="number" value="12"></div>
-        <div class="field" style="flex:1"><label>PV</label><input class="input" name="pv" type="number" value="10"></div>
-        <div class="field" style="flex:1"><label>Deslocamento</label><input class="input" name="deslocamento" placeholder="9 m"></div>
+        <div class="field" style="flex:1"><label>CA</label><input class="input" name="ca" type="number" value="${v(m.ca, 12)}"></div>
+        <div class="field" style="flex:1"><label>PV</label><input class="input" name="pv" type="number" value="${v(m.pv, 10)}"></div>
+        <div class="field" style="flex:1"><label>Fórmula PV</label><input class="input" name="pv_formula" value="${v(m.pv_formula)}" placeholder="2d8"></div>
+        <div class="field" style="flex:1"><label>Deslocamento</label><input class="input" name="deslocamento" value="${v(m.deslocamento)}" placeholder="9 m"></div>
       </div>
       <div class="option-grid">
         ${['for', 'des', 'con', 'int', 'sab', 'car'].map((chave) => `
           <div class="field" style="margin:0"><label>${chave.toUpperCase()}</label>
-            <input class="input" name="attr_${chave}" type="number" value="10"></div>`).join('')}
+            <input class="input" name="attr_${chave}" type="number" value="${v(attr[chave], 10)}"></div>`).join('')}
       </div>
+      <div class="row" style="gap:10px">
+        <div class="field" style="flex:1"><label>Perícias</label><input class="input" name="pericias" value="${v(m.pericias)}"></div>
+        <div class="field" style="flex:1"><label>Sentidos</label><input class="input" name="sentidos" value="${v(m.sentidos)}"></div>
+        <div class="field" style="flex:1"><label>Idiomas</label><input class="input" name="idiomas" value="${v(m.idiomas)}"></div>
+      </div>
+      <div class="field"><label>Habilidades (uma por linha: Nome | descrição)</label>
+        <textarea class="textarea" name="habilidades" placeholder="Visão no Escuro | enxerga no escuro até 18 m">${esc(habilidadesTexto)}</textarea></div>
       <div class="field"><label>Ações (uma por linha: Nome | descrição)</label>
-        <textarea class="textarea" name="acoes" placeholder="Mordida | +4 para acertar, 1d6+2 perfurante"></textarea></div>
-      <label class="field-inline"><input type="checkbox" name="is_pdm"> É um PDM (NPC)</label>
+        <textarea class="textarea" name="acoes" placeholder="Mordida | +4 para acertar, 1d6+2 perfurante">${esc(acoesTexto)}</textarea></div>
+      <label class="field-inline"><input type="checkbox" name="is_pdm" ${m.is_pdm ? 'checked' : ''}> É um PDM (NPC)</label>
       <div class="row" style="justify-content:flex-end; margin-top:12px">
         <button class="btn btn--ghost" type="button" id="cancelar">Cancelar</button>
-        <button class="btn btn--primary" type="submit">Criar</button>
+        <button class="btn btn--primary" type="submit">${existente ? 'Salvar' : 'Criar'}</button>
       </div>
     </form></div>`);
   const fechar = modal(conteudo);
@@ -144,23 +166,30 @@ function abrirFormulario(mesaId, aoCriar) {
   conteudo.querySelector('#form-mon').addEventListener('submit', async (evento) => {
     evento.preventDefault();
     const bruto = Object.fromEntries(new FormData(evento.target).entries());
-    const acoes = (bruto.acoes || '').split('\n').map((linha) => linha.trim()).filter(Boolean).map((linha) => {
+    const parseLinhas = (texto) => (texto || '').split('\n').map((linha) => linha.trim()).filter(Boolean).map((linha) => {
       const [nome, ...resto] = linha.split('|');
       return { nome: nome.trim(), descricao: resto.join('|').trim() };
     });
     const payload = {
       nome: bruto.nome, nd: bruto.nd, xp: Number(bruto.xp) || 0,
       tipo: bruto.tipo, tamanho: bruto.tamanho, alinhamento: bruto.alinhamento,
-      ca: Number(bruto.ca), pv: Number(bruto.pv), deslocamento: bruto.deslocamento,
+      ca: Number(bruto.ca), pv: Number(bruto.pv), pv_formula: bruto.pv_formula, deslocamento: bruto.deslocamento,
+      pericias: bruto.pericias, sentidos: bruto.sentidos, idiomas: bruto.idiomas,
       atributos: Object.fromEntries(['for', 'des', 'con', 'int', 'sab', 'car'].map((c) => [c, Number(bruto[`attr_${c}`])])),
-      acoes, is_pdm: bruto.is_pdm === 'on',
+      habilidades: parseLinhas(bruto.habilidades), acoes: parseLinhas(bruto.acoes),
+      is_pdm: bruto.is_pdm === 'on',
     };
-    if (mesaId) payload.mesa_id = Number(mesaId);
     try {
-      await api.bestiary.create(payload);
-      toast('Criatura criada!');
+      if (existente) {
+        await api.bestiary.update(existente.id, payload);
+        toast('Criatura atualizada!');
+      } else {
+        if (mesaId) payload.mesa_id = Number(mesaId);
+        await api.bestiary.create(payload);
+        toast('Criatura criada!');
+      }
       fechar();
-      aoCriar();
+      aoMudar();
     } catch (erro) { toast(erro.message, 'err'); }
   });
 }

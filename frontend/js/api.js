@@ -81,14 +81,23 @@ export const api = {
     races: () => apiFetch('/reference/races'),
     classes: () => apiFetch('/reference/classes'),
     backgrounds: () => apiFetch('/reference/backgrounds'),
-    spells: ({ nivel, classe, q } = {}) => {
+    spells: ({ nivel, classe, q, fonte } = {}) => {
       const params = new URLSearchParams();
       if (nivel !== undefined && nivel !== '') params.set('nivel', nivel);
       if (classe) params.set('classe', classe);
       if (q) params.set('q', q);
+      if (fonte) params.set('fonte', fonte);
       const qs = params.toString();
       return apiFetch(`/reference/spells${qs ? `?${qs}` : ''}`);
     },
+    feats: ({ q, fonte } = {}) => {
+      const params = new URLSearchParams();
+      if (q) params.set('q', q);
+      if (fonte) params.set('fonte', fonte);
+      const qs = params.toString();
+      return apiFetch(`/reference/feats${qs ? `?${qs}` : ''}`);
+    },
+    sources: () => apiFetch('/reference/sources'),
   },
   admin: {
     users: ({ q, role } = {}) => {
