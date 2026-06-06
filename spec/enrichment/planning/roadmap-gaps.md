@@ -52,6 +52,15 @@
   admin) → `application/pdf`. Botão "Exportar PDF" na ficha (download via blob).
   **Licença:** recriamos um layout **semelhante** (design próprio inspirado no oficial), usando só
   conteúdo SRD + nossos dados — **sem embutir o formulário oficial da WotC** (evita IP do form).
+  **Status:** ✅ FEITO (E25). Serviço `FichaPDF` + template `templates/pdf/ficha.{html,css}` (2 págs),
+  endpoint `GET /characters/<id>/pdf`, botão na ficha. Imagens só de uploads locais (basename →
+  `file://` dentro de `UPLOAD_DIR`); URLs externas ignoradas. Verificado em prod (Kzen com retrato+
+  símbolo, 74 KB).
+  **Hardening pendente (do review do E25):**
+  - ⚪ Passar um `url_fetcher` restritivo ao WeasyPrint (defense-in-depth: só `file://` sob
+    `UPLOAD_DIR`) — hoje já é seguro por basename + autoescape do Jinja, mas vale o cinto-e-suspensório.
+  - ⚪ Rate-limit / cache no endpoint de PDF (render é CPU-bound; evitar abuso de spam).
+  - ⚪ Tema alternativo de PDF, watermark "homebrew", export de bestiário/PDM.
 
 ## Futuro distante (ideias do dono)
 - ⚪ **Importação de ficha por LLM**: jogador/mestre faz upload de uma ficha (PDF/imagem) e um

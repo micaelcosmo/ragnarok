@@ -1,10 +1,15 @@
-<!DOCTYPE html><html lang="pt-br"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="refresh" content="15"><title>Ragnarok — Ao vivo + #6/#3/#2</title>
-<style>body{margin:0;background:#0f0d0b;color:#e8e2d4;font-family:system-ui,sans-serif;padding:18px;line-height:1.5}h1{color:#d4af37;font-size:1.2rem}.now{background:linear-gradient(180deg,rgba(197,48,58,.18),transparent);border:1px solid rgba(212,175,55,.25);border-radius:12px;padding:14px;margin-bottom:14px}.dim{color:#a99e88}.ph{border:1px solid rgba(212,175,55,.25);border-radius:10px;padding:10px;margin-bottom:8px;background:#1a1510}.b{font-size:.7rem;font-weight:700;padding:2px 8px;border-radius:99px}.do{background:rgba(212,175,55,.18);color:#ffe9b0}.wait{background:rgba(0,0,0,.25);color:#a99e88}.ok{background:rgba(76,154,94,.2);color:#bfe6c8}</style></head><body>
-<h1>⚡ Ao vivo → 🎴 #6 Traços → 🎒 #3 Equip. mundano → 🌐 #2 PT</h1>
-<div class="now"><div class="dim">CICLO CONCLUÍDO ✓</div><div style="font-size:1.05rem" id="ag">4/4 itens em produção — ao vivo → #6 → #3 → #2. Greataxe → "Machado Grande" no ar.</div></div>
-<div class="ph"><span class="b ok">✓ FEITO</span> 1. Ao vivo (reativo nas ações + polling cross-usuário)</div>
-<div class="ph"><span class="b ok">✓ FEITO</span> 2. #6 Traços/Recursos como cards incrementais (+ Aumentos de Habilidade) + migrar Bênção do Kzen</div>
-<div class="ph"><span class="b ok">✓ FEITO</span> 3. #3 Equipamento mundano no catálogo (gear.json)</div>
-<div class="ph"><span class="b ok">✓ FEITO</span> 4. #2 Tradução PT curada (cache Traducao, 47 nomes) + fallback gracioso — em produção</div>
-<p class="dim">Cada item: spec/status → teste → código → commit → stack DEV → review ponta-a-ponta → backup → deploy (sem -v) → smoke. ✅ 111 testes passando.</p>
+<!DOCTYPE html><html lang="pt-br"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="refresh" content="15"><title>Ragnarok — E25 Export PDF ✓</title>
+<style>body{margin:0;background:#0f0d0b;color:#e8e2d4;font-family:system-ui,sans-serif;padding:18px;line-height:1.5}h1{color:#d4af37;font-size:1.2rem;margin:.2rem 0}.sub{color:#a99e88;font-size:.85rem;margin-bottom:14px}.now{background:linear-gradient(180deg,rgba(76,154,94,.18),transparent);border:1px solid rgba(76,154,94,.35);border-radius:12px;padding:14px;margin-bottom:14px}.dim{color:#a99e88;font-size:.72rem;letter-spacing:.08em}.st{border:1px solid rgba(212,175,55,.22);border-radius:10px;padding:9px 12px;margin-bottom:7px;background:#1a1510;display:flex;align-items:center;gap:10px}.b{font-size:.66rem;font-weight:700;padding:2px 8px;border-radius:99px;white-space:nowrap}.ok{background:rgba(76,154,94,.22);color:#bfe6c8}.foot{color:#7d7666;font-size:.74rem;margin-top:12px}</style></head><body>
+<h1>🖨️ E25 — Exportar ficha em PDF (estilo oficial 5E) ✓</h1>
+<div class="sub">Motor: WeasyPrint 69 · <code>GET /api/v1/characters/&lt;id&gt;/pdf</code> · botão "Exportar PDF" na ficha · em produção</div>
+<div class="now"><div class="dim">CICLO CONCLUÍDO ✓</div><div style="font-size:1.05rem">8/8 — PDF da ficha no ar. Kzen exportou 2 páginas (atributos/combate/perícias/traços + identidade com retrato e símbolo). <b>115 testes ✓</b></div></div>
+<div class="st"><span class="b ok">✓ FEITO</span> 1. spec/status/ADR — ADR-0003 (WeasyPrint), unit export-pdf, status E25</div>
+<div class="st"><span class="b ok">✓ FEITO</span> 2. teste RED — 4 testes (403/404/HTML/PDF) falhando como esperado</div>
+<div class="st"><span class="b ok">✓ FEITO</span> 3. código GREEN — serviço FichaPDF + template estilo oficial (2 págs) + endpoint + botão</div>
+<div class="st"><span class="b ok">✓ FEITO</span> 4. commit <code>feat(pdf)</code> — adbb4af (branch feat/export-pdf)</div>
+<div class="st"><span class="b ok">✓ FEITO</span> 5. stack DEV — 115 testes ✓ · PDF do Kzen gerado e conferido (CON 16 c/ Bênção)</div>
+<div class="st"><span class="b ok">✓ FEITO</span> 6. backup + deploy prod (sem -v, link do túnel preservado) · WeasyPrint 69 no boot</div>
+<div class="st"><span class="b ok">✓ FEITO</span> 7. smoke prod — Kzen 200/application/pdf/74KB (retrato+símbolo embutidos); sem auth → 401 · review all ✓</div>
+<div class="st"><span class="b ok">✓ FEITO</span> 8. derruba e sobe container + observador final</div>
+<div class="foot">Segurança: auth obrigatória; imagens só de uploads locais (basename → file://); URLs externas ignoradas. Hardening registrado no roadmap (url_fetcher restritivo, rate-limit).</div>
 <script>setTimeout(()=>location.reload(),15000)</script></body></html>
