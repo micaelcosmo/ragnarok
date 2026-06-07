@@ -5,7 +5,7 @@ from app.extensions import db
 from app.models.campaign import Mesa
 from app.models.character import Personagem
 from app.utils.auth import auth_required, current_user
-from app.utils.errors import Forbidden, NotFound
+from app.utils.errors import Forbidden, NotFound, ValidationError
 from app.utils.responses import corpo_json, created, ok
 
 bp = Blueprint("characters", __name__)
@@ -77,6 +77,12 @@ def _aplicar_campos(personagem, dados):
         personagem.bonus_atributos_manuais = dnd5e.sanear_asi(
             dados["bonus_atributos_manuais"], pontos, personagem.atributos_dict()
         )
+
+    # Recursos de classe: valida/clampa a lista (nome/max/atual/recarga).
+    if "recursos" in dados and isinstance(dados["recursos"], list):
+        from app.rules import dnd5e
+
+        personagem.recursos = dnd5e.sanear_recursos(dados["recursos"])
 
 
 @bp.get("/characters")
@@ -225,6 +231,58 @@ def desequipar(personagem_id):
     elif dados["tipo"] == "arma":
         equipadas = [a for a in (personagem.armas_equipadas or []) if a != int(dados.get("item_id", -1))]
         personagem.armas_equipadas = equipadas
+    db.session.commit()
+    return ok(personagem.to_dict())
+
+
+def _editavel_ou_403(personagem_id):
+    """Carrega o personagem e exige dono/ADMIN (helper para ações de ficha)."""
+    usuario = current_user()
+    personagem = Personagem.query.get(personagem_id)
+    if personagem is None:
+        raise NotFound("Personagem não encontrado.")
+    if not (usuario.is_admin or personagem.user_id == usuario.id):
+        raise Forbidden("Você não pode alterar este personagem.")
+    return personagem
+
+
+@bp.post("/characters/<int:personagem_id>/recursos/ajustar")
+@auth_required
+def ajustar_recurso(personagem_id):
+    """Gasta/recupera um uso de um recurso (atual += delta, clampado a [0, max])."""
+    personagem = _editavel_ou_403(personagem_id)
+    dados = corpo_json(["indice", "delta"])
+    recursos = list(personagem.recursos or [])
+    try:
+        indice = int(dados["indice"])
+        delta = int(dados["delta"])
+    except (TypeError, ValueError):
+        raise ValidationError("indice e delta devem ser inteiros.")
+    if not (0 <= indice < len(recursos)):
+        raise NotFound("Recurso não encontrado.")
+    recurso = dict(recursos[indice])
+    maximo = int(recurso.get("max", 0) or 0)
+    recurso["atual"] = max(0, min(maximo, int(recurso.get("atual", 0) or 0) + delta))
+    recursos[indice] = recurso
+    personagem.recursos = recursos
+    db.session.commit()
+    return ok(personagem.to_dict())
+
+
+@bp.post("/characters/<int:personagem_id>/descanso")
+@auth_required
+def descanso(personagem_id):
+    """Descanso curto/longo: recarrega recursos por tipo; o longo também restaura o PV."""
+    from app.rules import dnd5e
+
+    personagem = _editavel_ou_403(personagem_id)
+    dados = corpo_json(["tipo"])
+    tipo = dados["tipo"]
+    if tipo not in ("curto", "longo"):
+        raise ValidationError("tipo deve ser 'curto' ou 'longo'.")
+    personagem.recursos = dnd5e.aplicar_descanso(personagem.recursos or [], tipo)
+    if tipo == "longo":
+        personagem.pv_atual = personagem.pv_max
     db.session.commit()
     return ok(personagem.to_dict())
 

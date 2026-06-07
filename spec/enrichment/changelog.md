@@ -1,5 +1,16 @@
 # Changelog — Enriquecimento
 
+## [E27 — Recursos de classe com usos]
+### feat
+- Personagem: campo `recursos` (JSON lista: {nome, max, atual, recarga, descricao}). Migração Alembic.
+- `app/rules/dnd5e`: `sanear_recursos()` (valida/clampa) e `aplicar_descanso(recursos, tipo)`
+  (curto recarrega "curto"; longo recarrega curto+longo; "nenhum" nunca).
+- API: PUT aceita `recursos`; `POST /characters/<id>/recursos/ajustar` ({indice, delta}, clamp [0,max])
+  e `POST /characters/<id>/descanso` ({tipo}; longo também restaura PV).
+- Frontend: painel **Recursos** na ficha (atual/max, − / +, criar/editar/remover) + botões de
+  **Descanso curto/longo**; reflete ao vivo. Unit: `planning/recursos-classe.md`.
+- +N testes (sanear/descanso + endpoints).
+
 ## [E26 — Aumentos de Habilidade (ASI) por nível]
 ### feat
 - Personagem: campo `bonus_atributos_manuais` (JSON {for..car}). Migração Alembic.

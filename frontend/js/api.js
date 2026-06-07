@@ -98,6 +98,8 @@ export const api = {
     equipar: (id, tipo, itemId) => apiFetch(`/characters/${id}/equipar`, { method: 'POST', body: { tipo, item_id: itemId } }),
     desequipar: (id, tipo, itemId) => apiFetch(`/characters/${id}/desequipar`, { method: 'POST', body: { tipo, item_id: itemId } }),
     baixarPdf: (id) => baixarArquivo(`/characters/${id}/pdf`),
+    ajustarRecurso: (id, indice, delta) => apiFetch(`/characters/${id}/recursos/ajustar`, { method: 'POST', body: { indice, delta } }),
+    descanso: (id, tipo) => apiFetch(`/characters/${id}/descanso`, { method: 'POST', body: { tipo } }),
   },
   catalog: {
     list: (tipo, { personagemId, q } = {}) => {
