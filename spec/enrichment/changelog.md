@@ -1,5 +1,14 @@
 # Changelog — Enriquecimento
 
+## [E29 — Sub-raças aplicando efeitos]
+### feat
+- Personagem: campo `subraca_slug` + migração Alembic.
+- `ConstrutorDeFicha` aplica os efeitos da sub-raça escolhida (bonus_atributos/efeitos) como fonte
+  reversível e expõe `derivados.subraca` (nome + traços); traços da sub-raça entram em
+  `tracos_ativos` (origem "subraca").
+- API aceita `subraca_slug`; frontend: campo Sub-raça no editor + chip na ficha.
+- +N testes. Unit: `planning/subracas-efeitos.md`.
+
 ## [E28 — Toggle EN/PT na UI]
 ### feat
 - Compêndio: botão **🌐 PT | EN** que alterna o idioma (localStorage) e re-renderiza as listas —
