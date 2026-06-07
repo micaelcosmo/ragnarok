@@ -94,6 +94,7 @@ table.ataques td.c { text-align: center; }
 .traco .fonte { font-size: 6.5pt; color: #8a7f63; }
 .traco p { margin: 1pt 0 0; }
 
+.chip-pdf { display: inline-block; border: 1pt solid #b89b6a; border-radius: 8pt; padding: 0 5pt; font-size: 7.5pt; background: #f3ece0; }
 .texto { white-space: pre-wrap; font-size: 8pt; }
 .muted { color: #8a7f63; }
 

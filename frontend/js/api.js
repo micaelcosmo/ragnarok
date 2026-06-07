@@ -103,6 +103,7 @@ export const api = {
     equipar: (id, tipo, itemId) => apiFetch(`/characters/${id}/equipar`, { method: 'POST', body: { tipo, item_id: itemId } }),
     desequipar: (id, tipo, itemId) => apiFetch(`/characters/${id}/desequipar`, { method: 'POST', body: { tipo, item_id: itemId } }),
     baixarPdf: (id) => baixarArquivo(`/characters/${id}/pdf`),
+    clonar: (id) => apiFetch(`/characters/${id}/clonar`, { method: 'POST' }),
     ajustarRecurso: (id, indice, delta) => apiFetch(`/characters/${id}/recursos/ajustar`, { method: 'POST', body: { indice, delta } }),
     descanso: (id, tipo) => apiFetch(`/characters/${id}/descanso`, { method: 'POST', body: { tipo } }),
   },
@@ -178,6 +179,7 @@ export const api = {
     create: (tipo, dados) => apiFetch(`/reference/${tipo}`, { method: 'POST', body: dados }),
     update: (tipo, slug, dados) => apiFetch(`/reference/${tipo}/${slug}`, { method: 'PUT', body: dados }),
     remove: (tipo, slug) => apiFetch(`/reference/${tipo}/${slug}`, { method: 'DELETE' }),
+    oficializar: (tipo, slug, fonte) => apiFetch(`/reference/${tipo}/${slug}/oficializar`, { method: 'POST', body: fonte ? { fonte } : {} }),
   },
   admin: {
     users: ({ q, role } = {}) => {

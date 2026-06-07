@@ -15,7 +15,7 @@ _ATRIBUTOS = Personagem.ATRIBUTOS_COLUNAS
 
 # Campos simples atualizáveis diretamente do corpo.
 _CAMPOS_TEXTO = (
-    "nome", "nome_jogador", "raca_slug", "classe_slug", "antecedente_slug",
+    "nome", "nome_jogador", "raca_slug", "subraca_slug", "classe_slug", "antecedente_slug",
     "tendencia", "deslocamento", "dado_vida", "outras_proficiencias",
     "classe_conjuradora", "atributo_conjuracao", "tracos_personalidade",
     "ideais", "vinculos", "fraquezas", "historia", "caracteristicas",
@@ -84,6 +84,27 @@ def _aplicar_campos(personagem, dados):
 
         personagem.recursos = dnd5e.sanear_recursos(dados["recursos"])
 
+    # Estado de combate (E31): clampa morte (0–3) e exaustão (0–6).
+    from app.rules import dnd5e as _regras
+    if "mortes_sucesso" in dados:
+        personagem.mortes_sucesso = _regras.clamp_morte(dados["mortes_sucesso"])
+    if "mortes_falha" in dados:
+        personagem.mortes_falha = _regras.clamp_morte(dados["mortes_falha"])
+    if "exaustao" in dados:
+        personagem.exaustao = _regras.clamp_exaustao(dados["exaustao"])
+
+    # Moedas estruturadas (E33).
+    if "moedas" in dados and isinstance(dados["moedas"], dict):
+        personagem.moedas = _regras.sanear_moedas(dados["moedas"])
+
+    # Galeria de imagens (E34).
+    if "imagens" in dados and isinstance(dados["imagens"], list):
+        personagem.imagens = _regras.sanear_imagens(dados["imagens"])
+
+    # Multiclasse (E35).
+    if "classes_extras" in dados and isinstance(dados["classes_extras"], list):
+        personagem.classes_extras = _regras.sanear_classes_extras(dados["classes_extras"])
+
 
 @bp.get("/characters")
 @auth_required
@@ -133,6 +154,29 @@ def obter(personagem_id):
     if not _personagem_acessivel(personagem, current_user()):
         raise Forbidden("Você não pode ver este personagem.")
     return ok(personagem.to_dict())
+
+
+@bp.post("/characters/<int:personagem_id>/clonar")
+@auth_required
+def clonar(personagem_id):
+    """Duplica a ficha para o usuário atual (cópia coluna a coluna; nome ganha '(cópia)')."""
+    from sqlalchemy import inspect as sa_inspect
+
+    origem = Personagem.query.get(personagem_id)
+    if origem is None:
+        raise NotFound("Personagem não encontrado.")
+    if not _personagem_acessivel(origem, current_user()):
+        raise Forbidden("Você não pode clonar este personagem.")
+
+    ignorar = {"id", "user_id", "created_at"}
+    copia = Personagem(user_id=current_user().id)
+    for coluna in sa_inspect(Personagem).columns.keys():
+        if coluna not in ignorar:
+            setattr(copia, coluna, getattr(origem, coluna))
+    copia.nome = f"{origem.nome} (cópia)"
+    db.session.add(copia)
+    db.session.commit()
+    return created(copia.to_dict())
 
 
 @bp.get("/characters/<int:personagem_id>/pdf")
