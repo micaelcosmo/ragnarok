@@ -49,7 +49,7 @@
 | E35 | Multiclasse (nível total → proficiência; classes extras) | ✅ (em prod) |
 | E36 | ⭐ Clonar personagem (duplicar ficha) | ✅ (em prod) |
 | E37 | ⭐ Exportar/Importar ficha em JSON (backup/portabilidade) | ✅ (em prod) |
-| E38 | ⭐ Cálculo automático de PV (sugestão por classe/nível/CON) | 🔄 em andamento |
+| E38 | ⭐ Cálculo automático de PV (sugestão por classe/nível/CON) | ✅ (em prod) |
 
 ---
 
