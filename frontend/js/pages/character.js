@@ -522,6 +522,15 @@ function abrirEdicao(view, personagem) {
       <div data-panel="e-attr" style="display:none">
         <h4>Atributos</h4>
         <div class="option-grid">${campoAttr}</div>
+        <h4 style="margin-top:10px">Aumentos de Habilidade (ASI) — <span id="asi-restantes">0</span> pts restantes</h4>
+        <p class="muted" style="margin:0 0 6px">Níveis 4/8/12/16/19 dão +2 pts cada. Somam no atributo final (▲), de forma reversível. Teto 20.</p>
+        <div class="option-grid" id="asi-grid">${Object.entries(NOMES_ATRIBUTOS).map(([k, nome]) => `
+          <div class="field-inline" style="gap:8px;align-items:center">
+            <button type="button" class="btn btn--ghost btn--sm" data-asi-dec="${k}">−</button>
+            <span style="min-width:64px">${nome}</span>
+            <b data-asi-val="${k}" style="min-width:18px;text-align:center">${(personagem.bonus_atributos_manuais || {})[k] || 0}</b>
+            <button type="button" class="btn btn--ghost btn--sm" data-asi-inc="${k}">+</button>
+          </div>`).join('')}</div>
         <div class="row" style="gap:10px">
           <div class="field" style="flex:1"><label>CA</label><input class="input" name="ca" type="number" value="${personagem.ca}"></div>
           <div class="field" style="flex:1"><label>Bônus Iniciativa</label><input class="input" name="iniciativa_bonus" type="number" value="${personagem.iniciativa_bonus || 0}"></div>
@@ -573,6 +582,36 @@ function abrirEdicao(view, personagem) {
     </form></div>`);
   const fechar = modal(conteudo);
   ligarTabs(conteudo);
+  // Aumentos de Habilidade: +/- por atributo, respeitando o orçamento do nível e o teto 20.
+  const asiPontosTotais = (nivel) => 2 * [4, 8, 12, 16, 19].filter((m) => Number(nivel) >= m).length;
+  const lerAsi = () => {
+    const pool = {};
+    conteudo.querySelectorAll('[data-asi-val]').forEach((b) => { const v = Number(b.textContent) || 0; if (v) pool[b.dataset.asiVal] = v; });
+    return pool;
+  };
+  const atualizarAsi = () => {
+    const total = asiPontosTotais(conteudo.querySelector('[name=nivel]').value);
+    const usados = Object.values(lerAsi()).reduce((s, v) => s + v, 0);
+    conteudo.querySelector('#asi-restantes').textContent = Math.max(0, total - usados);
+    return { total, usados };
+  };
+  conteudo.querySelectorAll('[data-asi-inc]').forEach((botao) => botao.addEventListener('click', () => {
+    const chave = botao.dataset.asiInc;
+    const alvo = conteudo.querySelector(`[data-asi-val="${chave}"]`);
+    const base = Number(conteudo.querySelector(`[name=attr_${chave}]`).value) || 10;
+    const { total, usados } = atualizarAsi();
+    if (usados >= total) { toast('Sem pontos de ASI restantes.', 'err'); return; }
+    if (base + Number(alvo.textContent) >= 20) { toast('Teto 20 nesse atributo.', 'err'); return; }
+    alvo.textContent = Number(alvo.textContent) + 1;
+    atualizarAsi();
+  }));
+  conteudo.querySelectorAll('[data-asi-dec]').forEach((botao) => botao.addEventListener('click', () => {
+    const alvo = conteudo.querySelector(`[data-asi-val="${botao.dataset.asiDec}"]`);
+    alvo.textContent = Math.max(0, Number(alvo.textContent) - 1);
+    atualizarAsi();
+  }));
+  conteudo.querySelector('[name=nivel]').addEventListener('input', atualizarAsi);
+  atualizarAsi();
   // Botões de upload: dispara o seletor de arquivo, envia e preenche o campo de URL.
   const ligarUpload = (botaoId, fileId, campoId) => {
     const botao = conteudo.querySelector('#' + botaoId);
@@ -617,6 +656,7 @@ function abrirEdicao(view, personagem) {
       tracos_personalidade: bruto.tracos_personalidade, ideais: bruto.ideais, vinculos: bruto.vinculos,
       fraquezas: bruto.fraquezas, caracteristicas: bruto.caracteristicas, idiomas: bruto.idiomas,
       historia: bruto.historia, atributos,
+      bonus_atributos_manuais: lerAsi(),
       idade: bruto.idade, altura: bruto.altura, peso: bruto.peso,
       olhos: bruto.olhos, pele: bruto.pele, cabelo: bruto.cabelo, faccao: bruto.faccao,
       aparencia: bruto.aparencia, aliados: bruto.aliados, tesouro: bruto.tesouro,

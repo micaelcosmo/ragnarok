@@ -51,6 +51,8 @@ class Personagem(TimestampMixin, db.Model):
     # Traços/recursos personalizados do personagem: [{nome, descricao, fonte, efeitos:{...}}].
     # Sem `efeitos` = descritivo; com `efeitos` = incremental (soma na ficha, reversível).
     tracos_extras = db.Column(db.JSON, default=list)
+    # Aumentos de Habilidade (ASI) alocados manualmente: {for..car: int}. Pool reversível (E26).
+    bonus_atributos_manuais = db.Column(db.JSON, default=dict)
 
     # Equipamento ativo (fontes de efeitos de itens).
     armadura_equipada_id = db.Column(db.Integer, db.ForeignKey("armaduras.id"), nullable=True)
@@ -142,6 +144,7 @@ class Personagem(TimestampMixin, db.Model):
             "salvaguardas_proficientes": self.salvaguardas_proficientes or [],
             "talentos": self.talentos or [],
             "tracos_extras": self.tracos_extras or [],
+            "bonus_atributos_manuais": self.bonus_atributos_manuais or {},
             "armadura_equipada_id": self.armadura_equipada_id,
             "armas_equipadas": self.armas_equipadas or [],
             "outras_proficiencias": self.outras_proficiencias,

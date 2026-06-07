@@ -64,6 +64,43 @@ def bonus_proficiencia(nivel: int) -> int:
     return 2 + (nivel - 1) // 4
 
 
+# Níveis que concedem um Aumento de Habilidade (cada um vale +2 pontos para distribuir).
+_NIVEIS_ASI = (4, 8, 12, 16, 19)
+_PONTOS_POR_ASI = 2
+TETO_ATRIBUTO = 20
+
+
+def asi_pontos_por_nivel(nivel: int) -> int:
+    """Orçamento de pontos de Aumento de Habilidade acumulado até o nível (SRD 5E)."""
+    nivel = int(nivel or 1)
+    return _PONTOS_POR_ASI * sum(1 for marco in _NIVEIS_ASI if nivel >= marco)
+
+
+def sanear_asi(pedido: dict, pontos_total: int, atributos_base: dict) -> dict:
+    """
+    Filtra/clampa uma pool de ASI manual: apenas chaves `for..car` com inteiros > 0, respeitando o
+    orçamento (`pontos_total`) em ordem determinística e o teto final 20 por atributo (base + ASI).
+    """
+    pedido = pedido or {}
+    base = atributos_base or {}
+    resultado = {}
+    gasto = 0
+    for chave in ATRIBUTOS:
+        try:
+            valor = int(pedido.get(chave, 0) or 0)
+        except (TypeError, ValueError):
+            valor = 0
+        if valor <= 0:
+            continue
+        teto = max(0, TETO_ATRIBUTO - int(base.get(chave, 10)))   # não passa de 20 no final
+        valor = min(valor, teto, pontos_total - gasto)            # nem do orçamento
+        if valor <= 0:
+            continue
+        resultado[chave] = valor
+        gasto += valor
+    return resultado
+
+
 def nivel_por_xp(xp: int) -> int:
     """Nível (1..20) correspondente a um total de XP acumulado."""
     xp = max(0, int(xp))

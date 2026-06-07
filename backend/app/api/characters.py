@@ -69,6 +69,15 @@ def _aplicar_campos(personagem, dados):
                 except (TypeError, ValueError):
                     pass
 
+    # ASI: valida/clampa a pool contra o orçamento do nível e o teto 20 (após nível/atributos acima).
+    if "bonus_atributos_manuais" in dados and isinstance(dados["bonus_atributos_manuais"], dict):
+        from app.rules import dnd5e
+
+        pontos = dnd5e.asi_pontos_por_nivel(personagem.nivel)
+        personagem.bonus_atributos_manuais = dnd5e.sanear_asi(
+            dados["bonus_atributos_manuais"], pontos, personagem.atributos_dict()
+        )
+
 
 @bp.get("/characters")
 @auth_required

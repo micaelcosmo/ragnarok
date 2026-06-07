@@ -1,5 +1,16 @@
 # Changelog — Enriquecimento
 
+## [E26 — Aumentos de Habilidade (ASI) por nível]
+### feat
+- Personagem: campo `bonus_atributos_manuais` (JSON {for..car}). Migração Alembic.
+- `app/rules/dnd5e.asi_pontos_por_nivel(nivel)` — orçamento 5E (níveis 4/8/12/16/19 → +2 cada).
+- `ConstrutorDeFicha` dobra a pool como **fonte** (final = base + fontes + ASI manual, reversível) e
+  expõe `derivados.asi` = {pontos_total, pontos_usados, pontos_restantes}.
+- API valida/clampa a pool (só chaves for..car, inteiros ≥ 0, não excede o orçamento, teto final 20).
+- Frontend: seção **Aumentos de Habilidade** no editor (+/- por atributo, mostra pontos restantes); o
+  stat block já mostra o ▲ (final > base). Unit: `planning/asi-por-nivel.md`.
+- +N testes (regras + construtor reversível + clamp da API).
+
 ## [E25 — Exportar ficha em PDF (estilo oficial 5E)]
 ### feat
 - Serviço `FichaPDF` (POO): monta o contexto a partir do `ConstrutorDeFicha` (mesmos derivados

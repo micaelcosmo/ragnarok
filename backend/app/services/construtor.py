@@ -38,6 +38,9 @@ class ConstrutorDeFicha:
         for traco in (self.personagem.tracos_extras or []):
             if isinstance(traco, dict) and traco.get("efeitos"):
                 fontes.append(traco["efeitos"])
+        manuais = self.personagem.bonus_atributos_manuais or {}
+        if manuais:
+            fontes.append({"atributos": manuais})
         return fontes
 
     @staticmethod
@@ -49,6 +52,19 @@ class ConstrutorDeFicha:
             return True
         return any(int(efeitos.get(chave) or 0) != 0
                    for chave in ("iniciativa", "deslocamento", "pv_por_nivel", "ca_bonus"))
+
+    def _asi(self):
+        """Orçamento de Aumentos de Habilidade: total (por nível), usados (pool) e restantes."""
+        from app.rules import dnd5e
+
+        total = dnd5e.asi_pontos_por_nivel(self.personagem.nivel)
+        manuais = self.personagem.bonus_atributos_manuais or {}
+        usados = sum(int(v or 0) for v in manuais.values())
+        return {
+            "pontos_total": total,
+            "pontos_usados": usados,
+            "pontos_restantes": max(0, total - usados),
+        }
 
     def _tracos_ativos(self):
         """Lista de traços/recursos ativos (talentos + extras) para exibir como cards."""
@@ -107,6 +123,7 @@ class ConstrutorDeFicha:
         derivado["ca"] = self._calcular_ca(personagem, mods, final["ca_bonus"])
         derivado["ataques_equipados"] = self._ataques(personagem, mods, bp)
         derivado["atributos_final"] = final["atributos"]
+        derivado["asi"] = self._asi()
         derivado["tracos_ativos"] = self._tracos_ativos()
         derivado["concedido"] = final["concedido"]
         derivado["recursos"] = final["recursos"]
