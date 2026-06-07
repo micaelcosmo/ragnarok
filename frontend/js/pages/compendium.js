@@ -1,7 +1,7 @@
 // Compêndio: magias, talentos, raças, classes — cards clicáveis com procedência (fonte),
 // e CRUD (criar/editar/excluir) para MESTRE/ADMIN. Conteúdo criado é sempre homebrew.
 import { api } from '../api.js';
-import { getUser } from '../auth.js';
+import { getUser, getIdioma, setIdioma } from '../auth.js';
 import { montarShell } from '../app.js';
 import { emptyState, esc, html, ligarTabs, modal, toast } from '../ui.js';
 
@@ -25,6 +25,12 @@ function podeEditar() {
   return u && (u.role === 'MESTRE' || u.role === 'ADMIN');
 }
 
+// Rótulo do toggle: destaca o idioma ativo (PT por padrão).
+function idiomaRotulo() {
+  const pt = getIdioma() === 'pt';
+  return `🌐 <b>${pt ? 'PT' : 'pt'}</b> · ${pt ? 'en' : '<b>EN</b>'}`;
+}
+
 async function carregar(tipo, q = '') {
   if (tipo === 'spells') return api.reference.spells({ q });
   if (tipo === 'feats') return api.reference.feats({ q });
@@ -37,8 +43,9 @@ async function carregar(tipo, q = '') {
 export async function renderCompendium() {
   const view = montarShell('Compêndio', '#/compendium');
   view.innerHTML = `
-    <div class="section-title">
+    <div class="section-title spread">
       <h2>Compêndio do SRD <span class="muted" style="font-size:.8rem">· toda informação mostra a fonte</span></h2>
+      <button class="btn btn--ghost btn--sm" id="toggle-idioma" title="Alternar idioma do conteúdo (armas/armaduras/itens importados)">${idiomaRotulo()}</button>
     </div>
     <div class="tabs">
       ${TABS.map((t, i) => `<div class="tab ${i === 0 ? 'active' : ''}" data-tab="${t.tipo}">${t.icone} ${t.titulo}</div>`).join('')}
@@ -51,6 +58,13 @@ export async function renderCompendium() {
       <div data-lista="${t.tipo}"><div class="spinner"></div></div>
     </div>`).join('')}`;
   ligarTabs(view);
+
+  // Toggle EN/PT: alterna o idioma do conteúdo importado e recarrega todas as abas.
+  view.querySelector('#toggle-idioma').addEventListener('click', () => {
+    setIdioma(getIdioma() === 'pt' ? 'en' : 'pt');
+    toast(getIdioma() === 'pt' ? 'Idioma: Português' : 'Idioma: Inglês (original)');
+    renderCompendium();
+  });
 
   for (const t of TABS) {
     const pintarLista = async (filtro = '') => {

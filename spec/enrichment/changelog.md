@@ -1,5 +1,14 @@
 # Changelog — Enriquecimento
 
+## [E28 — Toggle EN/PT na UI]
+### feat
+- Compêndio: botão **🌐 PT | EN** que alterna o idioma (localStorage) e re-renderiza as listas —
+  fecha o i18n visual em cima do `?idioma=pt` já existente (E24). Afeta armas/armaduras/itens
+  (conteúdo open5e em inglês): EN mostra "Greataxe", PT mostra "Machado Grande".
+- `api.reference` (spells/feats/races/classes/backgrounds) passa a anexar `?idioma` também, para
+  traduzir esses tipos quando houver conteúdo importado em inglês.
+- +teste cobrindo `/reference/armor?idioma=pt`. Unit: `planning/toggle-idioma.md`. Sem migração.
+
 ## [E27 — Recursos de classe com usos]
 ### feat
 - Personagem: campo `recursos` (JSON lista: {nome, max, atual, recarga, descricao}). Migração Alembic.

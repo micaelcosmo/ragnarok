@@ -3,6 +3,11 @@ import { getToken, getIdioma, logout } from './auth.js';
 
 export const API_BASE = '/api/v1';
 
+// Sufixo de querystring com o idioma quando PT (para endpoints simples sem outros params).
+function comIdioma() {
+  return getIdioma() === 'pt' ? '?idioma=pt' : '';
+}
+
 export class ApiError extends Error {
   constructor(status, payload) {
     super((payload && payload.message) || 'Erro de API');
@@ -139,15 +144,16 @@ export const api = {
     remove: (id) => apiFetch(`/bestiary/${id}`, { method: 'DELETE' }),
   },
   reference: {
-    races: () => apiFetch('/reference/races'),
-    classes: () => apiFetch('/reference/classes'),
-    backgrounds: () => apiFetch('/reference/backgrounds'),
+    races: () => apiFetch(`/reference/races${comIdioma()}`),
+    classes: () => apiFetch(`/reference/classes${comIdioma()}`),
+    backgrounds: () => apiFetch(`/reference/backgrounds${comIdioma()}`),
     spells: ({ nivel, classe, q, fonte } = {}) => {
       const params = new URLSearchParams();
       if (nivel !== undefined && nivel !== '') params.set('nivel', nivel);
       if (classe) params.set('classe', classe);
       if (q) params.set('q', q);
       if (fonte) params.set('fonte', fonte);
+      if (getIdioma() === 'pt') params.set('idioma', 'pt');
       const qs = params.toString();
       return apiFetch(`/reference/spells${qs ? `?${qs}` : ''}`);
     },
@@ -155,6 +161,7 @@ export const api = {
       const params = new URLSearchParams();
       if (q) params.set('q', q);
       if (fonte) params.set('fonte', fonte);
+      if (getIdioma() === 'pt') params.set('idioma', 'pt');
       const qs = params.toString();
       return apiFetch(`/reference/feats${qs ? `?${qs}` : ''}`);
     },
