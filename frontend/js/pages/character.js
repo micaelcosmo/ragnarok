@@ -40,6 +40,7 @@ function pintarFicha(view, personagem) {
       <div class="row">
         <button class="btn btn--ghost btn--sm" id="exportar-pdf">🖨️ Exportar PDF</button>
         <button class="btn btn--ghost btn--sm" id="clonar">📑 Clonar</button>
+        <button class="btn btn--ghost btn--sm" id="exportar-json">⬇️ JSON</button>
         <button class="btn btn--gold btn--sm" id="editar">✏️ Editar</button>
         <button class="btn btn--danger btn--sm" id="apagar">🗑️ Excluir</button>
       </div>
@@ -229,6 +230,10 @@ function pintarFicha(view, personagem) {
       const copia = await api.characters.clonar(personagem.id);
       toast('Personagem clonado.'); navegar(`#/characters/${copia.id}`);
     } catch (erro) { toast(erro.message, 'err'); ev.currentTarget.disabled = false; }
+  });
+  view.querySelector('#exportar-json').addEventListener('click', async () => {
+    try { await api.characters.exportar(personagem.id); toast('Ficha exportada (JSON).'); }
+    catch (erro) { toast(erro.message, 'err'); }
   });
   view.querySelector('#editar').addEventListener('click', () => abrirEdicao(view, personagem));
   view.querySelector('#apagar').addEventListener('click', () => confirmarExclusao(personagem));

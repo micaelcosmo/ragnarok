@@ -104,6 +104,8 @@ export const api = {
     desequipar: (id, tipo, itemId) => apiFetch(`/characters/${id}/desequipar`, { method: 'POST', body: { tipo, item_id: itemId } }),
     baixarPdf: (id) => baixarArquivo(`/characters/${id}/pdf`),
     clonar: (id) => apiFetch(`/characters/${id}/clonar`, { method: 'POST' }),
+    exportar: (id) => baixarArquivo(`/characters/${id}/export`),
+    importar: (pacote) => apiFetch('/characters/import', { method: 'POST', body: pacote }),
     ajustarRecurso: (id, indice, delta) => apiFetch(`/characters/${id}/recursos/ajustar`, { method: 'POST', body: { indice, delta } }),
     descanso: (id, tipo) => apiFetch(`/characters/${id}/descanso`, { method: 'POST', body: { tipo } }),
   },

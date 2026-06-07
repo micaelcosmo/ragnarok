@@ -48,6 +48,7 @@
 | E34 | Galeria de imagens do personagem (várias + principal) | ✅ (em prod) |
 | E35 | Multiclasse (nível total → proficiência; classes extras) | ✅ (em prod) |
 | E36 | ⭐ Clonar personagem (duplicar ficha) | ✅ (em prod) |
+| E37 | ⭐ Exportar/Importar ficha em JSON (backup/portabilidade) | 🔄 em andamento |
 
 ---
 

@@ -1,5 +1,12 @@
 # Changelog — Enriquecimento
 
+## [E37 — Exportar/Importar ficha em JSON] (nova)
+### feat
+- `GET /characters/<id>/export` → JSON (attachment) com os campos da ficha (sem derivados/ids/itens
+  equipados); `POST /characters/import` cria uma nova ficha do usuário a partir do JSON.
+- Frontend: botão **⬇️ Exportar JSON** na ficha + **⬆️ Importar ficha** no dashboard.
+- Backup/portabilidade (não é importação por LLM). +N testes. Sem migração.
+
 ## [E36 — Clonar personagem] (nova)
 ### feat
 - `POST /characters/<id>/clonar`: duplica a ficha (cópia coluna a coluna, exceto id/user_id/created_at)

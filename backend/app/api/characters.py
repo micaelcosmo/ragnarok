@@ -156,6 +156,44 @@ def obter(personagem_id):
     return ok(personagem.to_dict())
 
 
+_EXPORT_IGNORAR = {"id", "user_id", "mesa_id", "armadura_equipada_id", "armas_equipadas", "derivados"}
+
+
+@bp.get("/characters/<int:personagem_id>/export")
+@auth_required
+def exportar(personagem_id):
+    """Exporta a ficha como JSON (backup/portabilidade). Sem derivados/ids/itens equipados."""
+    personagem = Personagem.query.get(personagem_id)
+    if personagem is None:
+        raise NotFound("Personagem não encontrado.")
+    if not _personagem_acessivel(personagem, current_user()):
+        raise Forbidden("Você não pode exportar este personagem.")
+    dados = {k: v for k, v in personagem.to_dict(incluir_derivados=False).items() if k not in _EXPORT_IGNORAR}
+    import json as _json
+    import re as _re
+    slug = _re.sub(r"[^a-z0-9]+", "-", (personagem.nome or "ficha").lower()).strip("-") or "personagem"
+    corpo = _json.dumps({"_ragnarok": "ficha", "versao": 1, "dados": dados}, ensure_ascii=False)
+    return Response(corpo, mimetype="application/json",
+                    headers={"Content-Disposition": f'attachment; filename="ficha-{slug}.json"'})
+
+
+@bp.post("/characters/import")
+@auth_required
+def importar():
+    """Cria uma nova ficha do usuário atual a partir de um JSON exportado."""
+    corpo = corpo_json()
+    dados = corpo.get("dados") if isinstance(corpo.get("dados"), dict) else corpo
+    if not isinstance(dados, dict) or not dados.get("nome"):
+        raise ValidationError("JSON de ficha inválido (faltou 'nome').")
+    personagem = Personagem(user_id=current_user().id, nome=dados["nome"])
+    _aplicar_campos(personagem, dados)
+    if personagem.pv_atual in (None, 0):
+        personagem.pv_atual = personagem.pv_max
+    db.session.add(personagem)
+    db.session.commit()
+    return created(personagem.to_dict())
+
+
 @bp.post("/characters/<int:personagem_id>/clonar")
 @auth_required
 def clonar(personagem_id):
