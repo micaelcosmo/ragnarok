@@ -51,7 +51,7 @@ function pintarFicha(view, personagem) {
           : `<span class="sheet-portrait">${iniciais(personagem.nome)}</span>`}
         <div style="flex:1">
           <div class="sh-name" style="font-family:var(--font-title)">${esc(personagem.nome)}</div>
-          <div>${esc([personagem.raca_slug, personagem.classe_slug, personagem.antecedente_slug].filter(Boolean).join(' · ') || 'Aventureiro')}</div>
+          <div>${esc([[personagem.raca_slug, derivados.subraca && derivados.subraca.nome].filter(Boolean).join(' '), personagem.classe_slug, personagem.antecedente_slug].filter(Boolean).join(' · ') || 'Aventureiro')}</div>
           <div class="muted">${esc(personagem.tendencia || '')} ${personagem.nome_jogador ? '· Jogador: ' + esc(personagem.nome_jogador) : ''}</div>
         </div>
         <div style="text-align:center">
@@ -82,7 +82,7 @@ function pintarFicha(view, personagem) {
 
       <div>
         <div class="combat-row card">
-          ${combatBox('CA', personagem.ca, DESC_COMBATE.CA)}
+          ${combatBox('CA', derivados.ca ?? personagem.ca, (derivados.ca_detalhe ? derivados.ca_detalhe + '. ' : '') + DESC_COMBATE.CA)}
           ${combatBox('Iniciativa', sinal(derivados.iniciativa), DESC_COMBATE.Iniciativa)}
           ${combatBox('Deslocamento', esc(personagem.deslocamento || '—'), DESC_COMBATE.Deslocamento)}
           ${combatBox('Proficiência', sinal(derivados.bonus_proficiencia), DESC_COMBATE.Proficiência)}
@@ -98,6 +98,20 @@ function pintarFicha(view, personagem) {
             <button class="btn btn--ghost btn--sm" id="pv-cura">+ Cura</button>
             <span class="chip">${personagem.dado_vida || ''}</span>
             ${personagem.inspiracao ? '<span class="badge">✨ Inspiração</span>' : ''}
+          </div>
+          <div class="row" style="margin-top:12px;gap:18px;flex-wrap:wrap;align-items:center">
+            <div title="Testes de resistência contra a morte">
+              <span class="muted" style="font-size:.78rem">Morte</span>
+              <span style="margin-left:6px">✅ ${[0, 1, 2].map((i) => `<span class="death-pip" data-morte="sucesso" data-i="${i}" style="cursor:pointer">${i < (personagem.mortes_sucesso || 0) ? '●' : '○'}</span>`).join('')}</span>
+              <span style="margin-left:8px">❌ ${[0, 1, 2].map((i) => `<span class="death-pip" data-morte="falha" data-i="${i}" style="cursor:pointer">${i < (personagem.mortes_falha || 0) ? '●' : '○'}</span>`).join('')}</span>
+            </div>
+            <div title="${esc(derivados.exaustao_efeito || 'Sem exaustão')}">
+              <span class="muted" style="font-size:.78rem">Exaustão</span>
+              <button class="btn btn--ghost btn--sm" id="exa-menos">−</button>
+              <b style="min-width:14px;display:inline-block;text-align:center">${personagem.exaustao || 0}</b>
+              <button class="btn btn--ghost btn--sm" id="exa-mais">+</button>
+              ${derivados.exaustao_efeito ? `<span class="chip" style="margin-left:6px">${esc(derivados.exaustao_efeito)}</span>` : ''}
+            </div>
           </div>
         </div>
 
@@ -122,7 +136,11 @@ function pintarFicha(view, personagem) {
               <button class="btn btn--gold btn--sm" id="gerenciar-equip">⚔️ Gerenciar / criar itens</button></div>
             <div id="resumo-equip" style="margin:10px 0"></div>
             ${blocoTexto(personagem.equipamento, 'Mochila vazia.')}
-            ${personagem.dinheiro ? `<div class="chip" style="margin-top:8px">💰 ${esc(personagem.dinheiro)}</div>` : ''}</div>
+            ${personagem.dinheiro ? `<div class="chip" style="margin-top:8px">💰 ${esc(personagem.dinheiro)}</div>` : ''}
+            <div class="row" style="gap:6px;margin-top:8px;flex-wrap:wrap">
+              ${['pc', 'pp', 'pe', 'po', 'pl'].filter((m) => (personagem.moedas || {})[m]).map((m) => `<span class="chip">${(personagem.moedas)[m]} ${m.toUpperCase()}</span>`).join('')}
+              ${derivados.total_po ? `<span class="chip" title="Total convertido em peças de ouro">≈ ${derivados.total_po} PO</span>` : ''}
+            </div></div>
           <div data-panel="tracos" style="display:none">
             <div class="spread"><h4 style="margin:0">🎴 Traços & Recursos</h4>
               <button class="btn btn--gold btn--sm" id="add-traco">+ Adicionar traço / aumento</button></div>
@@ -170,6 +188,19 @@ function pintarFicha(view, personagem) {
             ${campo('Aparência', personagem.aparencia)}
             ${campo('Aliados & Organizações', personagem.aliados)}
             ${campo('Tesouro', personagem.tesouro)}
+            <div class="spread" style="margin-top:8px"><h4 style="margin:0">🖼️ Galeria</h4>
+              <button class="btn btn--gold btn--sm" id="add-imagem">＋ Imagem</button></div>
+            <div class="row" style="gap:10px;flex-wrap:wrap;margin-top:8px" id="galeria">
+              ${(personagem.imagens || []).length ? personagem.imagens.map((img, i) => `
+                <div style="width:110px;text-align:center">
+                  <img src="${esc(img.url)}" alt="${esc(img.legenda || '')}" style="width:110px;height:110px;object-fit:cover;border-radius:8px;border:2px solid ${img.principal ? 'var(--gold)' : 'var(--gold-dim)'}">
+                  <div class="muted" style="font-size:.72rem">${esc(img.legenda || '—')}</div>
+                  <div class="row" style="justify-content:center;gap:2px;margin-top:2px">
+                    <button class="btn btn--ghost btn--sm" data-img-principal="${i}" title="Definir principal">${img.principal ? '★' : '☆'}</button>
+                    <button class="btn btn--ghost btn--sm" data-img-del="${i}" title="Remover">🗑️</button>
+                  </div>
+                </div>`).join('') : '<p class="muted">Nenhuma imagem. Use ＋ Imagem para enviar (corpo, rosto, cenas…).</p>'}
+            </div>
           </div>
           <div data-panel="historia" style="display:none">${blocoTexto(personagem.historia, 'História ainda não escrita.')}</div>
         </div>
@@ -195,6 +226,43 @@ function pintarFicha(view, personagem) {
   view.querySelector('#apagar').addEventListener('click', () => confirmarExclusao(personagem));
   view.querySelector('#pv-dano').addEventListener('click', () => ajustarPV(view, personagem, -1));
   view.querySelector('#pv-cura').addEventListener('click', () => ajustarPV(view, personagem, +1));
+  // Estado (E31): pips de morte + exaustão
+  const salvarEstado = async (campos) => {
+    try { pintarFicha(view, await api.characters.update(personagem.id, campos)); }
+    catch (erro) { toast(erro.message, 'err'); }
+  };
+  view.querySelectorAll('[data-morte]').forEach((pip) => pip.addEventListener('click', () => {
+    const tipo = pip.dataset.morte, i = Number(pip.dataset.i);
+    const campo = tipo === 'sucesso' ? 'mortes_sucesso' : 'mortes_falha';
+    const atualValor = personagem[campo] || 0;
+    salvarEstado({ [campo]: atualValor === i + 1 ? i : i + 1 });
+  }));
+  view.querySelector('#exa-menos').addEventListener('click', () => salvarEstado({ exaustao: (personagem.exaustao || 0) - 1 }));
+  view.querySelector('#exa-mais').addEventListener('click', () => salvarEstado({ exaustao: (personagem.exaustao || 0) + 1 }));
+  // Galeria de imagens (E34)
+  view.querySelector('#add-imagem').addEventListener('click', () => {
+    const file = document.createElement('input');
+    file.type = 'file'; file.accept = 'image/png,image/jpeg,image/webp';
+    file.addEventListener('change', async () => {
+      if (!file.files[0]) return;
+      try {
+        const res = await api.upload(file.files[0]);
+        const legenda = prompt('Legenda da imagem (opcional):', '') || '';
+        const imagens = [...(personagem.imagens || []), { url: res.url, legenda, principal: !(personagem.imagens || []).length }];
+        salvarEstado({ imagens });
+      } catch (erro) { toast(erro.message, 'err'); }
+    });
+    file.click();
+  });
+  view.querySelectorAll('[data-img-principal]').forEach((b) => b.addEventListener('click', () => {
+    const idx = Number(b.dataset.imgPrincipal);
+    const imagens = (personagem.imagens || []).map((img, i) => ({ ...img, principal: i === idx }));
+    salvarEstado({ imagens });
+  }));
+  view.querySelectorAll('[data-img-del]').forEach((b) => b.addEventListener('click', () => {
+    const imagens = (personagem.imagens || []).filter((_, i) => i !== Number(b.dataset.imgDel));
+    salvarEstado({ imagens });
+  }));
   view.querySelector('#gerenciar-equip').addEventListener('click', () => gerenciarEquipamento(view, personagem));
   renderResumoEquip(view, personagem);
 
@@ -577,6 +645,7 @@ function abrirEdicao(view, personagem) {
         </div>
         <div class="row" style="gap:10px">
           <div class="field" style="flex:1"><label>Raça</label><input class="input" name="raca_slug" value="${texto('', personagem.raca_slug)}"></div>
+          <div class="field" style="flex:1"><label>Sub-raça (slug)</label><input class="input" name="subraca_slug" value="${texto('', personagem.subraca_slug)}" placeholder="ex.: stout, high-elf"></div>
           <div class="field" style="flex:1"><label>Classe</label><input class="input" name="classe_slug" value="${texto('', personagem.classe_slug)}"></div>
           <div class="field" style="flex:1"><label>Antecedente</label><input class="input" name="antecedente_slug" value="${texto('', personagem.antecedente_slug)}"></div>
         </div>
@@ -652,7 +721,11 @@ function abrirEdicao(view, personagem) {
         </div>
         <div class="field"><label>Ataques & Magias</label><textarea class="textarea" name="ataques">${texto('', personagem.ataques)}</textarea></div>
         <div class="field"><label>Equipamento & Inventário</label><textarea class="textarea" name="equipamento">${texto('', personagem.equipamento)}</textarea></div>
-        <div class="field"><label>Dinheiro</label><input class="input" name="dinheiro" value="${texto('', personagem.dinheiro)}"></div>
+        <div class="field"><label>Dinheiro (anotação livre)</label><input class="input" name="dinheiro" value="${texto('', personagem.dinheiro)}"></div>
+        <label>Moedas</label>
+        <div class="row" style="gap:8px">
+          ${['pc', 'pp', 'pe', 'po', 'pl'].map((m) => `<div class="field" style="flex:1"><label style="font-size:.7rem">${m.toUpperCase()}</label><input class="input" name="moeda_${m}" type="number" min="0" value="${(personagem.moedas || {})[m] || 0}"></div>`).join('')}
+        </div>
       </div>
 
       <div data-panel="e-rp" style="display:none">
@@ -735,7 +808,7 @@ function abrirEdicao(view, personagem) {
     const payload = {
       nome: bruto.nome, nivel: Number(bruto.nivel), xp: Number(bruto.xp),
       nome_jogador: bruto.nome_jogador, tendencia: bruto.tendencia,
-      raca_slug: bruto.raca_slug, classe_slug: bruto.classe_slug, antecedente_slug: bruto.antecedente_slug,
+      raca_slug: bruto.raca_slug, subraca_slug: bruto.subraca_slug || null, classe_slug: bruto.classe_slug, antecedente_slug: bruto.antecedente_slug,
       avatar_url: bruto.avatar_url,
       ca: Number(bruto.ca), iniciativa_bonus: Number(bruto.iniciativa_bonus),
       deslocamento: bruto.deslocamento,
@@ -745,6 +818,7 @@ function abrirEdicao(view, personagem) {
       outras_proficiencias: bruto.outras_proficiencias,
       classe_conjuradora: bruto.classe_conjuradora, atributo_conjuracao: bruto.atributo_conjuracao || null,
       ataques: bruto.ataques, equipamento: bruto.equipamento, dinheiro: bruto.dinheiro,
+      moedas: Object.fromEntries(['pc', 'pp', 'pe', 'po', 'pl'].map((m) => [m, Number(bruto[`moeda_${m}`]) || 0])),
       tracos_personalidade: bruto.tracos_personalidade, ideais: bruto.ideais, vinculos: bruto.vinculos,
       fraquezas: bruto.fraquezas, caracteristicas: bruto.caracteristicas, idiomas: bruto.idiomas,
       historia: bruto.historia, atributos,

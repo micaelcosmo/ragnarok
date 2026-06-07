@@ -16,6 +16,7 @@ class Personagem(TimestampMixin, db.Model):
     nome = db.Column(db.String(120), nullable=False)
     nome_jogador = db.Column(db.String(120), nullable=True)
     raca_slug = db.Column(db.String(60), nullable=True)
+    subraca_slug = db.Column(db.String(60), nullable=True)
     classe_slug = db.Column(db.String(60), nullable=True)
     antecedente_slug = db.Column(db.String(60), nullable=True)
     tendencia = db.Column(db.String(40), nullable=True)
@@ -55,6 +56,14 @@ class Personagem(TimestampMixin, db.Model):
     bonus_atributos_manuais = db.Column(db.JSON, default=dict)
     # Recursos de classe com usos: [{nome, max, atual, recarga, descricao}]. Recarrega por descanso (E27).
     recursos = db.Column(db.JSON, default=list)
+    # Estado de combate (E31): testes contra a morte (0–3) e exaustão (0–6).
+    mortes_sucesso = db.Column(db.Integer, default=0)
+    mortes_falha = db.Column(db.Integer, default=0)
+    exaustao = db.Column(db.Integer, default=0)
+    # Moedas estruturadas (E33): {pc, pp, pe, po, pl}. `dinheiro` (texto) segue para anotações.
+    moedas = db.Column(db.JSON, default=dict)
+    # Galeria de imagens (E34): [{url, legenda, principal}]. `avatar_url` segue como retrato/fallback.
+    imagens = db.Column(db.JSON, default=list)
 
     # Equipamento ativo (fontes de efeitos de itens).
     armadura_equipada_id = db.Column(db.Integer, db.ForeignKey("armaduras.id"), nullable=True)
@@ -127,6 +136,7 @@ class Personagem(TimestampMixin, db.Model):
             "nome": self.nome,
             "nome_jogador": self.nome_jogador,
             "raca_slug": self.raca_slug,
+            "subraca_slug": self.subraca_slug,
             "classe_slug": self.classe_slug,
             "antecedente_slug": self.antecedente_slug,
             "tendencia": self.tendencia,
@@ -148,6 +158,11 @@ class Personagem(TimestampMixin, db.Model):
             "tracos_extras": self.tracos_extras or [],
             "bonus_atributos_manuais": self.bonus_atributos_manuais or {},
             "recursos": self.recursos or [],
+            "mortes_sucesso": self.mortes_sucesso or 0,
+            "mortes_falha": self.mortes_falha or 0,
+            "exaustao": self.exaustao or 0,
+            "moedas": self.moedas or {},
+            "imagens": self.imagens or [],
             "armadura_equipada_id": self.armadura_equipada_id,
             "armas_equipadas": self.armas_equipadas or [],
             "outras_proficiencias": self.outras_proficiencias,
