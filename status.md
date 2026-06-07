@@ -37,6 +37,7 @@
 | E23 | Equipamento mundano no catálogo (gear + pacotes SRD) | ✅ (em prod) |
 | E24 | Tradução PT de armas/armaduras (de-para curado offline + cache) | ✅ (em prod) |
 | E25 | Exportar ficha em PDF (estilo oficial 5E, WeasyPrint) | ✅ (em prod) |
+| E26 | Aumentos de Habilidade (ASI) por nível — pool reversível | 🔄 em andamento |
 
 ---
 
