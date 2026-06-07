@@ -131,6 +131,22 @@ class ConstrutorDeFicha:
                 })
         return cards
 
+    def _dado_vida_classe(self):
+        """Dado de vida da classe primária (int); fallback: parse de personagem.dado_vida ou 8."""
+        from app.models.reference import Classe
+
+        if self.personagem.classe_slug:
+            classe = Classe.query.filter_by(slug=self.personagem.classe_slug).first()
+            if classe and classe.dado_vida:
+                return int(classe.dado_vida)
+        texto = str(self.personagem.dado_vida or "")
+        if "d" in texto:
+            try:
+                return int(texto.split("d")[-1])
+            except (ValueError, IndexError):
+                pass
+        return 8
+
     def _classes_lista(self):
         """Lista [{slug, nivel}] com a classe primária + as de multiclasse."""
         classes = []
@@ -177,6 +193,9 @@ class ConstrutorDeFicha:
         )
         derivado["nivel_total"] = nivel_total
         derivado["classes"] = self._classes_lista()
+        dado_classe = self._dado_vida_classe()
+        derivado["dado_vida_classe"] = dado_classe
+        derivado["pv_sugerido"] = dnd5e.pv_sugerido(dado_classe, nivel_total, derivado["modificadores"]["con"])
 
         mods = derivado["modificadores"]
         bp = derivado["bonus_proficiencia"]

@@ -135,6 +135,15 @@ def efeito_exaustao(nivel):
 _MOEDAS_EM_PO = {"pc": 0.01, "pp": 0.1, "pe": 0.5, "po": 1.0, "pl": 10.0}
 
 
+def pv_sugerido(dado, nivel, con_mod):
+    """PV máximo sugerido (regra fixa 5E): 1º nível = dado+CON; demais = (dado/2+1)+CON cada."""
+    dado = int(dado or 8)
+    nivel = max(1, int(nivel or 1))
+    con = int(con_mod or 0)
+    por_nivel = dado // 2 + 1 + con
+    return max(1, (dado + con) + (nivel - 1) * por_nivel)
+
+
 def sanear_classes_extras(lista):
     """Classes de multiclasse: só {slug não-vazio, nivel int >= 1}."""
     limpas = []

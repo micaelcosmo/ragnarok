@@ -1,5 +1,12 @@
 # Changelog — Enriquecimento
 
+## [E38 — Cálculo automático de PV] (nova)
+### feat
+- `dnd5e.pv_sugerido(dado, nivel, con_mod)` (regra fixa 5E). Construtor expõe
+  `derivados.dado_vida_classe` + `derivados.pv_sugerido` (dado da classe primária, nível total, CON).
+- Frontend: botão **🎲 Calcular PV** na ficha (define pv_max := sugerido, com confirmação).
+- +N testes. Sem migração.
+
 ## [E37 — Exportar/Importar ficha em JSON] (nova)
 ### feat
 - `GET /characters/<id>/export` → JSON (attachment) com os campos da ficha (sem derivados/ids/itens

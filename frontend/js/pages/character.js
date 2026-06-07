@@ -98,6 +98,7 @@ function pintarFicha(view, personagem) {
             <input class="input" id="pv-delta" type="number" placeholder="valor" style="max-width:120px">
             <button class="btn btn--danger btn--sm" id="pv-dano">− Dano</button>
             <button class="btn btn--ghost btn--sm" id="pv-cura">+ Cura</button>
+            ${derivados.pv_sugerido ? `<button class="btn btn--ghost btn--sm" id="pv-calcular" title="Sugerir PV máximo por classe/nível/CON (d${derivados.dado_vida_classe})">🎲 Calcular PV (${derivados.pv_sugerido})</button>` : ''}
             <span class="chip">${personagem.dado_vida || ''}</span>
             ${personagem.inspiracao ? '<span class="badge">✨ Inspiração</span>' : ''}
           </div>
@@ -239,6 +240,16 @@ function pintarFicha(view, personagem) {
   view.querySelector('#apagar').addEventListener('click', () => confirmarExclusao(personagem));
   view.querySelector('#pv-dano').addEventListener('click', () => ajustarPV(view, personagem, -1));
   view.querySelector('#pv-cura').addEventListener('click', () => ajustarPV(view, personagem, +1));
+  const btnPv = view.querySelector('#pv-calcular');
+  if (btnPv) btnPv.addEventListener('click', async () => {
+    const sugerido = derivados.pv_sugerido;
+    if (!confirm(`Definir PV máximo como ${sugerido} (d${derivados.dado_vida_classe}, nível, CON)? O PV atual será ajustado se estiver cheio.`)) return;
+    const cheio = (personagem.pv_atual || 0) >= (personagem.pv_max || 0);
+    const campos = { pv_max: sugerido };
+    if (cheio || !personagem.pv_atual) campos.pv_atual = sugerido;
+    try { pintarFicha(view, await api.characters.update(personagem.id, campos)); toast('PV calculado.'); }
+    catch (erro) { toast(erro.message, 'err'); }
+  });
   // Estado (E31): pips de morte + exaustão
   const salvarEstado = async (campos) => {
     try { pintarFicha(view, await api.characters.update(personagem.id, campos)); }
