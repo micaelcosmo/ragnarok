@@ -23,6 +23,9 @@ class ConstrutorDeFicha:
             raca = Raca.query.filter_by(slug=self.personagem.raca_slug).first()
             if raca and raca.efeitos:
                 fontes.append(raca.efeitos)
+            sub = self._subraca_obj(raca)
+            if sub:
+                fontes.append(sub.get("efeitos") or {"atributos": sub.get("bonus_atributos") or {}})
         if self.personagem.classe_slug:
             classe = Classe.query.filter_by(slug=self.personagem.classe_slug).first()
             if classe and classe.efeitos:
@@ -42,6 +45,20 @@ class ConstrutorDeFicha:
         if manuais:
             fontes.append({"atributos": manuais})
         return fontes
+
+    def _subraca_obj(self, raca=None):
+        """Devolve o dict da sub-raça escolhida (em raca.subracas), ou None."""
+        if not self.personagem.subraca_slug:
+            return None
+        if raca is None:
+            from app.models.reference import Raca
+            raca = Raca.query.filter_by(slug=self.personagem.raca_slug).first()
+        if raca is None:
+            return None
+        for sub in (raca.subracas or []):
+            if isinstance(sub, dict) and sub.get("slug") == self.personagem.subraca_slug:
+                return sub
+        return None
 
     @staticmethod
     def _tem_numero(efeitos):
@@ -96,7 +113,25 @@ class ConstrutorDeFicha:
                 "efeitos": efeitos,
                 "tipo": "numerico" if self._tem_numero(efeitos) else "descritivo",
             })
+        sub = self._subraca_obj()
+        if sub:
+            for traco in (sub.get("tracos") or []):
+                cards.append({
+                    "nome": traco.get("nome", "Traço de sub-raça"),
+                    "descricao": traco.get("descricao"),
+                    "fonte": sub.get("nome"),
+                    "origem": "subraca",
+                    "efeitos": {},
+                    "tipo": "descritivo",
+                })
         return cards
+
+    def _subraca_info(self):
+        """Bloco de exibição da sub-raça escolhida (nome + traços), ou None."""
+        sub = self._subraca_obj()
+        if not sub:
+            return None
+        return {"slug": sub.get("slug"), "nome": sub.get("nome"), "tracos": sub.get("tracos") or []}
 
     def construir(self):
         """Devolve o bloco de derivados enriquecido (com fontes aplicadas)."""
@@ -120,10 +155,14 @@ class ConstrutorDeFicha:
 
         mods = derivado["modificadores"]
         bp = derivado["bonus_proficiencia"]
+        self._ca_detalhe = "CA base (manual)"
         derivado["ca"] = self._calcular_ca(personagem, mods, final["ca_bonus"])
+        derivado["ca_detalhe"] = self._ca_detalhe
         derivado["ataques_equipados"] = self._ataques(personagem, mods, bp)
         derivado["atributos_final"] = final["atributos"]
         derivado["asi"] = self._asi()
+        derivado["exaustao_efeito"] = dnd5e.efeito_exaustao(personagem.exaustao)
+        derivado["subraca"] = self._subraca_info()
         derivado["tracos_ativos"] = self._tracos_ativos()
         derivado["concedido"] = final["concedido"]
         derivado["recursos"] = final["recursos"]
@@ -145,7 +184,15 @@ class ConstrutorDeFicha:
             from app.models.items import Armadura
             armadura = Armadura.query.get(personagem.armadura_equipada_id)
         if armadura is None:
-            return int(personagem.ca or 10) + ajuste
+            base = int(personagem.ca or 10)
+            from app.rules import dnd5e
+            sem_armadura = dnd5e.ca_sem_armadura(personagem.classe_slug, mods)
+            if sem_armadura is not None and sem_armadura >= base:
+                self._ca_detalhe = f"Defesa sem Armadura ({personagem.classe_slug})"
+                return sem_armadura + ajuste
+            self._ca_detalhe = "CA base (manual)"
+            return base + ajuste
+        self._ca_detalhe = f"Armadura: {armadura.nome}"
         ca = int(armadura.ca_base or 10)
         if armadura.ca_soma_des:
             des = mods["des"]
