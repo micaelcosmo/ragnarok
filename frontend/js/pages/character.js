@@ -39,6 +39,7 @@ function pintarFicha(view, personagem) {
       <button class="btn btn--ghost btn--sm" id="voltar">← Voltar</button>
       <div class="row">
         <button class="btn btn--ghost btn--sm" id="exportar-pdf">🖨️ Exportar PDF</button>
+        <button class="btn btn--ghost btn--sm" id="clonar">📑 Clonar</button>
         <button class="btn btn--gold btn--sm" id="editar">✏️ Editar</button>
         <button class="btn btn--danger btn--sm" id="apagar">🗑️ Excluir</button>
       </div>
@@ -221,6 +222,13 @@ function pintarFicha(view, personagem) {
     } finally {
       botao.disabled = false; botao.textContent = rotulo;
     }
+  });
+  view.querySelector('#clonar').addEventListener('click', async (ev) => {
+    ev.currentTarget.disabled = true;
+    try {
+      const copia = await api.characters.clonar(personagem.id);
+      toast('Personagem clonado.'); navegar(`#/characters/${copia.id}`);
+    } catch (erro) { toast(erro.message, 'err'); ev.currentTarget.disabled = false; }
   });
   view.querySelector('#editar').addEventListener('click', () => abrirEdicao(view, personagem));
   view.querySelector('#apagar').addEventListener('click', () => confirmarExclusao(personagem));

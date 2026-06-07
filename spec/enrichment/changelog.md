@@ -1,5 +1,11 @@
 # Changelog — Enriquecimento
 
+## [E36 — Clonar personagem] (nova)
+### feat
+- `POST /characters/<id>/clonar`: duplica a ficha (cópia coluna a coluna, exceto id/user_id/created_at)
+  para o usuário atual; nome ganha sufixo " (cópia)". Fonte acessível por `_personagem_acessivel`.
+- Frontend: botão **📑 Clonar** na ficha (navega para a cópia). +N testes. Sem migração.
+
 ## [E35 — Multiclasse]
 ### feat
 - Personagem: `classes_extras` (JSON [{slug, nivel}]) + migração Alembic.

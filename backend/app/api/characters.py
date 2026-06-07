@@ -156,6 +156,29 @@ def obter(personagem_id):
     return ok(personagem.to_dict())
 
 
+@bp.post("/characters/<int:personagem_id>/clonar")
+@auth_required
+def clonar(personagem_id):
+    """Duplica a ficha para o usuário atual (cópia coluna a coluna; nome ganha '(cópia)')."""
+    from sqlalchemy import inspect as sa_inspect
+
+    origem = Personagem.query.get(personagem_id)
+    if origem is None:
+        raise NotFound("Personagem não encontrado.")
+    if not _personagem_acessivel(origem, current_user()):
+        raise Forbidden("Você não pode clonar este personagem.")
+
+    ignorar = {"id", "user_id", "created_at"}
+    copia = Personagem(user_id=current_user().id)
+    for coluna in sa_inspect(Personagem).columns.keys():
+        if coluna not in ignorar:
+            setattr(copia, coluna, getattr(origem, coluna))
+    copia.nome = f"{origem.nome} (cópia)"
+    db.session.add(copia)
+    db.session.commit()
+    return created(copia.to_dict())
+
+
 @bp.get("/characters/<int:personagem_id>/pdf")
 @auth_required
 def exportar_pdf(personagem_id):
