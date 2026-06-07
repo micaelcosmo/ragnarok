@@ -41,7 +41,7 @@
 | E27 | Recursos de classe com usos (Fúria/Dados de Vida) + descanso | ✅ (em prod) |
 | E28 | Toggle EN/PT na UI (i18n visual do compêndio) | ✅ (em prod) |
 | E29 | Sub-raças aplicando efeitos (auto, reversível) | ✅ (em prod) |
-| E30 | Defesa sem armadura automática (Bárbaro/Monge) | 🔄 em andamento |
+| E30 | Defesa sem armadura automática (Bárbaro/Monge) | ✅ (em prod) |
 
 ---
 
