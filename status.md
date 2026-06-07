@@ -44,7 +44,7 @@
 | E30 | Defesa sem armadura automática (Bárbaro/Monge) | ✅ (em prod) |
 | E31 | Testes de morte + exaustão (rastreio na ficha) | ✅ (em prod) |
 | E32 | Admin marca conteúdo como OFICIAL (curadoria) | ✅ (em prod) |
-| E33 | Moedas por tipo (PC/PP/PE/PO/PL) + total em PO | 🔄 em andamento |
+| E33 | Moedas por tipo (PC/PP/PE/PO/PL) + total em PO | ✅ (em prod) |
 
 ---
 
