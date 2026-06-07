@@ -39,10 +39,13 @@ function pintarFicha(view, personagem) {
       <button class="btn btn--ghost btn--sm" id="voltar">← Voltar</button>
       <div class="row">
         <button class="btn btn--ghost btn--sm" id="exportar-pdf">🖨️ Exportar PDF</button>
+        <button class="btn btn--ghost btn--sm" id="clonar">📑 Clonar</button>
+        <button class="btn btn--ghost btn--sm" id="exportar-json">⬇️ JSON</button>
         <button class="btn btn--gold btn--sm" id="editar">✏️ Editar</button>
         <button class="btn btn--danger btn--sm" id="apagar">🗑️ Excluir</button>
       </div>
     </div>
+    ${revisaoBanner(derivados.revisao)}
 
     <div class="card card--parch">
       <div class="sheet-head">
@@ -51,11 +54,11 @@ function pintarFicha(view, personagem) {
           : `<span class="sheet-portrait">${iniciais(personagem.nome)}</span>`}
         <div style="flex:1">
           <div class="sh-name" style="font-family:var(--font-title)">${esc(personagem.nome)}</div>
-          <div>${esc([personagem.raca_slug, personagem.classe_slug, personagem.antecedente_slug].filter(Boolean).join(' · ') || 'Aventureiro')}</div>
+          <div>${esc([[personagem.raca_slug, derivados.subraca && derivados.subraca.nome].filter(Boolean).join(' '), ((derivados.classes || []).length > 1 ? derivados.classes.map((c) => `${c.slug} ${c.nivel}`).join(' / ') : personagem.classe_slug), personagem.antecedente_slug].filter(Boolean).join(' · ') || 'Aventureiro')}</div>
           <div class="muted">${esc(personagem.tendencia || '')} ${personagem.nome_jogador ? '· Jogador: ' + esc(personagem.nome_jogador) : ''}</div>
         </div>
         <div style="text-align:center">
-          <div class="badge" style="font-size:1rem">Nível ${personagem.nivel}</div>
+          <div class="badge" style="font-size:1rem">Nível ${derivados.nivel_total || personagem.nivel}${(derivados.nivel_total && derivados.nivel_total !== personagem.nivel) ? ' <span class="muted" style="font-size:.7rem">(total)</span>' : ''}</div>
           <div class="muted" style="margin-top:6px">${personagem.xp} XP</div>
         </div>
       </div>
@@ -82,7 +85,7 @@ function pintarFicha(view, personagem) {
 
       <div>
         <div class="combat-row card">
-          ${combatBox('CA', personagem.ca, DESC_COMBATE.CA)}
+          ${combatBox('CA', derivados.ca ?? personagem.ca, (derivados.ca_detalhe ? derivados.ca_detalhe + '. ' : '') + DESC_COMBATE.CA)}
           ${combatBox('Iniciativa', sinal(derivados.iniciativa), DESC_COMBATE.Iniciativa)}
           ${combatBox('Deslocamento', esc(personagem.deslocamento || '—'), DESC_COMBATE.Deslocamento)}
           ${combatBox('Proficiência', sinal(derivados.bonus_proficiencia), DESC_COMBATE.Proficiência)}
@@ -96,8 +99,23 @@ function pintarFicha(view, personagem) {
             <input class="input" id="pv-delta" type="number" placeholder="valor" style="max-width:120px">
             <button class="btn btn--danger btn--sm" id="pv-dano">− Dano</button>
             <button class="btn btn--ghost btn--sm" id="pv-cura">+ Cura</button>
+            ${derivados.pv_sugerido ? `<button class="btn btn--ghost btn--sm" id="pv-calcular" title="Sugerir PV máximo por classe/nível/CON (d${derivados.dado_vida_classe})">🎲 Calcular PV (${derivados.pv_sugerido})</button>` : ''}
             <span class="chip">${personagem.dado_vida || ''}</span>
             ${personagem.inspiracao ? '<span class="badge">✨ Inspiração</span>' : ''}
+          </div>
+          <div class="row" style="margin-top:12px;gap:18px;flex-wrap:wrap;align-items:center">
+            <div title="Testes de resistência contra a morte">
+              <span class="muted" style="font-size:.78rem">Morte</span>
+              <span style="margin-left:6px">✅ ${[0, 1, 2].map((i) => `<span class="death-pip" data-morte="sucesso" data-i="${i}" style="cursor:pointer">${i < (personagem.mortes_sucesso || 0) ? '●' : '○'}</span>`).join('')}</span>
+              <span style="margin-left:8px">❌ ${[0, 1, 2].map((i) => `<span class="death-pip" data-morte="falha" data-i="${i}" style="cursor:pointer">${i < (personagem.mortes_falha || 0) ? '●' : '○'}</span>`).join('')}</span>
+            </div>
+            <div title="${esc(derivados.exaustao_efeito || 'Sem exaustão')}">
+              <span class="muted" style="font-size:.78rem">Exaustão</span>
+              <button class="btn btn--ghost btn--sm" id="exa-menos">−</button>
+              <b style="min-width:14px;display:inline-block;text-align:center">${personagem.exaustao || 0}</b>
+              <button class="btn btn--ghost btn--sm" id="exa-mais">+</button>
+              ${derivados.exaustao_efeito ? `<span class="chip" style="margin-left:6px">${esc(derivados.exaustao_efeito)}</span>` : ''}
+            </div>
           </div>
         </div>
 
@@ -122,7 +140,11 @@ function pintarFicha(view, personagem) {
               <button class="btn btn--gold btn--sm" id="gerenciar-equip">⚔️ Gerenciar / criar itens</button></div>
             <div id="resumo-equip" style="margin:10px 0"></div>
             ${blocoTexto(personagem.equipamento, 'Mochila vazia.')}
-            ${personagem.dinheiro ? `<div class="chip" style="margin-top:8px">💰 ${esc(personagem.dinheiro)}</div>` : ''}</div>
+            ${personagem.dinheiro ? `<div class="chip" style="margin-top:8px">💰 ${esc(personagem.dinheiro)}</div>` : ''}
+            <div class="row" style="gap:6px;margin-top:8px;flex-wrap:wrap">
+              ${['pc', 'pp', 'pe', 'po', 'pl'].filter((m) => (personagem.moedas || {})[m]).map((m) => `<span class="chip">${(personagem.moedas)[m]} ${m.toUpperCase()}</span>`).join('')}
+              ${derivados.total_po ? `<span class="chip" title="Total convertido em peças de ouro">≈ ${derivados.total_po} PO</span>` : ''}
+            </div></div>
           <div data-panel="tracos" style="display:none">
             <div class="spread"><h4 style="margin:0">🎴 Traços & Recursos</h4>
               <button class="btn btn--gold btn--sm" id="add-traco">+ Adicionar traço / aumento</button></div>
@@ -170,6 +192,19 @@ function pintarFicha(view, personagem) {
             ${campo('Aparência', personagem.aparencia)}
             ${campo('Aliados & Organizações', personagem.aliados)}
             ${campo('Tesouro', personagem.tesouro)}
+            <div class="spread" style="margin-top:8px"><h4 style="margin:0">🖼️ Galeria</h4>
+              <button class="btn btn--gold btn--sm" id="add-imagem">＋ Imagem</button></div>
+            <div class="row" style="gap:10px;flex-wrap:wrap;margin-top:8px" id="galeria">
+              ${(personagem.imagens || []).length ? personagem.imagens.map((img, i) => `
+                <div style="width:110px;text-align:center">
+                  <img src="${esc(img.url)}" alt="${esc(img.legenda || '')}" style="width:110px;height:110px;object-fit:cover;border-radius:8px;border:2px solid ${img.principal ? 'var(--gold)' : 'var(--gold-dim)'}">
+                  <div class="muted" style="font-size:.72rem">${esc(img.legenda || '—')}</div>
+                  <div class="row" style="justify-content:center;gap:2px;margin-top:2px">
+                    <button class="btn btn--ghost btn--sm" data-img-principal="${i}" title="Definir principal">${img.principal ? '★' : '☆'}</button>
+                    <button class="btn btn--ghost btn--sm" data-img-del="${i}" title="Remover">🗑️</button>
+                  </div>
+                </div>`).join('') : '<p class="muted">Nenhuma imagem. Use ＋ Imagem para enviar (corpo, rosto, cenas…).</p>'}
+            </div>
           </div>
           <div data-panel="historia" style="display:none">${blocoTexto(personagem.historia, 'História ainda não escrita.')}</div>
         </div>
@@ -191,10 +226,68 @@ function pintarFicha(view, personagem) {
       botao.disabled = false; botao.textContent = rotulo;
     }
   });
+  view.querySelector('#clonar').addEventListener('click', async (ev) => {
+    ev.currentTarget.disabled = true;
+    try {
+      const copia = await api.characters.clonar(personagem.id);
+      toast('Personagem clonado.'); navegar(`#/characters/${copia.id}`);
+    } catch (erro) { toast(erro.message, 'err'); ev.currentTarget.disabled = false; }
+  });
+  view.querySelector('#exportar-json').addEventListener('click', async () => {
+    try { await api.characters.exportar(personagem.id); toast('Ficha exportada (JSON).'); }
+    catch (erro) { toast(erro.message, 'err'); }
+  });
   view.querySelector('#editar').addEventListener('click', () => abrirEdicao(view, personagem));
   view.querySelector('#apagar').addEventListener('click', () => confirmarExclusao(personagem));
   view.querySelector('#pv-dano').addEventListener('click', () => ajustarPV(view, personagem, -1));
   view.querySelector('#pv-cura').addEventListener('click', () => ajustarPV(view, personagem, +1));
+  const btnPv = view.querySelector('#pv-calcular');
+  if (btnPv) btnPv.addEventListener('click', async () => {
+    const sugerido = derivados.pv_sugerido;
+    if (!confirm(`Definir PV máximo como ${sugerido} (d${derivados.dado_vida_classe}, nível, CON)? O PV atual será ajustado se estiver cheio.`)) return;
+    const cheio = (personagem.pv_atual || 0) >= (personagem.pv_max || 0);
+    const campos = { pv_max: sugerido };
+    if (cheio || !personagem.pv_atual) campos.pv_atual = sugerido;
+    try { pintarFicha(view, await api.characters.update(personagem.id, campos)); toast('PV calculado.'); }
+    catch (erro) { toast(erro.message, 'err'); }
+  });
+  // Estado (E31): pips de morte + exaustão
+  const salvarEstado = async (campos) => {
+    try { pintarFicha(view, await api.characters.update(personagem.id, campos)); }
+    catch (erro) { toast(erro.message, 'err'); }
+  };
+  view.querySelectorAll('[data-morte]').forEach((pip) => pip.addEventListener('click', () => {
+    const tipo = pip.dataset.morte, i = Number(pip.dataset.i);
+    const campo = tipo === 'sucesso' ? 'mortes_sucesso' : 'mortes_falha';
+    const atualValor = personagem[campo] || 0;
+    salvarEstado({ [campo]: atualValor === i + 1 ? i : i + 1 });
+  }));
+  view.querySelector('#exa-menos').addEventListener('click', () => salvarEstado({ exaustao: (personagem.exaustao || 0) - 1 }));
+  view.querySelector('#exa-mais').addEventListener('click', () => salvarEstado({ exaustao: (personagem.exaustao || 0) + 1 }));
+  // Galeria de imagens (E34)
+  view.querySelector('#add-imagem').addEventListener('click', () => {
+    const file = document.createElement('input');
+    file.type = 'file'; file.accept = 'image/png,image/jpeg,image/webp';
+    file.addEventListener('change', async () => {
+      if (!file.files[0]) return;
+      try {
+        const res = await api.upload(file.files[0]);
+        const legenda = prompt('Legenda da imagem (opcional):', '') || '';
+        const imagens = [...(personagem.imagens || []), { url: res.url, legenda, principal: !(personagem.imagens || []).length }];
+        salvarEstado({ imagens });
+      } catch (erro) { toast(erro.message, 'err'); }
+    });
+    file.click();
+  });
+  view.querySelectorAll('[data-img-principal]').forEach((b) => b.addEventListener('click', () => {
+    const idx = Number(b.dataset.imgPrincipal);
+    const imagens = (personagem.imagens || []).map((img, i) => ({ ...img, principal: i === idx }));
+    salvarEstado({ imagens });
+  }));
+  view.querySelectorAll('[data-img-del]').forEach((b) => b.addEventListener('click', () => {
+    const imagens = (personagem.imagens || []).filter((_, i) => i !== Number(b.dataset.imgDel));
+    salvarEstado({ imagens });
+  }));
   view.querySelector('#gerenciar-equip').addEventListener('click', () => gerenciarEquipamento(view, personagem));
   renderResumoEquip(view, personagem);
 
@@ -246,7 +339,28 @@ function pintarFicha(view, personagem) {
     }));
 }
 
+// Banner de revisão automática da ficha (E39): alertas (vermelho) e infos (âmbar).
+function revisaoBanner(revisao) {
+  const itens = revisao || [];
+  if (!itens.length) return '';
+  const alertas = itens.filter((a) => a.nivel === 'alerta');
+  const cor = alertas.length ? 'var(--red, #c5303a)' : 'var(--gold-dim, #b89b6a)';
+  const titulo = alertas.length ? `${alertas.length} alerta(s)` : `${itens.length} observação(ões)`;
+  return `<details class="card" style="margin-bottom:14px;border-left:4px solid ${cor}">
+    <summary style="cursor:pointer;font-weight:600">🔍 Revisão da ficha — ${titulo}</summary>
+    <ul style="margin:8px 0 0;padding-left:18px">
+      ${itens.map((a) => `<li style="color:${a.nivel === 'alerta' ? cor : 'var(--ink-soft, #a99e88)'}">${a.nivel === 'alerta' ? '⚠️' : 'ℹ️'} ${esc(a.msg)}</li>`).join('')}
+    </ul></details>`;
+}
+
 const ROTULO_RECARGA = { curto: 'descanso curto', longo: 'descanso longo', nenhum: 'sem recarga' };
+
+// Linha de uma classe de multiclasse no editor (slug + nível + remover).
+function mcRow(slug, nivel) {
+  return `<div class="field-inline" data-mc-row data-slug="${esc(slug)}" data-nivel="${Number(nivel) || 1}" style="gap:8px;align-items:center;margin-bottom:4px">
+    <span style="flex:1">${esc(slug)} <b>nível ${Number(nivel) || 1}</b></span>
+    <button type="button" class="btn btn--ghost btn--sm" data-mc-del>🗑️</button></div>`;
+}
 
 // Card de um recurso de classe (atual/máx + gastar/recuperar + editar/remover).
 function cardRecurso(r, i) {
@@ -577,6 +691,7 @@ function abrirEdicao(view, personagem) {
         </div>
         <div class="row" style="gap:10px">
           <div class="field" style="flex:1"><label>Raça</label><input class="input" name="raca_slug" value="${texto('', personagem.raca_slug)}"></div>
+          <div class="field" style="flex:1"><label>Sub-raça (slug)</label><input class="input" name="subraca_slug" value="${texto('', personagem.subraca_slug)}" placeholder="ex.: stout, high-elf"></div>
           <div class="field" style="flex:1"><label>Classe</label><input class="input" name="classe_slug" value="${texto('', personagem.classe_slug)}"></div>
           <div class="field" style="flex:1"><label>Antecedente</label><input class="input" name="antecedente_slug" value="${texto('', personagem.antecedente_slug)}"></div>
         </div>
@@ -623,7 +738,11 @@ function abrirEdicao(view, personagem) {
             <b data-asi-val="${k}" style="min-width:18px;text-align:center">${(personagem.bonus_atributos_manuais || {})[k] || 0}</b>
             <button type="button" class="btn btn--ghost btn--sm" data-asi-inc="${k}">+</button>
           </div>`).join('')}</div>
-        <div class="row" style="gap:10px">
+        <h4 style="margin-top:10px">Multiclasse</h4>
+        <p class="muted" style="margin:0 0 6px">Classes além da primária. O nível total ajusta o bônus de proficiência (salvaguardas vêm só da 1ª classe).</p>
+        <div id="mc-lista">${(personagem.classes_extras || []).map((c) => mcRow(c.slug, c.nivel)).join('')}</div>
+        <div class="row" style="gap:8px"><input class="input" id="mc-slug" placeholder="classe (slug, ex.: wizard)" style="flex:2"><input class="input" id="mc-nivel" type="number" min="1" value="1" style="flex:1"><button type="button" class="btn btn--ghost btn--sm" id="mc-add">+ Classe</button></div>
+        <div class="row" style="gap:10px;margin-top:10px">
           <div class="field" style="flex:1"><label>CA</label><input class="input" name="ca" type="number" value="${personagem.ca}"></div>
           <div class="field" style="flex:1"><label>Bônus Iniciativa</label><input class="input" name="iniciativa_bonus" type="number" value="${personagem.iniciativa_bonus || 0}"></div>
           <div class="field" style="flex:1"><label>Deslocamento</label><input class="input" name="deslocamento" value="${texto('', personagem.deslocamento)}"></div>
@@ -652,7 +771,11 @@ function abrirEdicao(view, personagem) {
         </div>
         <div class="field"><label>Ataques & Magias</label><textarea class="textarea" name="ataques">${texto('', personagem.ataques)}</textarea></div>
         <div class="field"><label>Equipamento & Inventário</label><textarea class="textarea" name="equipamento">${texto('', personagem.equipamento)}</textarea></div>
-        <div class="field"><label>Dinheiro</label><input class="input" name="dinheiro" value="${texto('', personagem.dinheiro)}"></div>
+        <div class="field"><label>Dinheiro (anotação livre)</label><input class="input" name="dinheiro" value="${texto('', personagem.dinheiro)}"></div>
+        <label>Moedas</label>
+        <div class="row" style="gap:8px">
+          ${['pc', 'pp', 'pe', 'po', 'pl'].map((m) => `<div class="field" style="flex:1"><label style="font-size:.7rem">${m.toUpperCase()}</label><input class="input" name="moeda_${m}" type="number" min="0" value="${(personagem.moedas || {})[m] || 0}"></div>`).join('')}
+        </div>
       </div>
 
       <div data-panel="e-rp" style="display:none">
@@ -704,6 +827,23 @@ function abrirEdicao(view, personagem) {
   }));
   conteudo.querySelector('[name=nivel]').addEventListener('input', atualizarAsi);
   atualizarAsi();
+  // Multiclasse: adicionar/remover classes extras
+  const mcLista = conteudo.querySelector('#mc-lista');
+  const ligarRemover = () => mcLista.querySelectorAll('[data-mc-del]').forEach((b) => {
+    b.onclick = () => b.closest('[data-mc-row]').remove();
+  });
+  ligarRemover();
+  conteudo.querySelector('#mc-add').addEventListener('click', () => {
+    const slug = conteudo.querySelector('#mc-slug').value.trim();
+    const nivel = Number(conteudo.querySelector('#mc-nivel').value) || 1;
+    if (!slug) { toast('Informe o slug da classe.', 'err'); return; }
+    mcLista.insertAdjacentHTML('beforeend', mcRow(slug, nivel));
+    conteudo.querySelector('#mc-slug').value = '';
+    ligarRemover();
+  });
+  const lerClassesExtras = () => Array.from(mcLista.querySelectorAll('[data-mc-row]')).map((r) => ({
+    slug: r.dataset.slug, nivel: Number(r.dataset.nivel) || 1,
+  }));
   // Botões de upload: dispara o seletor de arquivo, envia e preenche o campo de URL.
   const ligarUpload = (botaoId, fileId, campoId) => {
     const botao = conteudo.querySelector('#' + botaoId);
@@ -735,7 +875,8 @@ function abrirEdicao(view, personagem) {
     const payload = {
       nome: bruto.nome, nivel: Number(bruto.nivel), xp: Number(bruto.xp),
       nome_jogador: bruto.nome_jogador, tendencia: bruto.tendencia,
-      raca_slug: bruto.raca_slug, classe_slug: bruto.classe_slug, antecedente_slug: bruto.antecedente_slug,
+      raca_slug: bruto.raca_slug, subraca_slug: bruto.subraca_slug || null, classe_slug: bruto.classe_slug, antecedente_slug: bruto.antecedente_slug,
+      classes_extras: lerClassesExtras(),
       avatar_url: bruto.avatar_url,
       ca: Number(bruto.ca), iniciativa_bonus: Number(bruto.iniciativa_bonus),
       deslocamento: bruto.deslocamento,
@@ -745,6 +886,7 @@ function abrirEdicao(view, personagem) {
       outras_proficiencias: bruto.outras_proficiencias,
       classe_conjuradora: bruto.classe_conjuradora, atributo_conjuracao: bruto.atributo_conjuracao || null,
       ataques: bruto.ataques, equipamento: bruto.equipamento, dinheiro: bruto.dinheiro,
+      moedas: Object.fromEntries(['pc', 'pp', 'pe', 'po', 'pl'].map((m) => [m, Number(bruto[`moeda_${m}`]) || 0])),
       tracos_personalidade: bruto.tracos_personalidade, ideais: bruto.ideais, vinculos: bruto.vinculos,
       fraquezas: bruto.fraquezas, caracteristicas: bruto.caracteristicas, idiomas: bruto.idiomas,
       historia: bruto.historia, atributos,

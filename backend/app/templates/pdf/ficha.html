@@ -153,7 +153,10 @@
 
       {% if p.aparencia %}<div class="bloco"><h2>Aparência</h2><div class="texto">{{ p.aparencia }}</div></div>{% endif %}
       {% if p.aliados %}<div class="bloco"><h2>Aliados & Organizações</h2><div class="texto">{{ p.aliados }}</div></div>{% endif %}
-      {% if p.tesouro or p.dinheiro %}<div class="bloco"><h2>Tesouro</h2>{% if p.dinheiro %}<div><b>Moedas:</b> {{ p.dinheiro }}</div>{% endif %}{% if p.tesouro %}<div class="texto">{{ p.tesouro }}</div>{% endif %}</div>{% endif %}
+      {% if p.tesouro or p.dinheiro or p.moedas %}<div class="bloco"><h2>Tesouro</h2>
+        {% if p.moedas %}<div>{% for m in ['pc','pp','pe','po','pl'] %}{% if p.moedas.get(m) %}<span class="chip-pdf">{{ p.moedas[m] }} {{ m|upper }}</span> {% endif %}{% endfor %}</div>{% endif %}
+        {% if p.dinheiro %}<div><b>Moedas:</b> {{ p.dinheiro }}</div>{% endif %}
+        {% if p.tesouro %}<div class="texto">{{ p.tesouro }}</div>{% endif %}</div>{% endif %}
       {% if p.equipamento %}<div class="bloco"><h2>Equipamento</h2><div class="texto">{{ p.equipamento }}</div></div>{% endif %}
       {% if p.historia %}<div class="bloco"><h2>História</h2><div class="texto">{{ p.historia }}</div></div>{% endif %}
     </div>

@@ -104,6 +104,162 @@ def sanear_asi(pedido: dict, pontos_total: int, atributos_base: dict) -> dict:
 _RECARGAS_VALIDAS = ("curto", "longo", "nenhum")
 
 
+# Efeitos de exaustão por nível (SRD 5E), acumulativos na narrativa.
+NIVEIS_EXAUSTAO = [
+    "",                                                  # 0 — sem exaustão
+    "Desvantagem em testes de habilidade",               # 1
+    "Velocidade reduzida à metade",                      # 2
+    "Desvantagem em ataques e testes de resistência",    # 3
+    "PV máximo reduzido à metade",                       # 4
+    "Velocidade reduzida a 0",                           # 5
+    "Morte",                                             # 6
+]
+
+
+def clamp_morte(valor):
+    """Sucessos/falhas de morte ficam em [0, 3]."""
+    return _clamp(int(valor or 0), 0, 3)
+
+
+def clamp_exaustao(valor):
+    """Nível de exaustão fica em [0, 6]."""
+    return _clamp(int(valor or 0), 0, 6)
+
+
+def efeito_exaustao(nivel):
+    """Descrição do efeito do nível de exaustão atual (vazio no nível 0)."""
+    return NIVEIS_EXAUSTAO[clamp_exaustao(nivel)]
+
+
+# Moedas (E33): valor de cada tipo em PO. 1 PO = 100 PC = 10 PP = 2 PE = 0,1 PL.
+_MOEDAS_EM_PO = {"pc": 0.01, "pp": 0.1, "pe": 0.5, "po": 1.0, "pl": 10.0}
+
+
+def revisar_ficha(p, d):
+    """
+    'Lint' da ficha: devolve uma lista de {nivel: 'alerta'|'info', msg} com inconsistências.
+    `p` = subset dos campos do personagem; `d` = bloco de derivados já calculado.
+    """
+    avisos = []
+    def add(nivel, msg):
+        avisos.append({"nivel": nivel, "msg": msg})
+
+    pv_max = int(p.get("pv_max") or 0)
+    pv_atual = int(p.get("pv_atual") or 0)
+    if pv_max <= 0:
+        add("alerta", "PV máximo é 0 — defina ou use 'Calcular PV'.")
+    if pv_max > 0 and pv_atual > pv_max:
+        add("alerta", f"PV atual ({pv_atual}) é maior que o máximo ({pv_max}).")
+
+    if not p.get("classe_slug"):
+        add("info", "Sem classe definida.")
+    if not p.get("raca_slug"):
+        add("info", "Sem raça definida.")
+
+    for chave, valor in (d.get("atributos_final") or {}).items():
+        valor = int(valor)
+        if valor < 1 or valor > 30:
+            add("alerta", f"Atributo {chave.upper()} final fora do intervalo (1–30): {valor}.")
+        elif valor > 20:
+            add("info", f"Atributo {chave.upper()} acima de 20 ({valor}) — confira se é intencional.")
+
+    asi = d.get("asi") or {}
+    if int(asi.get("pontos_usados", 0)) > int(asi.get("pontos_total", 0)):
+        add("alerta", "Aumentos de Habilidade acima do orçamento do nível.")
+
+    if int(p.get("exaustao") or 0) >= 6:
+        add("alerta", "Exaustão nível 6 = morte.")
+
+    conj = p.get("atributo_conjuracao")
+    if conj and conj not in ATRIBUTOS:
+        add("alerta", f"Atributo de conjuração inválido: '{conj}'.")
+
+    invalidas = [s for s in (p.get("pericias_proficientes") or []) if s not in PERICIAS]
+    if invalidas:
+        add("alerta", f"Perícias desconhecidas: {', '.join(invalidas)}.")
+
+    return avisos
+
+
+def pv_sugerido(dado, nivel, con_mod):
+    """PV máximo sugerido (regra fixa 5E): 1º nível = dado+CON; demais = (dado/2+1)+CON cada."""
+    dado = int(dado or 8)
+    nivel = max(1, int(nivel or 1))
+    con = int(con_mod or 0)
+    por_nivel = dado // 2 + 1 + con
+    return max(1, (dado + con) + (nivel - 1) * por_nivel)
+
+
+def sanear_classes_extras(lista):
+    """Classes de multiclasse: só {slug não-vazio, nivel int >= 1}."""
+    limpas = []
+    for item in (lista or []):
+        if not isinstance(item, dict):
+            continue
+        slug = str(item.get("slug") or "").strip()
+        try:
+            nivel = int(item.get("nivel", 0) or 0)
+        except (TypeError, ValueError):
+            continue
+        if slug and nivel >= 1:
+            limpas.append({"slug": slug, "nivel": nivel})
+    return limpas
+
+
+def nivel_total(nivel, classes_extras):
+    """Nível total do personagem (primário + classes de multiclasse), 1..20."""
+    total = int(nivel or 1) + sum(int(c.get("nivel", 0) or 0) for c in (classes_extras or []))
+    return _clamp(total, 1, 20)
+
+
+def sanear_imagens(lista):
+    """Valida a galeria: cada item precisa de `url`; no máximo uma `principal` (a 1ª marcada vence)."""
+    limpas = []
+    ja_tem_principal = False
+    for item in (lista or []):
+        if not isinstance(item, dict):
+            continue
+        url = str(item.get("url") or "").strip()
+        if not url:
+            continue
+        principal = bool(item.get("principal")) and not ja_tem_principal
+        if principal:
+            ja_tem_principal = True
+        limpas.append({"url": url, "legenda": str(item.get("legenda") or ""), "principal": principal})
+    return limpas
+
+
+def sanear_moedas(d):
+    """Filtra a bolsa de moedas: só pc/pp/pe/po/pl, inteiros >= 0 (negativos viram 0)."""
+    limpo = {}
+    for chave in _MOEDAS_EM_PO:
+        if chave in (d or {}):
+            try:
+                limpo[chave] = max(0, int(d[chave] or 0))
+            except (TypeError, ValueError):
+                continue
+    return limpo
+
+
+def moedas_total_po(d):
+    """Total das moedas convertido em PO (peças de ouro)."""
+    total = sum(_MOEDAS_EM_PO[k] * int((d or {}).get(k, 0) or 0) for k in _MOEDAS_EM_PO)
+    return round(total, 2)
+
+
+def ca_sem_armadura(classe_slug, mods):
+    """
+    CA da Defesa sem Armadura por classe (None se a classe não tem a feature):
+    Bárbaro = 10 + DES + CON; Monge = 10 + DES + SAB.
+    """
+    slug = (classe_slug or "").strip().lower()
+    if slug == "barbarian":
+        return 10 + int(mods.get("des", 0)) + int(mods.get("con", 0))
+    if slug == "monk":
+        return 10 + int(mods.get("des", 0)) + int(mods.get("sab", 0))
+    return None
+
+
 def sanear_recursos(lista) -> list:
     """Valida/clampa uma lista de recursos de classe: nome não-vazio, max>=0, atual em [0,max]."""
     limpos = []

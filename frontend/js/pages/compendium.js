@@ -25,6 +25,11 @@ function podeEditar() {
   return u && (u.role === 'MESTRE' || u.role === 'ADMIN');
 }
 
+function ehAdmin() {
+  const u = getUser();
+  return u && u.role === 'ADMIN';
+}
+
 // Rótulo do toggle: destaca o idioma ativo (PT por padrão).
 function idiomaRotulo() {
   const pt = getIdioma() === 'pt';
@@ -115,12 +120,20 @@ function detalhe(t, item, aoMudar) {
     <div class="spread"><h2 style="margin:0">${esc(item.nome)}</h2>${selo(item)}</div>
     <div style="margin-top:10px">${corpo}</div>
     <div class="row" style="justify-content:flex-end;margin-top:14px">
+      ${ehAdmin() && item.homebrew && t.crud ? '<button class="btn btn--gold btn--sm" id="oficializar">✔️ Tornar Oficial</button>' : ''}
       ${editavel ? `<button class="btn btn--gold btn--sm" id="editar">✏️ ${item.homebrew ? 'Editar' : 'Criar variante'}</button>` : ''}
       ${editavel && item.homebrew ? '<button class="btn btn--danger btn--sm" id="excluir">🗑️ Excluir</button>' : ''}
       <button class="btn btn--ghost" id="fechar">Fechar</button>
     </div></div>`);
   const fechar = modal(conteudo);
   conteudo.querySelector('#fechar').addEventListener('click', fechar);
+  const of = conteudo.querySelector('#oficializar');
+  if (of) of.addEventListener('click', async () => {
+    const fonte = prompt('Fonte oficial (deixe vazio p/ manter a atual):', item.fonte || 'SRD 5.1');
+    if (fonte === null) return;  // cancelou
+    try { await api.reference.oficializar(t.tipo, item.slug, fonte.trim()); toast('Conteúdo oficializado.'); fechar(); aoMudar(); }
+    catch (erro) { toast(erro.message, 'err'); }
+  });
   const ed = conteudo.querySelector('#editar');
   if (ed) ed.addEventListener('click', () => { fechar(); formulario(t, item, aoMudar); });
   const ex = conteudo.querySelector('#excluir');
