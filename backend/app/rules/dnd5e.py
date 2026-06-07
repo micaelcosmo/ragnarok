@@ -135,6 +135,28 @@ def efeito_exaustao(nivel):
 _MOEDAS_EM_PO = {"pc": 0.01, "pp": 0.1, "pe": 0.5, "po": 1.0, "pl": 10.0}
 
 
+def sanear_classes_extras(lista):
+    """Classes de multiclasse: só {slug não-vazio, nivel int >= 1}."""
+    limpas = []
+    for item in (lista or []):
+        if not isinstance(item, dict):
+            continue
+        slug = str(item.get("slug") or "").strip()
+        try:
+            nivel = int(item.get("nivel", 0) or 0)
+        except (TypeError, ValueError):
+            continue
+        if slug and nivel >= 1:
+            limpas.append({"slug": slug, "nivel": nivel})
+    return limpas
+
+
+def nivel_total(nivel, classes_extras):
+    """Nível total do personagem (primário + classes de multiclasse), 1..20."""
+    total = int(nivel or 1) + sum(int(c.get("nivel", 0) or 0) for c in (classes_extras or []))
+    return _clamp(total, 1, 20)
+
+
 def sanear_imagens(lista):
     """Valida a galeria: cada item precisa de `url`; no máximo uma `principal` (a 1ª marcada vence)."""
     limpas = []

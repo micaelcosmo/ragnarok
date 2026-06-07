@@ -101,6 +101,10 @@ def _aplicar_campos(personagem, dados):
     if "imagens" in dados and isinstance(dados["imagens"], list):
         personagem.imagens = _regras.sanear_imagens(dados["imagens"])
 
+    # Multiclasse (E35).
+    if "classes_extras" in dados and isinstance(dados["classes_extras"], list):
+        personagem.classes_extras = _regras.sanear_classes_extras(dados["classes_extras"])
+
 
 @bp.get("/characters")
 @auth_required

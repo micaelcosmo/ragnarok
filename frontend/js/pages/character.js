@@ -51,11 +51,11 @@ function pintarFicha(view, personagem) {
           : `<span class="sheet-portrait">${iniciais(personagem.nome)}</span>`}
         <div style="flex:1">
           <div class="sh-name" style="font-family:var(--font-title)">${esc(personagem.nome)}</div>
-          <div>${esc([[personagem.raca_slug, derivados.subraca && derivados.subraca.nome].filter(Boolean).join(' '), personagem.classe_slug, personagem.antecedente_slug].filter(Boolean).join(' · ') || 'Aventureiro')}</div>
+          <div>${esc([[personagem.raca_slug, derivados.subraca && derivados.subraca.nome].filter(Boolean).join(' '), ((derivados.classes || []).length > 1 ? derivados.classes.map((c) => `${c.slug} ${c.nivel}`).join(' / ') : personagem.classe_slug), personagem.antecedente_slug].filter(Boolean).join(' · ') || 'Aventureiro')}</div>
           <div class="muted">${esc(personagem.tendencia || '')} ${personagem.nome_jogador ? '· Jogador: ' + esc(personagem.nome_jogador) : ''}</div>
         </div>
         <div style="text-align:center">
-          <div class="badge" style="font-size:1rem">Nível ${personagem.nivel}</div>
+          <div class="badge" style="font-size:1rem">Nível ${derivados.nivel_total || personagem.nivel}${(derivados.nivel_total && derivados.nivel_total !== personagem.nivel) ? ' <span class="muted" style="font-size:.7rem">(total)</span>' : ''}</div>
           <div class="muted" style="margin-top:6px">${personagem.xp} XP</div>
         </div>
       </div>
@@ -315,6 +315,13 @@ function pintarFicha(view, personagem) {
 }
 
 const ROTULO_RECARGA = { curto: 'descanso curto', longo: 'descanso longo', nenhum: 'sem recarga' };
+
+// Linha de uma classe de multiclasse no editor (slug + nível + remover).
+function mcRow(slug, nivel) {
+  return `<div class="field-inline" data-mc-row data-slug="${esc(slug)}" data-nivel="${Number(nivel) || 1}" style="gap:8px;align-items:center;margin-bottom:4px">
+    <span style="flex:1">${esc(slug)} <b>nível ${Number(nivel) || 1}</b></span>
+    <button type="button" class="btn btn--ghost btn--sm" data-mc-del>🗑️</button></div>`;
+}
 
 // Card de um recurso de classe (atual/máx + gastar/recuperar + editar/remover).
 function cardRecurso(r, i) {
@@ -692,7 +699,11 @@ function abrirEdicao(view, personagem) {
             <b data-asi-val="${k}" style="min-width:18px;text-align:center">${(personagem.bonus_atributos_manuais || {})[k] || 0}</b>
             <button type="button" class="btn btn--ghost btn--sm" data-asi-inc="${k}">+</button>
           </div>`).join('')}</div>
-        <div class="row" style="gap:10px">
+        <h4 style="margin-top:10px">Multiclasse</h4>
+        <p class="muted" style="margin:0 0 6px">Classes além da primária. O nível total ajusta o bônus de proficiência (salvaguardas vêm só da 1ª classe).</p>
+        <div id="mc-lista">${(personagem.classes_extras || []).map((c) => mcRow(c.slug, c.nivel)).join('')}</div>
+        <div class="row" style="gap:8px"><input class="input" id="mc-slug" placeholder="classe (slug, ex.: wizard)" style="flex:2"><input class="input" id="mc-nivel" type="number" min="1" value="1" style="flex:1"><button type="button" class="btn btn--ghost btn--sm" id="mc-add">+ Classe</button></div>
+        <div class="row" style="gap:10px;margin-top:10px">
           <div class="field" style="flex:1"><label>CA</label><input class="input" name="ca" type="number" value="${personagem.ca}"></div>
           <div class="field" style="flex:1"><label>Bônus Iniciativa</label><input class="input" name="iniciativa_bonus" type="number" value="${personagem.iniciativa_bonus || 0}"></div>
           <div class="field" style="flex:1"><label>Deslocamento</label><input class="input" name="deslocamento" value="${texto('', personagem.deslocamento)}"></div>
@@ -777,6 +788,23 @@ function abrirEdicao(view, personagem) {
   }));
   conteudo.querySelector('[name=nivel]').addEventListener('input', atualizarAsi);
   atualizarAsi();
+  // Multiclasse: adicionar/remover classes extras
+  const mcLista = conteudo.querySelector('#mc-lista');
+  const ligarRemover = () => mcLista.querySelectorAll('[data-mc-del]').forEach((b) => {
+    b.onclick = () => b.closest('[data-mc-row]').remove();
+  });
+  ligarRemover();
+  conteudo.querySelector('#mc-add').addEventListener('click', () => {
+    const slug = conteudo.querySelector('#mc-slug').value.trim();
+    const nivel = Number(conteudo.querySelector('#mc-nivel').value) || 1;
+    if (!slug) { toast('Informe o slug da classe.', 'err'); return; }
+    mcLista.insertAdjacentHTML('beforeend', mcRow(slug, nivel));
+    conteudo.querySelector('#mc-slug').value = '';
+    ligarRemover();
+  });
+  const lerClassesExtras = () => Array.from(mcLista.querySelectorAll('[data-mc-row]')).map((r) => ({
+    slug: r.dataset.slug, nivel: Number(r.dataset.nivel) || 1,
+  }));
   // Botões de upload: dispara o seletor de arquivo, envia e preenche o campo de URL.
   const ligarUpload = (botaoId, fileId, campoId) => {
     const botao = conteudo.querySelector('#' + botaoId);
@@ -809,6 +837,7 @@ function abrirEdicao(view, personagem) {
       nome: bruto.nome, nivel: Number(bruto.nivel), xp: Number(bruto.xp),
       nome_jogador: bruto.nome_jogador, tendencia: bruto.tendencia,
       raca_slug: bruto.raca_slug, subraca_slug: bruto.subraca_slug || null, classe_slug: bruto.classe_slug, antecedente_slug: bruto.antecedente_slug,
+      classes_extras: lerClassesExtras(),
       avatar_url: bruto.avatar_url,
       ca: Number(bruto.ca), iniciativa_bonus: Number(bruto.iniciativa_bonus),
       deslocamento: bruto.deslocamento,

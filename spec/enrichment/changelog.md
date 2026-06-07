@@ -1,5 +1,14 @@
 # Changelog — Enriquecimento
 
+## [E35 — Multiclasse]
+### feat
+- Personagem: `classes_extras` (JSON [{slug, nivel}]) + migração Alembic.
+- `dnd5e.sanear_classes_extras` + `nivel_total`; construtor usa o **nível total** (bônus de
+  proficiência correto) e dobra efeitos das classes extras **sem** duplicar salvaguardas (5E: só da 1ª).
+- `derivados.nivel_total` + `derivados.classes`. API aceita `classes_extras`; editor com seção
+  Multiclasse; cabeçalho mostra "Classe N / Outra M · nível total T".
+- +N testes. Unit: `planning/multiclasse.md`.
+
 ## [E34 — Galeria de imagens do personagem]
 ### feat
 - Personagem: campo `imagens` (JSON lista {url, legenda, principal}) + migração Alembic.

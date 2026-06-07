@@ -18,6 +18,8 @@ class Personagem(TimestampMixin, db.Model):
     raca_slug = db.Column(db.String(60), nullable=True)
     subraca_slug = db.Column(db.String(60), nullable=True)
     classe_slug = db.Column(db.String(60), nullable=True)
+    # Multiclasse (E35): classes além da primária. [{slug, nivel}].
+    classes_extras = db.Column(db.JSON, default=list)
     antecedente_slug = db.Column(db.String(60), nullable=True)
     tendencia = db.Column(db.String(40), nullable=True)
     nivel = db.Column(db.Integer, default=1, nullable=False)
@@ -138,6 +140,7 @@ class Personagem(TimestampMixin, db.Model):
             "raca_slug": self.raca_slug,
             "subraca_slug": self.subraca_slug,
             "classe_slug": self.classe_slug,
+            "classes_extras": self.classes_extras or [],
             "antecedente_slug": self.antecedente_slug,
             "tendencia": self.tendencia,
             "nivel": self.nivel,

@@ -30,6 +30,11 @@ class ConstrutorDeFicha:
             classe = Classe.query.filter_by(slug=self.personagem.classe_slug).first()
             if classe and classe.efeitos:
                 fontes.append(classe.efeitos)
+        # Multiclasse (E35): efeitos das classes extras, SEM as salvaguardas (5E: só da 1ª classe).
+        for extra in (self.personagem.classes_extras or []):
+            classe_x = Classe.query.filter_by(slug=extra.get("slug")).first()
+            if classe_x and classe_x.efeitos:
+                fontes.append({k: v for k, v in classe_x.efeitos.items() if k != "salvaguardas"})
         if self.personagem.antecedente_slug:
             antecedente = Antecedente.query.filter_by(slug=self.personagem.antecedente_slug).first()
             if antecedente and antecedente.efeitos:
@@ -126,6 +131,16 @@ class ConstrutorDeFicha:
                 })
         return cards
 
+    def _classes_lista(self):
+        """Lista [{slug, nivel}] com a classe primária + as de multiclasse."""
+        classes = []
+        if self.personagem.classe_slug:
+            classes.append({"slug": self.personagem.classe_slug, "nivel": int(self.personagem.nivel or 1)})
+        for extra in (self.personagem.classes_extras or []):
+            if isinstance(extra, dict) and extra.get("slug"):
+                classes.append({"slug": extra["slug"], "nivel": int(extra.get("nivel", 1) or 1)})
+        return classes
+
     def _imagem_principal(self):
         """URL da imagem marcada como principal na galeria; senão o retrato (avatar_url)."""
         for img in (self.personagem.imagens or []):
@@ -151,14 +166,17 @@ class ConstrutorDeFicha:
         }
         final = ef.aplicar(base, self._fontes_efeitos())
 
+        nivel_total = dnd5e.nivel_total(personagem.nivel, personagem.classes_extras)
         derivado = dnd5e.ficha_derivada(
             final["atributos"],
-            personagem.nivel,
+            nivel_total,
             pericias_proficientes=final["pericias_proficientes"],
             salvaguardas_proficientes=final["salvaguardas_proficientes"],
             atributo_conjuracao=personagem.atributo_conjuracao,
             iniciativa_bonus_extra=final["iniciativa_extra"],
         )
+        derivado["nivel_total"] = nivel_total
+        derivado["classes"] = self._classes_lista()
 
         mods = derivado["modificadores"]
         bp = derivado["bonus_proficiencia"]
