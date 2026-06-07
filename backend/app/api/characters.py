@@ -93,6 +93,10 @@ def _aplicar_campos(personagem, dados):
     if "exaustao" in dados:
         personagem.exaustao = _regras.clamp_exaustao(dados["exaustao"])
 
+    # Moedas estruturadas (E33).
+    if "moedas" in dados and isinstance(dados["moedas"], dict):
+        personagem.moedas = _regras.sanear_moedas(dados["moedas"])
+
 
 @bp.get("/characters")
 @auth_required

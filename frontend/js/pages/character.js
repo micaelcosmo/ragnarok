@@ -136,7 +136,11 @@ function pintarFicha(view, personagem) {
               <button class="btn btn--gold btn--sm" id="gerenciar-equip">⚔️ Gerenciar / criar itens</button></div>
             <div id="resumo-equip" style="margin:10px 0"></div>
             ${blocoTexto(personagem.equipamento, 'Mochila vazia.')}
-            ${personagem.dinheiro ? `<div class="chip" style="margin-top:8px">💰 ${esc(personagem.dinheiro)}</div>` : ''}</div>
+            ${personagem.dinheiro ? `<div class="chip" style="margin-top:8px">💰 ${esc(personagem.dinheiro)}</div>` : ''}
+            <div class="row" style="gap:6px;margin-top:8px;flex-wrap:wrap">
+              ${['pc', 'pp', 'pe', 'po', 'pl'].filter((m) => (personagem.moedas || {})[m]).map((m) => `<span class="chip">${(personagem.moedas)[m]} ${m.toUpperCase()}</span>`).join('')}
+              ${derivados.total_po ? `<span class="chip" title="Total convertido em peças de ouro">≈ ${derivados.total_po} PO</span>` : ''}
+            </div></div>
           <div data-panel="tracos" style="display:none">
             <div class="spread"><h4 style="margin:0">🎴 Traços & Recursos</h4>
               <button class="btn btn--gold btn--sm" id="add-traco">+ Adicionar traço / aumento</button></div>
@@ -680,7 +684,11 @@ function abrirEdicao(view, personagem) {
         </div>
         <div class="field"><label>Ataques & Magias</label><textarea class="textarea" name="ataques">${texto('', personagem.ataques)}</textarea></div>
         <div class="field"><label>Equipamento & Inventário</label><textarea class="textarea" name="equipamento">${texto('', personagem.equipamento)}</textarea></div>
-        <div class="field"><label>Dinheiro</label><input class="input" name="dinheiro" value="${texto('', personagem.dinheiro)}"></div>
+        <div class="field"><label>Dinheiro (anotação livre)</label><input class="input" name="dinheiro" value="${texto('', personagem.dinheiro)}"></div>
+        <label>Moedas</label>
+        <div class="row" style="gap:8px">
+          ${['pc', 'pp', 'pe', 'po', 'pl'].map((m) => `<div class="field" style="flex:1"><label style="font-size:.7rem">${m.toUpperCase()}</label><input class="input" name="moeda_${m}" type="number" min="0" value="${(personagem.moedas || {})[m] || 0}"></div>`).join('')}
+        </div>
       </div>
 
       <div data-panel="e-rp" style="display:none">
@@ -773,6 +781,7 @@ function abrirEdicao(view, personagem) {
       outras_proficiencias: bruto.outras_proficiencias,
       classe_conjuradora: bruto.classe_conjuradora, atributo_conjuracao: bruto.atributo_conjuracao || null,
       ataques: bruto.ataques, equipamento: bruto.equipamento, dinheiro: bruto.dinheiro,
+      moedas: Object.fromEntries(['pc', 'pp', 'pe', 'po', 'pl'].map((m) => [m, Number(bruto[`moeda_${m}`]) || 0])),
       tracos_personalidade: bruto.tracos_personalidade, ideais: bruto.ideais, vinculos: bruto.vinculos,
       fraquezas: bruto.fraquezas, caracteristicas: bruto.caracteristicas, idiomas: bruto.idiomas,
       historia: bruto.historia, atributos,

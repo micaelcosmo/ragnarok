@@ -162,6 +162,7 @@ class ConstrutorDeFicha:
         derivado["atributos_final"] = final["atributos"]
         derivado["asi"] = self._asi()
         derivado["exaustao_efeito"] = dnd5e.efeito_exaustao(personagem.exaustao)
+        derivado["total_po"] = dnd5e.moedas_total_po(personagem.moedas)
         derivado["subraca"] = self._subraca_info()
         derivado["tracos_ativos"] = self._tracos_ativos()
         derivado["concedido"] = final["concedido"]

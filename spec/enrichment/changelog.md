@@ -1,5 +1,13 @@
 # Changelog — Enriquecimento
 
+## [E33 — Moedas por tipo]
+### feat
+- Personagem: campo `moedas` (JSON {pc,pp,pe,po,pl}) + migração Alembic (mantém `dinheiro` texto).
+- `dnd5e.sanear_moedas` (clamp ≥0) e `moedas_total_po` (conversão p/ PO). API aceita `moedas`;
+  `derivados.total_po`.
+- Frontend: 5 inputs de moeda no editor + chips na ficha (e total ≈ X PO); PDF mostra as moedas.
+- +N testes. Unit: `planning/moedas-tipo.md`.
+
 ## [E32 — Admin marca conteúdo como OFICIAL]
 ### feat
 - `POST /reference/<tipo>/<slug>/oficializar` (ADMIN): promove homebrew → oficial (`homebrew=False`,

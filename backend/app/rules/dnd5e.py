@@ -131,6 +131,28 @@ def efeito_exaustao(nivel):
     return NIVEIS_EXAUSTAO[clamp_exaustao(nivel)]
 
 
+# Moedas (E33): valor de cada tipo em PO. 1 PO = 100 PC = 10 PP = 2 PE = 0,1 PL.
+_MOEDAS_EM_PO = {"pc": 0.01, "pp": 0.1, "pe": 0.5, "po": 1.0, "pl": 10.0}
+
+
+def sanear_moedas(d):
+    """Filtra a bolsa de moedas: só pc/pp/pe/po/pl, inteiros >= 0 (negativos viram 0)."""
+    limpo = {}
+    for chave in _MOEDAS_EM_PO:
+        if chave in (d or {}):
+            try:
+                limpo[chave] = max(0, int(d[chave] or 0))
+            except (TypeError, ValueError):
+                continue
+    return limpo
+
+
+def moedas_total_po(d):
+    """Total das moedas convertido em PO (peças de ouro)."""
+    total = sum(_MOEDAS_EM_PO[k] * int((d or {}).get(k, 0) or 0) for k in _MOEDAS_EM_PO)
+    return round(total, 2)
+
+
 def ca_sem_armadura(classe_slug, mods):
     """
     CA da Defesa sem Armadura por classe (None se a classe não tem a feature):
