@@ -1,17 +1,18 @@
-<!DOCTYPE html><html lang="pt-br"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="refresh" content="15"><title>Ragnarok — Favoritos do roadmap ✓</title>
-<style>body{margin:0;background:#0f0d0b;color:#e8e2d4;font-family:system-ui,sans-serif;padding:18px;line-height:1.5}h1{color:#d4af37;font-size:1.2rem;margin:.2rem 0}.sub{color:#a99e88;font-size:.85rem;margin-bottom:14px}.now{background:linear-gradient(180deg,rgba(76,154,94,.18),transparent);border:1px solid rgba(76,154,94,.35);border-radius:12px;padding:14px;margin-bottom:14px}.dim{color:#a99e88;font-size:.72rem;letter-spacing:.08em}.ep{border:1px solid rgba(76,154,94,.25);border-radius:10px;padding:10px 12px;margin-bottom:9px;background:#161b15}.ep h3{margin:0 0 4px;font-size:.95rem;color:#bfe6c8}.ep p{margin:0;font-size:.82rem;color:#cfc9ba}.b{font-size:.62rem;font-weight:700;padding:1px 7px;border-radius:99px;background:rgba(76,154,94,.22);color:#bfe6c8}.foot{color:#7d7666;font-size:.74rem;margin-top:12px}</style></head><body>
-<h1>⭐ Favoritos do roadmap — 3/3 em produção ✓</h1>
-<div class="sub">Cada épico: spec → teste → código → DEV → backup → deploy → smoke → review → changelog → PR</div>
-<div class="now"><div class="dim">SEQUÊNCIA CONCLUÍDA ✓</div><div style="font-size:1.05rem">E26 + E27 + E28 no ar. <b>124 testes</b>. PRs #8, #9 e #10 abertas pra aprovar.</div></div>
-
-<div class="ep"><h3><span class="b">✓ PROD</span> 🎯 E26 — Aumentos de Habilidade (ASI) por nível</h3>
-<p>Pool reversível (4/8/12/16/19 → +2), clampada no servidor (teto 20), seção +/- no editor. Migração a1c2e3f. PR #8.</p></div>
-
-<div class="ep"><h3><span class="b">✓ PROD</span> ⚔️ E27 — Recursos de classe com usos</h3>
-<p>Fúria/Dados de Vida/Inspiração com atual/máx; descanso curto/longo (longo restaura PV); painel na ficha. Migração b2d3f40. PR #9.</p></div>
-
-<div class="ep"><h3><span class="b">✓ PROD</span> 🌐 E28 — Toggle EN/PT na UI</h3>
-<p>Botão 🌐 PT|EN no compêndio: "Greataxe"↔"Machado Grande", "Chain mail"↔"Cota de Malha". Sem migração. PR #10.</p></div>
-
-<div class="foot">Próximo: sub-raças aplicando efeitos · defesa sem armadura automática · testes de morte/exaustão · admin marca OFICIAL.</div>
-<script>setTimeout(()=>location.reload(),15000)</script></body></html>
+<!DOCTYPE html><html lang="pt-br"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="refresh" content="12"><title>Ragnarok — Lote noturno (11 features)</title>
+<style>body{margin:0;background:#0f0d0b;color:#e8e2d4;font-family:system-ui,sans-serif;padding:16px;line-height:1.45}h1{color:#d4af37;font-size:1.15rem;margin:.2rem 0}.sub{color:#a99e88;font-size:.8rem;margin-bottom:12px}.now{background:linear-gradient(180deg,rgba(197,48,58,.18),transparent);border:1px solid rgba(212,175,55,.3);border-radius:12px;padding:12px;margin-bottom:12px}.dim{color:#a99e88;font-size:.7rem;letter-spacing:.08em}.row{display:flex;align-items:center;gap:8px;font-size:.84rem;padding:3px 0;border-bottom:1px solid rgba(212,175,55,.08)}.b{font-size:.6rem;font-weight:700;padding:1px 7px;border-radius:99px;white-space:nowrap;min-width:74px;text-align:center}.do{background:rgba(212,175,55,.2);color:#ffe9b0}.wait{background:rgba(0,0,0,.25);color:#8a8170}.ok{background:rgba(76,154,94,.22);color:#bfe6c8}.pulse{animation:p 1.1s ease-in-out infinite}@keyframes p{0%,100%{opacity:1}50%{opacity:.45}}.tag{font-size:.62rem;color:#a99e88}.foot{color:#7d7666;font-size:.72rem;margin-top:10px}</style></head><body>
+<h1>🌙 Lote noturno — 11 novas features (auto mode)</h1>
+<div class="sub">7 aprovadas + 4 minhas (agilizar ficha). Cada uma: planning→teste→código→DEV→backup→deploy→smoke→review→PR. Só paro no fim.</div>
+<div class="now"><div class="dim">FAZENDO AGORA</div><div style="font-size:1rem" id="ag"><span class="pulse">⏳</span> E30 — Defesa sem armadura automática · spec</div><div class="dim" id="cont">1/11 concluídas · E29 em prod (PR aberta)</div></div>
+<div class="row"><span class="b ok" id="s29">✓ prod</span> E29 · Sub-raças aplicando efeitos <span class="tag">126 testes · PR</span></div>
+<div class="row"><span class="b do pulse" id="s30">⏳ fazendo</span> E30 · Defesa sem armadura automática (Bárbaro/Monge)</div>
+<div class="row"><span class="b wait" id="s31">fila</span> E31 · Testes de morte + exaustão <span class="tag">migração</span></div>
+<div class="row"><span class="b wait" id="s32">fila</span> E32 · Admin marca conteúdo como OFICIAL</div>
+<div class="row"><span class="b wait" id="s33">fila</span> E33 · Moedas por tipo (PC/PE/PP/PO/PL) <span class="tag">migração</span></div>
+<div class="row"><span class="b wait" id="s34">fila</span> E34 · Galeria de imagens do personagem <span class="tag">migração</span></div>
+<div class="row"><span class="b wait" id="s35">fila</span> E35 · Multiclasse <span class="tag">migração</span></div>
+<div class="row"><span class="b wait" id="s36">fila</span> E36 · ⭐ Clonar personagem</div>
+<div class="row"><span class="b wait" id="s37">fila</span> E37 · ⭐ Exportar/Importar ficha (JSON)</div>
+<div class="row"><span class="b wait" id="s38">fila</span> E38 · ⭐ Cálculo automático de PV</div>
+<div class="row"><span class="b wait" id="s39">fila</span> E39 · ⭐ Revisão automática da ficha (lint)</div>
+<div class="foot">Atualiza sozinho a cada 12s. PRs ficam abertas pro Micael aprovar ao acordar.</div>
+<script>setTimeout(()=>location.reload(),12000)</script></body></html>
