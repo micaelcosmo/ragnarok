@@ -44,6 +44,22 @@ def test_endpoint_catalog_idioma_pt(client, app, make_user, auth):
     assert club["nome"] == "Clava"
 
 
+def test_endpoint_reference_armor_idioma_pt(client, app, make_user, auth):
+    """O compêndio usa /reference/armor; o toggle EN/PT deve traduzir armaduras importadas."""
+    from app.models.items import Armadura
+
+    with app.app_context():
+        db.session.add(Armadura(slug="chain-mail", nome="Chain Mail", descricao="Heavy armor.",
+                                fonte="SRD", homebrew=False, idioma="en"))
+        db.session.add(Traducao(tipo="armor", slug="chain-mail", campo="nome", idioma="pt", texto="Cota de Malha"))
+        db.session.commit()
+    _u, token = make_user()
+    en = client.get("/api/v1/reference/armor", headers=auth(token)).get_json()["data"]
+    pt = client.get("/api/v1/reference/armor?idioma=pt", headers=auth(token)).get_json()["data"]
+    assert next(a for a in en if a["slug"] == "chain-mail")["nome"] == "Chain Mail"
+    assert next(a for a in pt if a["slug"] == "chain-mail")["nome"] == "Cota de Malha"
+
+
 def test_seed_traducoes_idempotente(app):
     """O de-para PT curado é semeado uma vez e re-rodar não duplica (idempotente)."""
     from app.seed import SeedRunner

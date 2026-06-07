@@ -38,7 +38,8 @@
 | E24 | Tradução PT de armas/armaduras (de-para curado offline + cache) | ✅ (em prod) |
 | E25 | Exportar ficha em PDF (estilo oficial 5E, WeasyPrint) | ✅ (em prod) |
 | E26 | Aumentos de Habilidade (ASI) por nível — pool reversível | ✅ (em prod) |
-| E27 | Recursos de classe com usos (Fúria/Dados de Vida) + descanso | 🔄 em andamento |
+| E27 | Recursos de classe com usos (Fúria/Dados de Vida) + descanso | ✅ (em prod) |
+| E28 | Toggle EN/PT na UI (i18n visual do compêndio) | ✅ (em prod) |
 
 ---
 
