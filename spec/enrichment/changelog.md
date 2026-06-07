@@ -1,5 +1,13 @@
 # Changelog — Enriquecimento
 
+## [E34 — Galeria de imagens do personagem]
+### feat
+- Personagem: campo `imagens` (JSON lista {url, legenda, principal}) + migração Alembic.
+- `dnd5e.sanear_imagens` (url obrigatória, no máx. 1 principal); API aceita `imagens`;
+  `derivados.imagem_principal` (principal ou avatar_url de fallback).
+- Frontend: galeria na aba Identidade (upload, definir principal ★, legenda, remover); ao vivo.
+- +N testes. Unit: `planning/galeria-imagens.md`.
+
 ## [E33 — Moedas por tipo]
 ### feat
 - Personagem: campo `moedas` (JSON {pc,pp,pe,po,pl}) + migração Alembic (mantém `dinheiro` texto).

@@ -62,6 +62,8 @@ class Personagem(TimestampMixin, db.Model):
     exaustao = db.Column(db.Integer, default=0)
     # Moedas estruturadas (E33): {pc, pp, pe, po, pl}. `dinheiro` (texto) segue para anotações.
     moedas = db.Column(db.JSON, default=dict)
+    # Galeria de imagens (E34): [{url, legenda, principal}]. `avatar_url` segue como retrato/fallback.
+    imagens = db.Column(db.JSON, default=list)
 
     # Equipamento ativo (fontes de efeitos de itens).
     armadura_equipada_id = db.Column(db.Integer, db.ForeignKey("armaduras.id"), nullable=True)
@@ -160,6 +162,7 @@ class Personagem(TimestampMixin, db.Model):
             "mortes_falha": self.mortes_falha or 0,
             "exaustao": self.exaustao or 0,
             "moedas": self.moedas or {},
+            "imagens": self.imagens or [],
             "armadura_equipada_id": self.armadura_equipada_id,
             "armas_equipadas": self.armas_equipadas or [],
             "outras_proficiencias": self.outras_proficiencias,

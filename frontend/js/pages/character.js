@@ -188,6 +188,19 @@ function pintarFicha(view, personagem) {
             ${campo('Aparência', personagem.aparencia)}
             ${campo('Aliados & Organizações', personagem.aliados)}
             ${campo('Tesouro', personagem.tesouro)}
+            <div class="spread" style="margin-top:8px"><h4 style="margin:0">🖼️ Galeria</h4>
+              <button class="btn btn--gold btn--sm" id="add-imagem">＋ Imagem</button></div>
+            <div class="row" style="gap:10px;flex-wrap:wrap;margin-top:8px" id="galeria">
+              ${(personagem.imagens || []).length ? personagem.imagens.map((img, i) => `
+                <div style="width:110px;text-align:center">
+                  <img src="${esc(img.url)}" alt="${esc(img.legenda || '')}" style="width:110px;height:110px;object-fit:cover;border-radius:8px;border:2px solid ${img.principal ? 'var(--gold)' : 'var(--gold-dim)'}">
+                  <div class="muted" style="font-size:.72rem">${esc(img.legenda || '—')}</div>
+                  <div class="row" style="justify-content:center;gap:2px;margin-top:2px">
+                    <button class="btn btn--ghost btn--sm" data-img-principal="${i}" title="Definir principal">${img.principal ? '★' : '☆'}</button>
+                    <button class="btn btn--ghost btn--sm" data-img-del="${i}" title="Remover">🗑️</button>
+                  </div>
+                </div>`).join('') : '<p class="muted">Nenhuma imagem. Use ＋ Imagem para enviar (corpo, rosto, cenas…).</p>'}
+            </div>
           </div>
           <div data-panel="historia" style="display:none">${blocoTexto(personagem.historia, 'História ainda não escrita.')}</div>
         </div>
@@ -226,6 +239,30 @@ function pintarFicha(view, personagem) {
   }));
   view.querySelector('#exa-menos').addEventListener('click', () => salvarEstado({ exaustao: (personagem.exaustao || 0) - 1 }));
   view.querySelector('#exa-mais').addEventListener('click', () => salvarEstado({ exaustao: (personagem.exaustao || 0) + 1 }));
+  // Galeria de imagens (E34)
+  view.querySelector('#add-imagem').addEventListener('click', () => {
+    const file = document.createElement('input');
+    file.type = 'file'; file.accept = 'image/png,image/jpeg,image/webp';
+    file.addEventListener('change', async () => {
+      if (!file.files[0]) return;
+      try {
+        const res = await api.upload(file.files[0]);
+        const legenda = prompt('Legenda da imagem (opcional):', '') || '';
+        const imagens = [...(personagem.imagens || []), { url: res.url, legenda, principal: !(personagem.imagens || []).length }];
+        salvarEstado({ imagens });
+      } catch (erro) { toast(erro.message, 'err'); }
+    });
+    file.click();
+  });
+  view.querySelectorAll('[data-img-principal]').forEach((b) => b.addEventListener('click', () => {
+    const idx = Number(b.dataset.imgPrincipal);
+    const imagens = (personagem.imagens || []).map((img, i) => ({ ...img, principal: i === idx }));
+    salvarEstado({ imagens });
+  }));
+  view.querySelectorAll('[data-img-del]').forEach((b) => b.addEventListener('click', () => {
+    const imagens = (personagem.imagens || []).filter((_, i) => i !== Number(b.dataset.imgDel));
+    salvarEstado({ imagens });
+  }));
   view.querySelector('#gerenciar-equip').addEventListener('click', () => gerenciarEquipamento(view, personagem));
   renderResumoEquip(view, personagem);
 

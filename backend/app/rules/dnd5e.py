@@ -135,6 +135,23 @@ def efeito_exaustao(nivel):
 _MOEDAS_EM_PO = {"pc": 0.01, "pp": 0.1, "pe": 0.5, "po": 1.0, "pl": 10.0}
 
 
+def sanear_imagens(lista):
+    """Valida a galeria: cada item precisa de `url`; no máximo uma `principal` (a 1ª marcada vence)."""
+    limpas = []
+    ja_tem_principal = False
+    for item in (lista or []):
+        if not isinstance(item, dict):
+            continue
+        url = str(item.get("url") or "").strip()
+        if not url:
+            continue
+        principal = bool(item.get("principal")) and not ja_tem_principal
+        if principal:
+            ja_tem_principal = True
+        limpas.append({"url": url, "legenda": str(item.get("legenda") or ""), "principal": principal})
+    return limpas
+
+
 def sanear_moedas(d):
     """Filtra a bolsa de moedas: só pc/pp/pe/po/pl, inteiros >= 0 (negativos viram 0)."""
     limpo = {}

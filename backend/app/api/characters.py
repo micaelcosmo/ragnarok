@@ -97,6 +97,10 @@ def _aplicar_campos(personagem, dados):
     if "moedas" in dados and isinstance(dados["moedas"], dict):
         personagem.moedas = _regras.sanear_moedas(dados["moedas"])
 
+    # Galeria de imagens (E34).
+    if "imagens" in dados and isinstance(dados["imagens"], list):
+        personagem.imagens = _regras.sanear_imagens(dados["imagens"])
+
 
 @bp.get("/characters")
 @auth_required

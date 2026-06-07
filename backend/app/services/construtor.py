@@ -126,6 +126,13 @@ class ConstrutorDeFicha:
                 })
         return cards
 
+    def _imagem_principal(self):
+        """URL da imagem marcada como principal na galeria; senão o retrato (avatar_url)."""
+        for img in (self.personagem.imagens or []):
+            if isinstance(img, dict) and img.get("principal") and img.get("url"):
+                return img["url"]
+        return self.personagem.avatar_url
+
     def _subraca_info(self):
         """Bloco de exibição da sub-raça escolhida (nome + traços), ou None."""
         sub = self._subraca_obj()
@@ -163,6 +170,7 @@ class ConstrutorDeFicha:
         derivado["asi"] = self._asi()
         derivado["exaustao_efeito"] = dnd5e.efeito_exaustao(personagem.exaustao)
         derivado["total_po"] = dnd5e.moedas_total_po(personagem.moedas)
+        derivado["imagem_principal"] = self._imagem_principal()
         derivado["subraca"] = self._subraca_info()
         derivado["tracos_ativos"] = self._tracos_ativos()
         derivado["concedido"] = final["concedido"]
