@@ -101,6 +101,46 @@ def sanear_asi(pedido: dict, pontos_total: int, atributos_base: dict) -> dict:
     return resultado
 
 
+_RECARGAS_VALIDAS = ("curto", "longo", "nenhum")
+
+
+def sanear_recursos(lista) -> list:
+    """Valida/clampa uma lista de recursos de classe: nome não-vazio, max>=0, atual em [0,max]."""
+    limpos = []
+    for item in (lista or []):
+        if not isinstance(item, dict):
+            continue
+        nome = str(item.get("nome") or "").strip()
+        recarga = item.get("recarga")
+        if not nome or recarga not in _RECARGAS_VALIDAS:
+            continue
+        try:
+            maximo = max(0, int(item.get("max", 0) or 0))
+            atual = int(item.get("atual", 0) or 0)
+        except (TypeError, ValueError):
+            continue
+        limpos.append({
+            "nome": nome,
+            "max": maximo,
+            "atual": _clamp(atual, 0, maximo),
+            "recarga": recarga,
+            "descricao": str(item.get("descricao") or ""),
+        })
+    return limpos
+
+
+def aplicar_descanso(recursos, tipo: str) -> list:
+    """Recarrega (atual:=max) os recursos cujo tipo de recarga é coberto pelo descanso."""
+    recarregaveis = {"curto"} if tipo == "curto" else {"curto", "longo"}
+    novos = []
+    for recurso in (recursos or []):
+        copia = dict(recurso)
+        if copia.get("recarga") in recarregaveis:
+            copia["atual"] = int(copia.get("max", 0) or 0)
+        novos.append(copia)
+    return novos
+
+
 def nivel_por_xp(xp: int) -> int:
     """Nível (1..20) correspondente a um total de XP acumulado."""
     xp = max(0, int(xp))

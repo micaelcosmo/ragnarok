@@ -130,6 +130,16 @@ function pintarFicha(view, personagem) {
               ${(derivados.tracos_ativos || []).length ? derivados.tracos_ativos.map((t, i) => cardTraco(t, i)).join('')
                 : '<p class="muted">Nenhum traço ainda. Adicione talentos (catálogo) ou crie um traço/aumento aqui.</p>'}
             </div>
+            <div class="spread" style="margin-top:6px"><h4 style="margin:0">⚡ Recursos</h4>
+              <div class="row">
+                <button class="btn btn--ghost btn--sm" data-descanso="curto">😴 Descanso curto</button>
+                <button class="btn btn--ghost btn--sm" data-descanso="longo">🌙 Descanso longo</button>
+                <button class="btn btn--gold btn--sm" id="add-recurso">+ Recurso</button>
+              </div></div>
+            <div id="lista-recursos" style="margin:8px 0 14px">
+              ${(personagem.recursos || []).length ? personagem.recursos.map((r, i) => cardRecurso(r, i)).join('')
+                : '<p class="muted">Nenhum recurso. Adicione Fúria, Dados de Vida, Inspiração…</p>'}
+            </div>
             ${(derivados.recursos || []).length || (derivados.sentidos || []).length || (derivados.proficiencias_concedidas || []).length ? `
               <div class="card" style="margin-bottom:12px"><h4 style="margin-top:0">✨ Concedidos pelas suas escolhas</h4>
                 ${(derivados.sentidos || []).length ? `<div class="row" style="margin-bottom:6px">${derivados.sentidos.map((s) => `<span class="chip">👁️ ${esc(s)}</span>`).join('')}</div>` : ''}
@@ -203,6 +213,88 @@ function pintarFicha(view, personagem) {
         toast('Traço removido.'); pintarFicha(view, atualizado);
       } catch (erro) { toast(erro.message, 'err'); }
     }));
+
+  // Recursos de classe (usos + descanso)
+  const recPintar = (atualizado) => pintarFicha(view, atualizado);
+  view.querySelectorAll('[data-rec-inc]').forEach((b) =>
+    b.addEventListener('click', async () => {
+      try { recPintar(await api.characters.ajustarRecurso(personagem.id, Number(b.dataset.recInc), +1)); }
+      catch (erro) { toast(erro.message, 'err'); }
+    }));
+  view.querySelectorAll('[data-rec-dec]').forEach((b) =>
+    b.addEventListener('click', async () => {
+      try { recPintar(await api.characters.ajustarRecurso(personagem.id, Number(b.dataset.recDec), -1)); }
+      catch (erro) { toast(erro.message, 'err'); }
+    }));
+  view.querySelectorAll('[data-descanso]').forEach((b) =>
+    b.addEventListener('click', async () => {
+      try {
+        const atualizado = await api.characters.descanso(personagem.id, b.dataset.descanso);
+        toast(`Descanso ${b.dataset.descanso} concluído.`); recPintar(atualizado);
+      } catch (erro) { toast(erro.message, 'err'); }
+    }));
+  view.querySelector('#add-recurso').addEventListener('click', () => formRecurso(view, personagem, null));
+  view.querySelectorAll('[data-rec-edit]').forEach((b) =>
+    b.addEventListener('click', () => formRecurso(view, personagem, Number(b.dataset.recEdit))));
+  view.querySelectorAll('[data-rec-del]').forEach((b) =>
+    b.addEventListener('click', async () => {
+      const lista = (personagem.recursos || []).filter((_, i) => i !== Number(b.dataset.recDel));
+      try {
+        const atualizado = await api.characters.update(personagem.id, { recursos: lista });
+        toast('Recurso removido.'); recPintar(atualizado);
+      } catch (erro) { toast(erro.message, 'err'); }
+    }));
+}
+
+const ROTULO_RECARGA = { curto: 'descanso curto', longo: 'descanso longo', nenhum: 'sem recarga' };
+
+// Card de um recurso de classe (atual/máx + gastar/recuperar + editar/remover).
+function cardRecurso(r, i) {
+  return `<div class="card" style="display:flex;align-items:center;gap:10px;padding:8px 10px;margin-bottom:6px">
+    <div style="flex:1"><b>${esc(r.nome)}</b> <span class="muted" style="font-size:.72rem">(${ROTULO_RECARGA[r.recarga] || r.recarga})</span>
+      ${r.descricao ? `<div class="muted" style="font-size:.8rem">${esc(r.descricao)}</div>` : ''}</div>
+    <button class="btn btn--ghost btn--sm" data-rec-dec="${i}">−</button>
+    <b style="min-width:48px;text-align:center">${r.atual}/${r.max}</b>
+    <button class="btn btn--ghost btn--sm" data-rec-inc="${i}">+</button>
+    <button class="btn btn--ghost btn--sm" data-rec-edit="${i}">✏️</button>
+    <button class="btn btn--ghost btn--sm" data-rec-del="${i}">🗑️</button>
+  </div>`;
+}
+
+// Formulário de recurso de classe (cria/edita personagem.recursos).
+function formRecurso(view, personagem, indiceOuNull) {
+  const lista = [...(personagem.recursos || [])];
+  const editando = indiceOuNull !== null && indiceOuNull >= 0;
+  const atual = editando ? lista[indiceOuNull] : { nome: '', max: 1, atual: 1, recarga: 'longo', descricao: '' };
+  const opcao = (v, rotulo) => `<option value="${v}" ${atual.recarga === v ? 'selected' : ''}>${rotulo}</option>`;
+  const conteudo = html(`<div>
+    <h3>${editando ? 'Editar' : 'Novo'} recurso</h3>
+    <div class="field"><label>Nome</label><input class="input" id="r-nome" value="${esc(atual.nome || '')}" placeholder="Fúria, Dados de Vida…"></div>
+    <div class="row" style="gap:10px">
+      <div class="field" style="flex:1"><label>Máximo</label><input class="input" id="r-max" type="number" min="0" value="${atual.max ?? 1}"></div>
+      <div class="field" style="flex:1"><label>Atual</label><input class="input" id="r-atual" type="number" min="0" value="${atual.atual ?? 0}"></div>
+      <div class="field" style="flex:1"><label>Recarga</label><select class="input" id="r-recarga">${opcao('curto', 'Descanso curto')}${opcao('longo', 'Descanso longo')}${opcao('nenhum', 'Sem recarga')}</select></div>
+    </div>
+    <div class="field"><label>Descrição (opcional)</label><input class="input" id="r-desc" value="${esc(atual.descricao || '')}"></div>
+    <div class="row" style="justify-content:flex-end"><button class="btn btn--ghost" id="x">Cancelar</button><button class="btn btn--primary" id="ok">Salvar</button></div>
+  </div>`);
+  const fechar = modal(conteudo);
+  conteudo.querySelector('#x').addEventListener('click', fechar);
+  conteudo.querySelector('#ok').addEventListener('click', async () => {
+    const recurso = {
+      nome: conteudo.querySelector('#r-nome').value.trim(),
+      max: Number(conteudo.querySelector('#r-max').value) || 0,
+      atual: Number(conteudo.querySelector('#r-atual').value) || 0,
+      recarga: conteudo.querySelector('#r-recarga').value,
+      descricao: conteudo.querySelector('#r-desc').value.trim(),
+    };
+    if (!recurso.nome) { toast('Dê um nome ao recurso.', 'err'); return; }
+    if (editando) lista[indiceOuNull] = recurso; else lista.push(recurso);
+    try {
+      const atualizado = await api.characters.update(personagem.id, { recursos: lista });
+      toast('Recurso salvo.'); fechar(); pintarFicha(view, atualizado);
+    } catch (erro) { toast(erro.message, 'err'); }
+  });
 }
 
 // Formulário de traço/recurso (ou "Aumento de Habilidade") — edita personagem.tracos_extras.
