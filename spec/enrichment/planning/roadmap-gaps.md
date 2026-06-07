@@ -10,16 +10,19 @@
   sem validar forma nem clampar a magnitude dos números (ex.: `efeitos.atributos.con: 9999`).
   (O ASI do E26 já usa esse padrão de clamp no servidor — falta aplicar o mesmo aos traços e,
   idealmente, traços incrementais sujeitos à aprovação do Mestre da mesa.)
-- 🔴 **Sub-raças aplicando efeitos**: a raça aplica `efeitos`, mas **sub-raça** (ex.: Halfling
-  Robusto +1 CON, resistência a veneno) não é auto-aplicada. Hoje embutimos na base/descrição.
+- ✅ **Sub-raças aplicando efeitos** — FEITO (E29): `subraca_slug`; o construtor aplica
+  bonus/efeitos da sub-raça como fonte reversível + traços (origem "subraca").
 - 🟡 **Talentos vs ASI**: feats reais (Sortudo, Bravura) existem como conteúdo, mas a escolha
   "ASI ou talento" por nível não é guiada. (Base do E26 facilita isso.)
 - ✅ **Recursos de classe** (Fúria [usos], Dados de Vida [n], Inspiração) — FEITO (E27): campo
   `recursos` (atual/máx/recarga) + `POST /recursos/ajustar` e `POST /descanso` (curto/longo,
   longo restaura PV) + painel na ficha.
-- 🟡 **Defesa sem Armadura** (CA = 10 + DES + CON): a CA é manual; não há fórmula automática por
-  classe quando sem armadura.
-- 🟡 **Testes contra a morte** (sucessos/falhas) e **exaustão**: sem campos próprios.
+- ✅ **Defesa sem Armadura** (10 + DES + CON/SAB) — FEITO (E30): `dnd5e.ca_sem_armadura`
+  (Bárbaro/Monge) no construtor + `derivados.ca_detalhe`.
+- ✅ **Testes contra a morte + exaustão** — FEITO (E31): `mortes_sucesso/falha` (0–3) e `exaustao`
+  (0–6) + efeitos do nível + mini-painel "Estado" na ficha.
+- ✅ **Multiclasse** — FEITO (E35): `classes_extras` [{slug,nivel}]; nível total dirige a
+  proficiência (salvaguardas só da 1ª classe).
 - ⚪ **Resistências/imunidades de dano** (ex.: fúria → concussão/cortante/perfurante): só texto.
 - ⚪ **Regra Pequeno + arma Pesada** (desvantagem): não validamos compatibilidade arma×tamanho.
 
@@ -27,18 +30,20 @@
 - 🔴 **Antecedente Forasteiro (Outlander)** não existia → **adicionado nesta entrega** ao seed.
 - 🟡 **Bênção/boon de campanha**: ganhos concedidos pelo mestre durante o jogo. Modelados como
   **talento homebrew** (ex.: "Bênção da Grande Serpente [+2 CON]"). Futuro: tipo "boon" dedicado.
-- 🟡 **Admin/mestre marcar conteúdo como OFICIAL**: hoje todo conteúdo criado via API é `homebrew`.
-  Falta um caminho para o ADMIN publicar conteúdo oficial (curadoria).
+- ✅ **Admin/mestre marcar conteúdo como OFICIAL** — FEITO (E32): `POST /reference/<tipo>/<slug>/
+  oficializar` (ADMIN) + botão "Tornar Oficial" no compêndio.
 
 ## Ficha / campos
-- 🟡 **Moedas por tipo** (PC/PE/PP/PO/PL): hoje `dinheiro` é texto único.
+- ✅ **Moedas por tipo** (PC/PP/PE/PO/PL) — FEITO (E33): campo `moedas` + `derivados.total_po` +
+  inputs no editor/chips na ficha/PDF (mantém `dinheiro` texto).
 - ⚪ **Página de identidade** (idade, altura, peso, olhos, pele, cabelo, facção, símbolo, aliados,
   tesouro, aparência): só temos `historia`/`avatar_url`. Futuro: aba "Identidade".
-- ⚪ **Multiclasse** (ex.: Bárbaro X / Outra Y): só uma classe por personagem.
+- ✅ **Multiclasse** — FEITO (E35): ver acima (classes_extras + nível total).
 
 ## Imagens / mídia
-- 🟡 **Galeria de imagens do personagem**: hoje há 2 slots (retrato `avatar_url` + símbolo
-  `simbolo_faccao_url`). Pedido: suportar **várias imagens** por personagem (corpo inteiro, rosto,
+- ✅ **Galeria de imagens do personagem** — FEITO (E34): campo `imagens` [{url,legenda,principal}]
+  + galeria na aba Identidade (upload, principal, remover). Era: 2 slots (retrato `avatar_url` + símbolo
+  `simbolo_faccao_url`); pedido de **várias imagens** (corpo inteiro, rosto,
   cenas, etc.) com legenda e uma marcada como principal. Modelo `ImagemPersonagem`
   (personagem_id, url, legenda, principal) + UI de galeria na aba Identidade.
 
@@ -63,20 +68,23 @@
   - ⚪ Rate-limit / cache no endpoint de PDF (render é CPU-bound; evitar abuso de spam).
   - ⚪ Tema alternativo de PDF, watermark "homebrew", export de bestiário/PDM.
 
-## ⭐ NOVO — Interatividade na ficha (sugestão do agente, 2026-06-07)
-> A ficha hoje é "calculadora viva" mas **estática**: mostra os números, não os usa. O passo natural
-> (à la D&D Beyond) é **rolar dados** direto da ficha, reaproveitando os modificadores já calculados.
+## ⭐ Produtividade de ficha — features do agente (entregues no lote de 2026-06-07)
+> Foco do dono: **agilizar questões de ficha**, sem virar "joguinho" dentro da plataforma.
+> (A ideia anterior de "rolador de dados" foi descartada pelo dono — era gamificação, fora do objetivo.)
 
-- 🔴 **Rolador de dados integrado**: clicar numa **perícia / salvaguarda / ataque / iniciativa**
-  rola `1d20 + modificador` (o `derivados` já tem todos os valores) e mostra o resultado num popover,
-  com **Vantagem/Desvantagem** (rola 2d20, pega maior/menor) e **crítico** destacado (20/1). Dano da
-  arma idem (`1d12+4` etc.). 100% frontend (engine de rolagem pura, testável) — **sem migração**.
-  - *Quick win adjacente:* botão "rolar Dados de Vida" no descanso curto (já temos `recursos`).
-- 🟡 **Mini-histórico de rolagens**: as últimas N rolagens numa gaveta lateral (em memória/localStorage).
-  Evolui depois para um **log compartilhado da mesa** (todos veem as rolagens uns dos outros, via o
-  polling "ao vivo" do E21) — aí vira recurso de **mesa**, não só de ficha.
-- ⚪ **Compartilhar ficha por link público (read-only)**: reaproveita o render do PDF/ficha para um
-  link público (estilo "ficha pública" do D&D Beyond), sem login, só leitura.
+- ✅ **Clonar personagem** — FEITO (E36): `POST /characters/<id>/clonar` (cópia coluna a coluna p/ o
+  usuário) + botão "Clonar" na ficha.
+- ✅ **Exportar/Importar ficha em JSON** — FEITO (E37): `GET /characters/<id>/export` +
+  `POST /characters/import` (backup/portabilidade; **não** é import por LLM).
+- ✅ **Cálculo automático de PV** — FEITO (E38): `dnd5e.pv_sugerido` + botão "Calcular PV" (classe/nível/CON).
+- ✅ **Revisão automática da ficha (lint)** — FEITO (E39): `dnd5e.revisar_ficha` + banner de
+  inconsistências (PV/atributos/ASI/exaustão/perícias) no topo da ficha.
+
+### Próximas ideias de produtividade (não-gamificação) — candidatas
+- ⚪ **Aplicar proficiências da classe/antecedente com 1 clique** (preenche perícias proficientes a
+  partir do catálogo escolhido — agiliza a criação).
+- ⚪ **Validação de `tracos_extras`** com o mesmo clamp do E26 (fecha o débito de hardening).
+- ⚪ **Página/preview de impressão rápida** e **export de bestiário/PDM em PDF** (reusa o FichaPDF).
 
 ## Futuro distante (ideias do dono)
 - ⚪ **Importação de ficha por LLM**: jogador/mestre faz upload de uma ficha (PDF/imagem) e um
