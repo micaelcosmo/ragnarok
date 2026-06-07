@@ -15,7 +15,7 @@ _ATRIBUTOS = Personagem.ATRIBUTOS_COLUNAS
 
 # Campos simples atualizáveis diretamente do corpo.
 _CAMPOS_TEXTO = (
-    "nome", "nome_jogador", "raca_slug", "classe_slug", "antecedente_slug",
+    "nome", "nome_jogador", "raca_slug", "subraca_slug", "classe_slug", "antecedente_slug",
     "tendencia", "deslocamento", "dado_vida", "outras_proficiencias",
     "classe_conjuradora", "atributo_conjuracao", "tracos_personalidade",
     "ideais", "vinculos", "fraquezas", "historia", "caracteristicas",
