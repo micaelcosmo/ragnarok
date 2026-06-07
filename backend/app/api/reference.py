@@ -252,6 +252,22 @@ def atualizar_referencia(tipo, slug):
     return ok(registro.to_dict())
 
 
+@bp.post("/reference/<tipo>/<slug>/oficializar")
+@role_required("ADMIN")
+def oficializar_referencia(tipo, slug):
+    """ADMIN promove um conteúdo a OFICIAL (homebrew=False). `fonte` opcional. Idempotente."""
+    modelo, _campos = _modelo_ref(tipo)
+    registro = modelo.query.filter_by(slug=slug).first()
+    if registro is None:
+        raise NotFound("Conteúdo não encontrado.")
+    dados = corpo_json()
+    registro.homebrew = False
+    if dados.get("fonte"):
+        registro.fonte = dados["fonte"]
+    db.session.commit()
+    return ok(registro.to_dict())
+
+
 @bp.delete("/reference/<tipo>/<slug>")
 @role_required("MESTRE")
 def remover_referencia(tipo, slug):

@@ -178,6 +178,7 @@ export const api = {
     create: (tipo, dados) => apiFetch(`/reference/${tipo}`, { method: 'POST', body: dados }),
     update: (tipo, slug, dados) => apiFetch(`/reference/${tipo}/${slug}`, { method: 'PUT', body: dados }),
     remove: (tipo, slug) => apiFetch(`/reference/${tipo}/${slug}`, { method: 'DELETE' }),
+    oficializar: (tipo, slug, fonte) => apiFetch(`/reference/${tipo}/${slug}/oficializar`, { method: 'POST', body: fonte ? { fonte } : {} }),
   },
   admin: {
     users: ({ q, role } = {}) => {

@@ -1,5 +1,36 @@
 # Changelog — Enriquecimento
 
+## [E32 — Admin marca conteúdo como OFICIAL]
+### feat
+- `POST /reference/<tipo>/<slug>/oficializar` (ADMIN): promove homebrew → oficial (`homebrew=False`,
+  `fonte` opcional). Idempotente; MESTRE/JOGADOR → 403. Tipos: races/classes/backgrounds/feats/spells.
+- Frontend: no detalhe do compêndio, ADMIN vê botão **✔️ Tornar Oficial** (prompt de fonte).
+- +N testes. Unit: `planning/admin-oficial.md`. Sem migração.
+
+## [E31 — Testes contra a Morte + Exaustão]
+### feat
+- Personagem: `mortes_sucesso`/`mortes_falha` (0–3) e `exaustao` (0–6) + migração Alembic.
+- `dnd5e`: `NIVEIS_EXAUSTAO` (efeitos 1–6) + `efeito_exaustao()` + clamps; API clampa os campos;
+  `derivados.exaustao_efeito` descreve o nível atual.
+- Frontend: mini-painel **Estado** na ficha (pips de sucesso/falha de morte + exaustão −/+ com efeito).
+- +N testes. Unit: `planning/morte-exaustao.md`.
+
+## [E30 — Defesa sem Armadura automática]
+### feat
+- `dnd5e.ca_sem_armadura(classe_slug, mods)`: Bárbaro 10+DES+CON, Monge 10+DES+SAB (None p/ outras).
+- `ConstrutorDeFicha._calcular_ca`: sem armadura, usa `max(CA manual, fórmula da classe)`; expõe
+  `derivados.ca_detalhe` (origem do cálculo). Sem migração.
+- +N testes. Unit: `planning/defesa-sem-armadura.md`.
+
+## [E29 — Sub-raças aplicando efeitos]
+### feat
+- Personagem: campo `subraca_slug` + migração Alembic.
+- `ConstrutorDeFicha` aplica os efeitos da sub-raça escolhida (bonus_atributos/efeitos) como fonte
+  reversível e expõe `derivados.subraca` (nome + traços); traços da sub-raça entram em
+  `tracos_ativos` (origem "subraca").
+- API aceita `subraca_slug`; frontend: campo Sub-raça no editor + chip na ficha.
+- +N testes. Unit: `planning/subracas-efeitos.md`.
+
 ## [E28 — Toggle EN/PT na UI]
 ### feat
 - Compêndio: botão **🌐 PT | EN** que alterna o idioma (localStorage) e re-renderiza as listas —

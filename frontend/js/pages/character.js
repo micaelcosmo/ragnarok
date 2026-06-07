@@ -51,7 +51,7 @@ function pintarFicha(view, personagem) {
           : `<span class="sheet-portrait">${iniciais(personagem.nome)}</span>`}
         <div style="flex:1">
           <div class="sh-name" style="font-family:var(--font-title)">${esc(personagem.nome)}</div>
-          <div>${esc([personagem.raca_slug, personagem.classe_slug, personagem.antecedente_slug].filter(Boolean).join(' · ') || 'Aventureiro')}</div>
+          <div>${esc([[personagem.raca_slug, derivados.subraca && derivados.subraca.nome].filter(Boolean).join(' '), personagem.classe_slug, personagem.antecedente_slug].filter(Boolean).join(' · ') || 'Aventureiro')}</div>
           <div class="muted">${esc(personagem.tendencia || '')} ${personagem.nome_jogador ? '· Jogador: ' + esc(personagem.nome_jogador) : ''}</div>
         </div>
         <div style="text-align:center">
@@ -82,7 +82,7 @@ function pintarFicha(view, personagem) {
 
       <div>
         <div class="combat-row card">
-          ${combatBox('CA', personagem.ca, DESC_COMBATE.CA)}
+          ${combatBox('CA', derivados.ca ?? personagem.ca, (derivados.ca_detalhe ? derivados.ca_detalhe + '. ' : '') + DESC_COMBATE.CA)}
           ${combatBox('Iniciativa', sinal(derivados.iniciativa), DESC_COMBATE.Iniciativa)}
           ${combatBox('Deslocamento', esc(personagem.deslocamento || '—'), DESC_COMBATE.Deslocamento)}
           ${combatBox('Proficiência', sinal(derivados.bonus_proficiencia), DESC_COMBATE.Proficiência)}
@@ -98,6 +98,20 @@ function pintarFicha(view, personagem) {
             <button class="btn btn--ghost btn--sm" id="pv-cura">+ Cura</button>
             <span class="chip">${personagem.dado_vida || ''}</span>
             ${personagem.inspiracao ? '<span class="badge">✨ Inspiração</span>' : ''}
+          </div>
+          <div class="row" style="margin-top:12px;gap:18px;flex-wrap:wrap;align-items:center">
+            <div title="Testes de resistência contra a morte">
+              <span class="muted" style="font-size:.78rem">Morte</span>
+              <span style="margin-left:6px">✅ ${[0, 1, 2].map((i) => `<span class="death-pip" data-morte="sucesso" data-i="${i}" style="cursor:pointer">${i < (personagem.mortes_sucesso || 0) ? '●' : '○'}</span>`).join('')}</span>
+              <span style="margin-left:8px">❌ ${[0, 1, 2].map((i) => `<span class="death-pip" data-morte="falha" data-i="${i}" style="cursor:pointer">${i < (personagem.mortes_falha || 0) ? '●' : '○'}</span>`).join('')}</span>
+            </div>
+            <div title="${esc(derivados.exaustao_efeito || 'Sem exaustão')}">
+              <span class="muted" style="font-size:.78rem">Exaustão</span>
+              <button class="btn btn--ghost btn--sm" id="exa-menos">−</button>
+              <b style="min-width:14px;display:inline-block;text-align:center">${personagem.exaustao || 0}</b>
+              <button class="btn btn--ghost btn--sm" id="exa-mais">+</button>
+              ${derivados.exaustao_efeito ? `<span class="chip" style="margin-left:6px">${esc(derivados.exaustao_efeito)}</span>` : ''}
+            </div>
           </div>
         </div>
 
@@ -195,6 +209,19 @@ function pintarFicha(view, personagem) {
   view.querySelector('#apagar').addEventListener('click', () => confirmarExclusao(personagem));
   view.querySelector('#pv-dano').addEventListener('click', () => ajustarPV(view, personagem, -1));
   view.querySelector('#pv-cura').addEventListener('click', () => ajustarPV(view, personagem, +1));
+  // Estado (E31): pips de morte + exaustão
+  const salvarEstado = async (campos) => {
+    try { pintarFicha(view, await api.characters.update(personagem.id, campos)); }
+    catch (erro) { toast(erro.message, 'err'); }
+  };
+  view.querySelectorAll('[data-morte]').forEach((pip) => pip.addEventListener('click', () => {
+    const tipo = pip.dataset.morte, i = Number(pip.dataset.i);
+    const campo = tipo === 'sucesso' ? 'mortes_sucesso' : 'mortes_falha';
+    const atualValor = personagem[campo] || 0;
+    salvarEstado({ [campo]: atualValor === i + 1 ? i : i + 1 });
+  }));
+  view.querySelector('#exa-menos').addEventListener('click', () => salvarEstado({ exaustao: (personagem.exaustao || 0) - 1 }));
+  view.querySelector('#exa-mais').addEventListener('click', () => salvarEstado({ exaustao: (personagem.exaustao || 0) + 1 }));
   view.querySelector('#gerenciar-equip').addEventListener('click', () => gerenciarEquipamento(view, personagem));
   renderResumoEquip(view, personagem);
 
@@ -577,6 +604,7 @@ function abrirEdicao(view, personagem) {
         </div>
         <div class="row" style="gap:10px">
           <div class="field" style="flex:1"><label>Raça</label><input class="input" name="raca_slug" value="${texto('', personagem.raca_slug)}"></div>
+          <div class="field" style="flex:1"><label>Sub-raça (slug)</label><input class="input" name="subraca_slug" value="${texto('', personagem.subraca_slug)}" placeholder="ex.: stout, high-elf"></div>
           <div class="field" style="flex:1"><label>Classe</label><input class="input" name="classe_slug" value="${texto('', personagem.classe_slug)}"></div>
           <div class="field" style="flex:1"><label>Antecedente</label><input class="input" name="antecedente_slug" value="${texto('', personagem.antecedente_slug)}"></div>
         </div>
@@ -735,7 +763,7 @@ function abrirEdicao(view, personagem) {
     const payload = {
       nome: bruto.nome, nivel: Number(bruto.nivel), xp: Number(bruto.xp),
       nome_jogador: bruto.nome_jogador, tendencia: bruto.tendencia,
-      raca_slug: bruto.raca_slug, classe_slug: bruto.classe_slug, antecedente_slug: bruto.antecedente_slug,
+      raca_slug: bruto.raca_slug, subraca_slug: bruto.subraca_slug || null, classe_slug: bruto.classe_slug, antecedente_slug: bruto.antecedente_slug,
       avatar_url: bruto.avatar_url,
       ca: Number(bruto.ca), iniciativa_bonus: Number(bruto.iniciativa_bonus),
       deslocamento: bruto.deslocamento,
