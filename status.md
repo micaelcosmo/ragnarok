@@ -46,7 +46,7 @@
 | E32 | Admin marca conteúdo como OFICIAL (curadoria) | ✅ (em prod) |
 | E33 | Moedas por tipo (PC/PP/PE/PO/PL) + total em PO | ✅ (em prod) |
 | E34 | Galeria de imagens do personagem (várias + principal) | ✅ (em prod) |
-| E35 | Multiclasse (nível total → proficiência; classes extras) | 🔄 em andamento |
+| E35 | Multiclasse (nível total → proficiência; classes extras) | ✅ (em prod) |
 
 ---
 
