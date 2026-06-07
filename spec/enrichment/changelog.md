@@ -1,5 +1,13 @@
 # Changelog — Enriquecimento
 
+## [E39 — Revisão automática da ficha] (nova)
+### feat
+- `dnd5e.revisar_ficha(p, d)`: "lint" que aponta inconsistências (PV inválido, atributo fora de
+  faixa, ASI acima do orçamento, exaustão 6, conjuração inválida, perícia desconhecida; infos de
+  sem classe/raça, atributo >20). Construtor expõe `derivados.revisao`.
+- Frontend: aviso **🔍 Revisão (N)** no topo da ficha, expansível (alertas/infos).
+- +N testes. Sem migração.
+
 ## [E38 — Cálculo automático de PV] (nova)
 ### feat
 - `dnd5e.pv_sugerido(dado, nivel, con_mod)` (regra fixa 5E). Construtor expõe

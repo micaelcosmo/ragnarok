@@ -45,6 +45,7 @@ function pintarFicha(view, personagem) {
         <button class="btn btn--danger btn--sm" id="apagar">🗑️ Excluir</button>
       </div>
     </div>
+    ${revisaoBanner(derivados.revisao)}
 
     <div class="card card--parch">
       <div class="sheet-head">
@@ -336,6 +337,20 @@ function pintarFicha(view, personagem) {
         toast('Recurso removido.'); recPintar(atualizado);
       } catch (erro) { toast(erro.message, 'err'); }
     }));
+}
+
+// Banner de revisão automática da ficha (E39): alertas (vermelho) e infos (âmbar).
+function revisaoBanner(revisao) {
+  const itens = revisao || [];
+  if (!itens.length) return '';
+  const alertas = itens.filter((a) => a.nivel === 'alerta');
+  const cor = alertas.length ? 'var(--red, #c5303a)' : 'var(--gold-dim, #b89b6a)';
+  const titulo = alertas.length ? `${alertas.length} alerta(s)` : `${itens.length} observação(ões)`;
+  return `<details class="card" style="margin-bottom:14px;border-left:4px solid ${cor}">
+    <summary style="cursor:pointer;font-weight:600">🔍 Revisão da ficha — ${titulo}</summary>
+    <ul style="margin:8px 0 0;padding-left:18px">
+      ${itens.map((a) => `<li style="color:${a.nivel === 'alerta' ? cor : 'var(--ink-soft, #a99e88)'}">${a.nivel === 'alerta' ? '⚠️' : 'ℹ️'} ${esc(a.msg)}</li>`).join('')}
+    </ul></details>`;
 }
 
 const ROTULO_RECARGA = { curto: 'descanso curto', longo: 'descanso longo', nenhum: 'sem recarga' };

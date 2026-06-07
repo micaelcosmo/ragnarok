@@ -135,6 +135,52 @@ def efeito_exaustao(nivel):
 _MOEDAS_EM_PO = {"pc": 0.01, "pp": 0.1, "pe": 0.5, "po": 1.0, "pl": 10.0}
 
 
+def revisar_ficha(p, d):
+    """
+    'Lint' da ficha: devolve uma lista de {nivel: 'alerta'|'info', msg} com inconsistências.
+    `p` = subset dos campos do personagem; `d` = bloco de derivados já calculado.
+    """
+    avisos = []
+    def add(nivel, msg):
+        avisos.append({"nivel": nivel, "msg": msg})
+
+    pv_max = int(p.get("pv_max") or 0)
+    pv_atual = int(p.get("pv_atual") or 0)
+    if pv_max <= 0:
+        add("alerta", "PV máximo é 0 — defina ou use 'Calcular PV'.")
+    if pv_max > 0 and pv_atual > pv_max:
+        add("alerta", f"PV atual ({pv_atual}) é maior que o máximo ({pv_max}).")
+
+    if not p.get("classe_slug"):
+        add("info", "Sem classe definida.")
+    if not p.get("raca_slug"):
+        add("info", "Sem raça definida.")
+
+    for chave, valor in (d.get("atributos_final") or {}).items():
+        valor = int(valor)
+        if valor < 1 or valor > 30:
+            add("alerta", f"Atributo {chave.upper()} final fora do intervalo (1–30): {valor}.")
+        elif valor > 20:
+            add("info", f"Atributo {chave.upper()} acima de 20 ({valor}) — confira se é intencional.")
+
+    asi = d.get("asi") or {}
+    if int(asi.get("pontos_usados", 0)) > int(asi.get("pontos_total", 0)):
+        add("alerta", "Aumentos de Habilidade acima do orçamento do nível.")
+
+    if int(p.get("exaustao") or 0) >= 6:
+        add("alerta", "Exaustão nível 6 = morte.")
+
+    conj = p.get("atributo_conjuracao")
+    if conj and conj not in ATRIBUTOS:
+        add("alerta", f"Atributo de conjuração inválido: '{conj}'.")
+
+    invalidas = [s for s in (p.get("pericias_proficientes") or []) if s not in PERICIAS]
+    if invalidas:
+        add("alerta", f"Perícias desconhecidas: {', '.join(invalidas)}.")
+
+    return avisos
+
+
 def pv_sugerido(dado, nivel, con_mod):
     """PV máximo sugerido (regra fixa 5E): 1º nível = dado+CON; demais = (dado/2+1)+CON cada."""
     dado = int(dado or 8)

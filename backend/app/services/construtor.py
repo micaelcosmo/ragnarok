@@ -217,6 +217,12 @@ class ConstrutorDeFicha:
         derivado["proficiencias_concedidas"] = final["proficiencias_texto"]
         derivado["pericias_proficientes_final"] = final["pericias_proficientes"]
         derivado["salvaguardas_proficientes_final"] = final["salvaguardas_proficientes"]
+        derivado["revisao"] = dnd5e.revisar_ficha({
+            "pv_max": personagem.pv_max, "pv_atual": personagem.pv_atual,
+            "classe_slug": personagem.classe_slug, "raca_slug": personagem.raca_slug,
+            "exaustao": personagem.exaustao, "atributo_conjuracao": personagem.atributo_conjuracao,
+            "pericias_proficientes": personagem.pericias_proficientes or [],
+        }, derivado)
         return derivado
 
     def _calcular_ca(self, personagem, mods, ca_bonus_fontes):

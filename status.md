@@ -50,6 +50,7 @@
 | E36 | ⭐ Clonar personagem (duplicar ficha) | ✅ (em prod) |
 | E37 | ⭐ Exportar/Importar ficha em JSON (backup/portabilidade) | ✅ (em prod) |
 | E38 | ⭐ Cálculo automático de PV (sugestão por classe/nível/CON) | ✅ (em prod) |
+| E39 | ⭐ Revisão automática da ficha (lint de inconsistências) | 🔄 em andamento |
 
 ---
 
