@@ -38,6 +38,7 @@ function pintarFicha(view, personagem) {
     <div class="spread" style="margin-bottom:16px">
       <button class="btn btn--ghost btn--sm" id="voltar">← Voltar</button>
       <div class="row">
+        <button class="btn btn--ghost btn--sm" id="exportar-pdf">🖨️ Exportar PDF</button>
         <button class="btn btn--gold btn--sm" id="editar">✏️ Editar</button>
         <button class="btn btn--danger btn--sm" id="apagar">🗑️ Excluir</button>
       </div>
@@ -167,6 +168,19 @@ function pintarFicha(view, personagem) {
 
   ligarTabs(view);
   view.querySelector('#voltar').addEventListener('click', () => navegar('#/dashboard'));
+  view.querySelector('#exportar-pdf').addEventListener('click', async (ev) => {
+    const botao = ev.currentTarget;
+    const rotulo = botao.textContent;
+    botao.disabled = true; botao.textContent = '⏳ Gerando PDF…';
+    try {
+      await api.characters.baixarPdf(personagem.id);
+      toast('PDF gerado.', 'ok');
+    } catch (_) {
+      toast('Não foi possível gerar o PDF.', 'err');
+    } finally {
+      botao.disabled = false; botao.textContent = rotulo;
+    }
+  });
   view.querySelector('#editar').addEventListener('click', () => abrirEdicao(view, personagem));
   view.querySelector('#apagar').addEventListener('click', () => confirmarExclusao(personagem));
   view.querySelector('#pv-dano').addEventListener('click', () => ajustarPV(view, personagem, -1));

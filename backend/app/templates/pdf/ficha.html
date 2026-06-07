@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="utf-8">
+<title>Ficha — {{ p.nome }}</title>
+<style>{{ css }}</style>
+</head>
+<body>
+
+{# ============================ PÁGINA 1 ============================ #}
+<div class="pagina">
+
+  <div class="cabecalho">
+    <div class="nome">{{ p.nome or "Personagem" }}</div>
+    <div class="meta">
+      {% if p.classe_slug %}<b>{{ p.classe_slug|capitalize }}</b> nível {{ p.nivel }}{% else %}Nível {{ p.nivel }}{% endif %}<br>
+      {% if p.raca_slug %}{{ p.raca_slug|capitalize }} · {% endif %}{% if p.antecedente_slug %}{{ p.antecedente_slug|capitalize }} · {% endif %}{{ p.tendencia or "—" }}<br>
+      <span class="muted">Jogador:</span> {{ p.nome_jogador or "—" }} · <span class="muted">XP:</span> {{ p.xp or 0 }}
+    </div>
+  </div>
+
+  <div class="grade">
+
+    {# ---- coluna esquerda: atributos + salvaguardas + perícias ---- #}
+    <div class="col col-esq">
+      {% for chave in atributos_ordem %}
+      <div class="atributo">
+        <div class="rotulo">{{ nomes_atributos[chave] }}</div>
+        <div class="mod">{{ d.modificadores[chave]|sinal }}</div>
+        <div class="valor">{{ d.atributos_final[chave] }}</div>
+      </div>
+      {% endfor %}
+
+      <div class="bloco">
+        <h2>Proficiência: {{ d.bonus_proficiencia|sinal }}</h2>
+        <div class="linha"><span class="v">{{ d.percepcao_passiva }}</span><span class="n">Percepção Passiva</span></div>
+      </div>
+
+      <div class="bloco">
+        <h2>Salvaguardas</h2>
+        {% for s in d.salvaguardas %}
+        <div class="linha">
+          <span class="pip {{ 'on' if s.proficiente }}"></span>
+          <span class="v">{{ s.valor|sinal }}</span>
+          <span class="n">{{ nomes_atributos[s.atributo] }}</span>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    {# ---- coluna central: combate + ataques + perícias ---- #}
+    <div class="col">
+      <div class="destaques">
+        <div class="caixa"><div class="num">{{ d.ca }}</div><div class="cap">Classe de Armadura</div></div>
+        <div class="caixa"><div class="num">{{ d.iniciativa|sinal }}</div><div class="cap">Iniciativa</div></div>
+        <div class="caixa"><div class="num">{{ p.deslocamento or "9m" }}</div><div class="cap">Deslocamento</div></div>
+      </div>
+
+      <div class="pv">
+        <div class="caixa"><div class="num">{{ p.pv_max or 0 }}</div><div class="cap">PV Máximo</div></div>
+        <div class="caixa"><div class="num">{{ p.pv_atual if p.pv_atual is not none else (p.pv_max or 0) }}</div><div class="cap">PV Atual</div></div>
+        <div class="caixa"><div class="num">{{ p.pv_temp or 0 }}</div><div class="cap">PV Temp.</div></div>
+        <div class="caixa"><div class="num">{{ p.dado_vida or "—" }}</div><div class="cap">Dados de Vida</div></div>
+      </div>
+
+      <div class="bloco">
+        <h2>Ataques & Conjuração</h2>
+        {% if d.ataques_equipados %}
+        <table class="ataques">
+          <thead><tr><th>Arma</th><th>Acerto</th><th>Dano</th></tr></thead>
+          <tbody>
+          {% for a in d.ataques_equipados %}
+            <tr>
+              <td>{{ a.nome }}</td>
+              <td class="c">{{ a.bonus_acerto|sinal }}</td>
+              <td>{{ a.dano }}{% if a.bonus_dano %} {{ a.bonus_dano|sinal }}{% endif %} {{ a.tipo_dano or "" }}</td>
+            </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+        {% else %}<div class="muted">Nenhuma arma equipada.</div>{% endif %}
+        {% if d.cd_magia %}<div style="margin-top:4pt">CD de Magia <b>{{ d.cd_magia }}</b> · Ataque mágico <b>{{ d.bonus_ataque_magia|sinal }}</b></div>{% endif %}
+      </div>
+
+      <div class="bloco">
+        <h2>Perícias</h2>
+        {% for pe in d.pericias %}
+        <div class="linha">
+          <span class="pip {{ 'on' if pe.proficiente }}"></span>
+          <span class="v">{{ pe.valor|sinal }}</span>
+          <span class="n">{{ pe.nome }}</span>
+          <span class="a">{{ pe.atributo }}</span>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    {# ---- coluna direita: traços + proficiências + personalidade ---- #}
+    <div class="col col-dir">
+      <div class="bloco">
+        <h2>Traços & Recursos</h2>
+        {% if d.tracos_ativos %}
+          {% for t in d.tracos_ativos %}
+          <div class="traco">
+            <span class="t">{{ t.nome }}</span>
+            <span class="badge {{ 'num' if t.tipo == 'numerico' else 'desc' }}">{{ 'números' if t.tipo == 'numerico' else 'descritivo' }}</span>
+            {% if t.fonte %}<div class="fonte">{{ t.fonte }}</div>{% endif %}
+            {% if t.descricao %}<p>{{ t.descricao }}</p>{% endif %}
+          </div>
+          {% endfor %}
+        {% else %}<div class="muted">Sem traços/recursos.</div>{% endif %}
+      </div>
+
+      <div class="bloco">
+        <h2>Proficiências & Idiomas</h2>
+        {% if p.idiomas %}<div><b>Idiomas:</b> {{ p.idiomas }}</div>{% endif %}
+        {% if p.outras_proficiencias %}<div class="texto">{{ p.outras_proficiencias }}</div>{% endif %}
+        {% if not p.idiomas and not p.outras_proficiencias %}<div class="muted">—</div>{% endif %}
+      </div>
+
+      <div class="bloco">
+        <h2>Personalidade</h2>
+        {% if p.tracos_personalidade %}<div><b>Traços:</b> <span class="texto">{{ p.tracos_personalidade }}</span></div>{% endif %}
+        {% if p.ideais %}<div><b>Ideais:</b> <span class="texto">{{ p.ideais }}</span></div>{% endif %}
+        {% if p.vinculos %}<div><b>Vínculos:</b> <span class="texto">{{ p.vinculos }}</span></div>{% endif %}
+        {% if p.fraquezas %}<div><b>Fraquezas:</b> <span class="texto">{{ p.fraquezas }}</span></div>{% endif %}
+      </div>
+    </div>
+
+  </div>
+</div>
+
+{# ============================ PÁGINA 2 — IDENTIDADE ============================ #}
+<div class="pagina">
+  <div class="cabecalho">
+    <div class="nome">{{ p.nome }} — Identidade</div>
+    <div class="meta">{% if p.faccao %}<b>Facção:</b> {{ p.faccao }}{% else %}<span class="muted">Página 2</span>{% endif %}</div>
+  </div>
+
+  <div class="identidade">
+    <div class="dados">
+      <div class="bloco">
+        <h2>Características</h2>
+        <div class="kv">
+          <div class="item"><span class="k">Idade</span>{{ p.idade or "—" }}</div>
+          <div class="item"><span class="k">Altura</span>{{ p.altura or "—" }}</div>
+          <div class="item"><span class="k">Peso</span>{{ p.peso or "—" }}</div>
+          <div class="item"><span class="k">Olhos</span>{{ p.olhos or "—" }}</div>
+          <div class="item"><span class="k">Pele</span>{{ p.pele or "—" }}</div>
+          <div class="item"><span class="k">Cabelo</span>{{ p.cabelo or "—" }}</div>
+        </div>
+      </div>
+
+      {% if p.aparencia %}<div class="bloco"><h2>Aparência</h2><div class="texto">{{ p.aparencia }}</div></div>{% endif %}
+      {% if p.aliados %}<div class="bloco"><h2>Aliados & Organizações</h2><div class="texto">{{ p.aliados }}</div></div>{% endif %}
+      {% if p.tesouro or p.dinheiro %}<div class="bloco"><h2>Tesouro</h2>{% if p.dinheiro %}<div><b>Moedas:</b> {{ p.dinheiro }}</div>{% endif %}{% if p.tesouro %}<div class="texto">{{ p.tesouro }}</div>{% endif %}</div>{% endif %}
+      {% if p.equipamento %}<div class="bloco"><h2>Equipamento</h2><div class="texto">{{ p.equipamento }}</div></div>{% endif %}
+      {% if p.historia %}<div class="bloco"><h2>História</h2><div class="texto">{{ p.historia }}</div></div>{% endif %}
+    </div>
+
+    <div class="midia">
+      {% if retrato %}<img src="{{ retrato }}" alt="retrato"><div class="cap">Retrato</div>{% endif %}
+      {% if simbolo %}<img src="{{ simbolo }}" alt="símbolo"><div class="cap">Símbolo da Facção</div>{% endif %}
+      {% if not retrato and not simbolo %}<div class="bloco muted">Sem imagens anexadas.</div>{% endif %}
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

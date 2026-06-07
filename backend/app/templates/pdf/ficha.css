@@ -1,0 +1,108 @@
+/* Ficha PDF — layout estilo oficial 5E (recriado). Print-CSS A4 para WeasyPrint. */
+@page {
+  size: A4;
+  margin: 12mm 10mm;
+  @bottom-center {
+    content: "Ragnarok — Ficha de Personagem D&D 5E (SRD 5.1 / CC-BY 4.0)";
+    font-size: 7pt; color: #8a7f63;
+  }
+  @bottom-right { content: "pág. " counter(page) "/" counter(pages); font-size: 7pt; color: #8a7f63; }
+}
+
+* { box-sizing: border-box; }
+body {
+  font-family: "DejaVu Sans", sans-serif;
+  color: #1c150c; font-size: 9pt; line-height: 1.32; margin: 0;
+}
+h1, h2, h3 { font-family: "DejaVu Serif", serif; margin: 0; }
+.pagina { page-break-after: always; }
+.pagina:last-child { page-break-after: auto; }
+
+/* Cabeçalho */
+.cabecalho {
+  display: flex; justify-content: space-between; align-items: flex-end;
+  border: 1.5pt solid #7b1113; border-radius: 6pt; padding: 7pt 10pt; margin-bottom: 8pt;
+  background: #f3ece0;
+}
+.cabecalho .nome { font-size: 17pt; color: #7b1113; letter-spacing: .3pt; }
+.cabecalho .meta { font-size: 8pt; color: #4a3f2c; text-align: right; }
+.cabecalho .meta b { color: #1c150c; }
+
+/* Grade de 3 colunas (página 1) */
+.grade { display: flex; gap: 7pt; align-items: flex-start; }
+.col { flex: 1; }
+.col-esq { flex: 0 0 27%; }
+.col-dir { flex: 0 0 30%; }
+
+.bloco {
+  border: 1pt solid #c8b48c; border-radius: 5pt; padding: 5pt 7pt; margin-bottom: 7pt;
+  background: #fbf7ee;
+}
+.bloco h2 {
+  font-size: 8pt; text-transform: uppercase; letter-spacing: .6pt; color: #7b1113;
+  border-bottom: .7pt solid #c8b48c; padding-bottom: 2pt; margin-bottom: 4pt;
+}
+
+/* Atributos */
+.atributo {
+  border: 1pt solid #b89b6a; border-radius: 5pt; text-align: center; padding: 3pt 0 2pt;
+  margin-bottom: 5pt; background: #fff;
+}
+.atributo .rotulo { font-size: 6.5pt; text-transform: uppercase; letter-spacing: .5pt; color: #6a5a3a; }
+.atributo .mod { font-size: 15pt; font-weight: bold; line-height: 1; }
+.atributo .valor {
+  display: inline-block; min-width: 16pt; margin-top: 1pt; padding: 0 2pt;
+  border: 1pt solid #b89b6a; border-radius: 8pt; font-size: 8pt; background: #f3ece0;
+}
+
+/* Linhas (perícias / salvaguardas) */
+.linha { display: flex; align-items: center; gap: 4pt; padding: .5pt 0; }
+.linha .pip {
+  width: 6pt; height: 6pt; border: 1pt solid #6a5a3a; border-radius: 50%; flex: 0 0 auto;
+}
+.linha .pip.on { background: #7b1113; border-color: #7b1113; }
+.linha .v { width: 16pt; text-align: right; font-variant-numeric: tabular-nums; }
+.linha .n { flex: 1; }
+.linha .a { color: #8a7f63; font-size: 7pt; text-transform: uppercase; }
+
+/* Caixas de destaque (CA/Inic/PV) */
+.destaques { display: flex; gap: 5pt; margin-bottom: 7pt; }
+.caixa {
+  flex: 1; border: 1.2pt solid #7b1113; border-radius: 5pt; text-align: center;
+  padding: 4pt 2pt; background: #fff;
+}
+.caixa .num { font-size: 14pt; font-weight: bold; }
+.caixa .cap { font-size: 6.5pt; text-transform: uppercase; color: #6a5a3a; letter-spacing: .4pt; }
+
+.pv { display: flex; gap: 5pt; margin-bottom: 7pt; }
+.pv .caixa .num { font-size: 12pt; }
+
+/* Tabela de ataques */
+table.ataques { width: 100%; border-collapse: collapse; font-size: 8pt; }
+table.ataques th, table.ataques td { border-bottom: .6pt solid #d8c9a8; padding: 2pt 3pt; text-align: left; }
+table.ataques th { color: #7b1113; text-transform: uppercase; font-size: 6.5pt; }
+table.ataques td.c { text-align: center; }
+
+/* Traços / recursos */
+.traco { border-left: 2.5pt solid #7b1113; padding: 1pt 0 3pt 5pt; margin-bottom: 4pt; }
+.traco .t { font-weight: bold; }
+.traco .badge {
+  font-size: 6pt; padding: 0 4pt; border-radius: 6pt; margin-left: 3pt; vertical-align: middle;
+}
+.traco .num { background: #e7d3a8; color: #6a4a10; }
+.traco .desc { background: #d8e3d8; color: #2a4a2a; }
+.traco .fonte { font-size: 6.5pt; color: #8a7f63; }
+.traco p { margin: 1pt 0 0; }
+
+.texto { white-space: pre-wrap; font-size: 8pt; }
+.muted { color: #8a7f63; }
+
+/* Página 2 — identidade */
+.identidade { display: flex; gap: 8pt; }
+.identidade .dados { flex: 1; }
+.identidade .midia { flex: 0 0 34%; }
+.midia img { width: 100%; border: 1pt solid #c8b48c; border-radius: 5pt; margin-bottom: 6pt; }
+.midia .cap { text-align: center; font-size: 7pt; color: #6a5a3a; margin-bottom: 8pt; }
+.kv { display: flex; flex-wrap: wrap; gap: 2pt 0; }
+.kv .item { flex: 0 0 33%; font-size: 8pt; margin-bottom: 2pt; }
+.kv .item .k { font-size: 6.5pt; text-transform: uppercase; color: #6a5a3a; display: block; }

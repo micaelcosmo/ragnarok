@@ -1,5 +1,5 @@
 """Endpoints de Personagens (ficha 5E). Ownership por jogador; mestre vê os da sua mesa."""
-from flask import Blueprint, request
+from flask import Blueprint, Response, request
 
 from app.extensions import db
 from app.models.campaign import Mesa
@@ -118,6 +118,27 @@ def obter(personagem_id):
     if not _personagem_acessivel(personagem, current_user()):
         raise Forbidden("Você não pode ver este personagem.")
     return ok(personagem.to_dict())
+
+
+@bp.get("/characters/<int:personagem_id>/pdf")
+@auth_required
+def exportar_pdf(personagem_id):
+    """Exporta a ficha em PDF (estilo oficial 5E). Dono/ADMIN/mestre da mesa."""
+    personagem = Personagem.query.get(personagem_id)
+    if personagem is None:
+        raise NotFound("Personagem não encontrado.")
+    if not _personagem_acessivel(personagem, current_user()):
+        raise Forbidden("Você não pode exportar este personagem.")
+
+    from app.services.ficha_pdf import FichaPDF
+
+    gerador = FichaPDF(personagem)
+    pdf = gerador.render_pdf()
+    return Response(
+        pdf,
+        mimetype="application/pdf",
+        headers={"Content-Disposition": f'attachment; filename="{gerador.nome_arquivo()}"'},
+    )
 
 
 @bp.put("/characters/<int:personagem_id>")
