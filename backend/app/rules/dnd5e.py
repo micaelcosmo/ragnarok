@@ -104,6 +104,19 @@ def sanear_asi(pedido: dict, pontos_total: int, atributos_base: dict) -> dict:
 _RECARGAS_VALIDAS = ("curto", "longo", "nenhum")
 
 
+def ca_sem_armadura(classe_slug, mods):
+    """
+    CA da Defesa sem Armadura por classe (None se a classe não tem a feature):
+    Bárbaro = 10 + DES + CON; Monge = 10 + DES + SAB.
+    """
+    slug = (classe_slug or "").strip().lower()
+    if slug == "barbarian":
+        return 10 + int(mods.get("des", 0)) + int(mods.get("con", 0))
+    if slug == "monk":
+        return 10 + int(mods.get("des", 0)) + int(mods.get("sab", 0))
+    return None
+
+
 def sanear_recursos(lista) -> list:
     """Valida/clampa uma lista de recursos de classe: nome não-vazio, max>=0, atual em [0,max]."""
     limpos = []

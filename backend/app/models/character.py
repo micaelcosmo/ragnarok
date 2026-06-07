@@ -16,6 +16,7 @@ class Personagem(TimestampMixin, db.Model):
     nome = db.Column(db.String(120), nullable=False)
     nome_jogador = db.Column(db.String(120), nullable=True)
     raca_slug = db.Column(db.String(60), nullable=True)
+    subraca_slug = db.Column(db.String(60), nullable=True)
     classe_slug = db.Column(db.String(60), nullable=True)
     antecedente_slug = db.Column(db.String(60), nullable=True)
     tendencia = db.Column(db.String(40), nullable=True)
@@ -127,6 +128,7 @@ class Personagem(TimestampMixin, db.Model):
             "nome": self.nome,
             "nome_jogador": self.nome_jogador,
             "raca_slug": self.raca_slug,
+            "subraca_slug": self.subraca_slug,
             "classe_slug": self.classe_slug,
             "antecedente_slug": self.antecedente_slug,
             "tendencia": self.tendencia,
