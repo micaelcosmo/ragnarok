@@ -1,5 +1,81 @@
 # Changelog — Enriquecimento
 
+## [E38 — Cálculo automático de PV] (nova)
+### feat
+- `dnd5e.pv_sugerido(dado, nivel, con_mod)` (regra fixa 5E). Construtor expõe
+  `derivados.dado_vida_classe` + `derivados.pv_sugerido` (dado da classe primária, nível total, CON).
+- Frontend: botão **🎲 Calcular PV** na ficha (define pv_max := sugerido, com confirmação).
+- +N testes. Sem migração.
+
+## [E37 — Exportar/Importar ficha em JSON] (nova)
+### feat
+- `GET /characters/<id>/export` → JSON (attachment) com os campos da ficha (sem derivados/ids/itens
+  equipados); `POST /characters/import` cria uma nova ficha do usuário a partir do JSON.
+- Frontend: botão **⬇️ Exportar JSON** na ficha + **⬆️ Importar ficha** no dashboard.
+- Backup/portabilidade (não é importação por LLM). +N testes. Sem migração.
+
+## [E36 — Clonar personagem] (nova)
+### feat
+- `POST /characters/<id>/clonar`: duplica a ficha (cópia coluna a coluna, exceto id/user_id/created_at)
+  para o usuário atual; nome ganha sufixo " (cópia)". Fonte acessível por `_personagem_acessivel`.
+- Frontend: botão **📑 Clonar** na ficha (navega para a cópia). +N testes. Sem migração.
+
+## [E35 — Multiclasse]
+### feat
+- Personagem: `classes_extras` (JSON [{slug, nivel}]) + migração Alembic.
+- `dnd5e.sanear_classes_extras` + `nivel_total`; construtor usa o **nível total** (bônus de
+  proficiência correto) e dobra efeitos das classes extras **sem** duplicar salvaguardas (5E: só da 1ª).
+- `derivados.nivel_total` + `derivados.classes`. API aceita `classes_extras`; editor com seção
+  Multiclasse; cabeçalho mostra "Classe N / Outra M · nível total T".
+- +N testes. Unit: `planning/multiclasse.md`.
+
+## [E34 — Galeria de imagens do personagem]
+### feat
+- Personagem: campo `imagens` (JSON lista {url, legenda, principal}) + migração Alembic.
+- `dnd5e.sanear_imagens` (url obrigatória, no máx. 1 principal); API aceita `imagens`;
+  `derivados.imagem_principal` (principal ou avatar_url de fallback).
+- Frontend: galeria na aba Identidade (upload, definir principal ★, legenda, remover); ao vivo.
+- +N testes. Unit: `planning/galeria-imagens.md`.
+
+## [E33 — Moedas por tipo]
+### feat
+- Personagem: campo `moedas` (JSON {pc,pp,pe,po,pl}) + migração Alembic (mantém `dinheiro` texto).
+- `dnd5e.sanear_moedas` (clamp ≥0) e `moedas_total_po` (conversão p/ PO). API aceita `moedas`;
+  `derivados.total_po`.
+- Frontend: 5 inputs de moeda no editor + chips na ficha (e total ≈ X PO); PDF mostra as moedas.
+- +N testes. Unit: `planning/moedas-tipo.md`.
+
+## [E32 — Admin marca conteúdo como OFICIAL]
+### feat
+- `POST /reference/<tipo>/<slug>/oficializar` (ADMIN): promove homebrew → oficial (`homebrew=False`,
+  `fonte` opcional). Idempotente; MESTRE/JOGADOR → 403. Tipos: races/classes/backgrounds/feats/spells.
+- Frontend: no detalhe do compêndio, ADMIN vê botão **✔️ Tornar Oficial** (prompt de fonte).
+- +N testes. Unit: `planning/admin-oficial.md`. Sem migração.
+
+## [E31 — Testes contra a Morte + Exaustão]
+### feat
+- Personagem: `mortes_sucesso`/`mortes_falha` (0–3) e `exaustao` (0–6) + migração Alembic.
+- `dnd5e`: `NIVEIS_EXAUSTAO` (efeitos 1–6) + `efeito_exaustao()` + clamps; API clampa os campos;
+  `derivados.exaustao_efeito` descreve o nível atual.
+- Frontend: mini-painel **Estado** na ficha (pips de sucesso/falha de morte + exaustão −/+ com efeito).
+- +N testes. Unit: `planning/morte-exaustao.md`.
+
+## [E30 — Defesa sem Armadura automática]
+### feat
+- `dnd5e.ca_sem_armadura(classe_slug, mods)`: Bárbaro 10+DES+CON, Monge 10+DES+SAB (None p/ outras).
+- `ConstrutorDeFicha._calcular_ca`: sem armadura, usa `max(CA manual, fórmula da classe)`; expõe
+  `derivados.ca_detalhe` (origem do cálculo). Sem migração.
+- +N testes. Unit: `planning/defesa-sem-armadura.md`.
+
+## [E29 — Sub-raças aplicando efeitos]
+### feat
+- Personagem: campo `subraca_slug` + migração Alembic.
+- `ConstrutorDeFicha` aplica os efeitos da sub-raça escolhida (bonus_atributos/efeitos) como fonte
+  reversível e expõe `derivados.subraca` (nome + traços); traços da sub-raça entram em
+  `tracos_ativos` (origem "subraca").
+- API aceita `subraca_slug`; frontend: campo Sub-raça no editor + chip na ficha.
+- +N testes. Unit: `planning/subracas-efeitos.md`.
+
 ## [E28 — Toggle EN/PT na UI]
 ### feat
 - Compêndio: botão **🌐 PT | EN** que alterna o idioma (localStorage) e re-renderiza as listas —

@@ -18,7 +18,10 @@ export async function renderDashboard() {
     view.innerHTML = `
       <div class="section-title">
         <h2>Saudações, ${esc(usuario.name)}</h2>
-        <button class="btn btn--primary" id="cta-novo">➕ Novo Herói</button>
+        <div class="row">
+          <button class="btn btn--ghost btn--sm" id="cta-importar">⬆️ Importar ficha</button>
+          <button class="btn btn--primary" id="cta-novo">➕ Novo Herói</button>
+        </div>
       </div>
 
       <h3 class="muted">Seus Personagens</h3>
@@ -35,6 +38,19 @@ export async function renderDashboard() {
       </div>`;
 
     view.querySelector('#cta-novo').addEventListener('click', () => navegar('#/characters/new'));
+    view.querySelector('#cta-importar').addEventListener('click', () => {
+      const file = document.createElement('input');
+      file.type = 'file'; file.accept = 'application/json,.json';
+      file.addEventListener('change', async () => {
+        if (!file.files[0]) return;
+        try {
+          const pacote = JSON.parse(await file.files[0].text());
+          const novo = await api.characters.importar(pacote);
+          toast('Ficha importada.'); navegar(`#/characters/${novo.id}`);
+        } catch (erro) { toast(erro.message || 'JSON inválido.', 'err'); }
+      });
+      file.click();
+    });
     view.querySelector('#cta-mesas').addEventListener('click', () => navegar('#/campaigns'));
     view.querySelectorAll('[data-char]').forEach((no) =>
       no.addEventListener('click', () => navegar(`#/characters/${no.dataset.char}`)));
