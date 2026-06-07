@@ -15,7 +15,7 @@ _ATRIBUTOS = Personagem.ATRIBUTOS_COLUNAS
 
 # Campos simples atualizáveis diretamente do corpo.
 _CAMPOS_TEXTO = (
-    "nome", "nome_jogador", "raca_slug", "classe_slug", "antecedente_slug",
+    "nome", "nome_jogador", "raca_slug", "subraca_slug", "classe_slug", "antecedente_slug",
     "tendencia", "deslocamento", "dado_vida", "outras_proficiencias",
     "classe_conjuradora", "atributo_conjuracao", "tracos_personalidade",
     "ideais", "vinculos", "fraquezas", "historia", "caracteristicas",
@@ -83,6 +83,19 @@ def _aplicar_campos(personagem, dados):
         from app.rules import dnd5e
 
         personagem.recursos = dnd5e.sanear_recursos(dados["recursos"])
+
+    # Estado de combate (E31): clampa morte (0–3) e exaustão (0–6).
+    from app.rules import dnd5e as _regras
+    if "mortes_sucesso" in dados:
+        personagem.mortes_sucesso = _regras.clamp_morte(dados["mortes_sucesso"])
+    if "mortes_falha" in dados:
+        personagem.mortes_falha = _regras.clamp_morte(dados["mortes_falha"])
+    if "exaustao" in dados:
+        personagem.exaustao = _regras.clamp_exaustao(dados["exaustao"])
+
+    # Moedas estruturadas (E33).
+    if "moedas" in dados and isinstance(dados["moedas"], dict):
+        personagem.moedas = _regras.sanear_moedas(dados["moedas"])
 
 
 @bp.get("/characters")
