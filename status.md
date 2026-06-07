@@ -43,6 +43,7 @@
 | E29 | Sub-raças aplicando efeitos (auto, reversível) | ✅ (em prod) |
 | E30 | Defesa sem armadura automática (Bárbaro/Monge) | ✅ (em prod) |
 | E31 | Testes de morte + exaustão (rastreio na ficha) | ✅ (em prod) |
+| E32 | Admin marca conteúdo como OFICIAL (curadoria) | 🔄 em andamento |
 
 ---
 

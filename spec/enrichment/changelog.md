@@ -1,5 +1,12 @@
 # Changelog — Enriquecimento
 
+## [E32 — Admin marca conteúdo como OFICIAL]
+### feat
+- `POST /reference/<tipo>/<slug>/oficializar` (ADMIN): promove homebrew → oficial (`homebrew=False`,
+  `fonte` opcional). Idempotente; MESTRE/JOGADOR → 403. Tipos: races/classes/backgrounds/feats/spells.
+- Frontend: no detalhe do compêndio, ADMIN vê botão **✔️ Tornar Oficial** (prompt de fonte).
+- +N testes. Unit: `planning/admin-oficial.md`. Sem migração.
+
 ## [E31 — Testes contra a Morte + Exaustão]
 ### feat
 - Personagem: `mortes_sucesso`/`mortes_falha` (0–3) e `exaustao` (0–6) + migração Alembic.
