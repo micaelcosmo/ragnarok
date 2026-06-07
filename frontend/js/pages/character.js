@@ -99,6 +99,20 @@ function pintarFicha(view, personagem) {
             <span class="chip">${personagem.dado_vida || ''}</span>
             ${personagem.inspiracao ? '<span class="badge">✨ Inspiração</span>' : ''}
           </div>
+          <div class="row" style="margin-top:12px;gap:18px;flex-wrap:wrap;align-items:center">
+            <div title="Testes de resistência contra a morte">
+              <span class="muted" style="font-size:.78rem">Morte</span>
+              <span style="margin-left:6px">✅ ${[0, 1, 2].map((i) => `<span class="death-pip" data-morte="sucesso" data-i="${i}" style="cursor:pointer">${i < (personagem.mortes_sucesso || 0) ? '●' : '○'}</span>`).join('')}</span>
+              <span style="margin-left:8px">❌ ${[0, 1, 2].map((i) => `<span class="death-pip" data-morte="falha" data-i="${i}" style="cursor:pointer">${i < (personagem.mortes_falha || 0) ? '●' : '○'}</span>`).join('')}</span>
+            </div>
+            <div title="${esc(derivados.exaustao_efeito || 'Sem exaustão')}">
+              <span class="muted" style="font-size:.78rem">Exaustão</span>
+              <button class="btn btn--ghost btn--sm" id="exa-menos">−</button>
+              <b style="min-width:14px;display:inline-block;text-align:center">${personagem.exaustao || 0}</b>
+              <button class="btn btn--ghost btn--sm" id="exa-mais">+</button>
+              ${derivados.exaustao_efeito ? `<span class="chip" style="margin-left:6px">${esc(derivados.exaustao_efeito)}</span>` : ''}
+            </div>
+          </div>
         </div>
 
         <div class="card">
@@ -195,6 +209,19 @@ function pintarFicha(view, personagem) {
   view.querySelector('#apagar').addEventListener('click', () => confirmarExclusao(personagem));
   view.querySelector('#pv-dano').addEventListener('click', () => ajustarPV(view, personagem, -1));
   view.querySelector('#pv-cura').addEventListener('click', () => ajustarPV(view, personagem, +1));
+  // Estado (E31): pips de morte + exaustão
+  const salvarEstado = async (campos) => {
+    try { pintarFicha(view, await api.characters.update(personagem.id, campos)); }
+    catch (erro) { toast(erro.message, 'err'); }
+  };
+  view.querySelectorAll('[data-morte]').forEach((pip) => pip.addEventListener('click', () => {
+    const tipo = pip.dataset.morte, i = Number(pip.dataset.i);
+    const campo = tipo === 'sucesso' ? 'mortes_sucesso' : 'mortes_falha';
+    const atualValor = personagem[campo] || 0;
+    salvarEstado({ [campo]: atualValor === i + 1 ? i : i + 1 });
+  }));
+  view.querySelector('#exa-menos').addEventListener('click', () => salvarEstado({ exaustao: (personagem.exaustao || 0) - 1 }));
+  view.querySelector('#exa-mais').addEventListener('click', () => salvarEstado({ exaustao: (personagem.exaustao || 0) + 1 }));
   view.querySelector('#gerenciar-equip').addEventListener('click', () => gerenciarEquipamento(view, personagem));
   renderResumoEquip(view, personagem);
 

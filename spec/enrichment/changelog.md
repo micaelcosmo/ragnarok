@@ -1,5 +1,13 @@
 # Changelog — Enriquecimento
 
+## [E31 — Testes contra a Morte + Exaustão]
+### feat
+- Personagem: `mortes_sucesso`/`mortes_falha` (0–3) e `exaustao` (0–6) + migração Alembic.
+- `dnd5e`: `NIVEIS_EXAUSTAO` (efeitos 1–6) + `efeito_exaustao()` + clamps; API clampa os campos;
+  `derivados.exaustao_efeito` descreve o nível atual.
+- Frontend: mini-painel **Estado** na ficha (pips de sucesso/falha de morte + exaustão −/+ com efeito).
+- +N testes. Unit: `planning/morte-exaustao.md`.
+
 ## [E30 — Defesa sem Armadura automática]
 ### feat
 - `dnd5e.ca_sem_armadura(classe_slug, mods)`: Bárbaro 10+DES+CON, Monge 10+DES+SAB (None p/ outras).

@@ -84,6 +84,15 @@ def _aplicar_campos(personagem, dados):
 
         personagem.recursos = dnd5e.sanear_recursos(dados["recursos"])
 
+    # Estado de combate (E31): clampa morte (0–3) e exaustão (0–6).
+    from app.rules import dnd5e as _regras
+    if "mortes_sucesso" in dados:
+        personagem.mortes_sucesso = _regras.clamp_morte(dados["mortes_sucesso"])
+    if "mortes_falha" in dados:
+        personagem.mortes_falha = _regras.clamp_morte(dados["mortes_falha"])
+    if "exaustao" in dados:
+        personagem.exaustao = _regras.clamp_exaustao(dados["exaustao"])
+
 
 @bp.get("/characters")
 @auth_required

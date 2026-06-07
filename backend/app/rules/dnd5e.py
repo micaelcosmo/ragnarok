@@ -104,6 +104,33 @@ def sanear_asi(pedido: dict, pontos_total: int, atributos_base: dict) -> dict:
 _RECARGAS_VALIDAS = ("curto", "longo", "nenhum")
 
 
+# Efeitos de exaustão por nível (SRD 5E), acumulativos na narrativa.
+NIVEIS_EXAUSTAO = [
+    "",                                                  # 0 — sem exaustão
+    "Desvantagem em testes de habilidade",               # 1
+    "Velocidade reduzida à metade",                      # 2
+    "Desvantagem em ataques e testes de resistência",    # 3
+    "PV máximo reduzido à metade",                       # 4
+    "Velocidade reduzida a 0",                           # 5
+    "Morte",                                             # 6
+]
+
+
+def clamp_morte(valor):
+    """Sucessos/falhas de morte ficam em [0, 3]."""
+    return _clamp(int(valor or 0), 0, 3)
+
+
+def clamp_exaustao(valor):
+    """Nível de exaustão fica em [0, 6]."""
+    return _clamp(int(valor or 0), 0, 6)
+
+
+def efeito_exaustao(nivel):
+    """Descrição do efeito do nível de exaustão atual (vazio no nível 0)."""
+    return NIVEIS_EXAUSTAO[clamp_exaustao(nivel)]
+
+
 def ca_sem_armadura(classe_slug, mods):
     """
     CA da Defesa sem Armadura por classe (None se a classe não tem a feature):
