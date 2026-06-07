@@ -4,18 +4,19 @@
 > Cada item vira candidato a feature futura. Prioridade: 🔴 alta · 🟡 média · ⚪ baixa.
 
 ## Mecânicas de personagem
-- 🔴 **Aumentos de Habilidade (ASI)**: não há mecanismo de ASI por nível (4/8/12/16/19). Hoje
-  são "embutidos" no atributo base na importação. Futuro: trilha de progressão por nível.
+- ✅ **Aumentos de Habilidade (ASI)** — FEITO (E26): pool reversível `bonus_atributos_manuais`
+  (níveis 4/8/12/16/19 → +2), clampada no servidor (teto 20), seção +/- no editor.
 - 🟡 **Validação de `tracos_extras`**: o campo aceita JSON livre do usuário (nome/descrição/efeitos)
   sem validar forma nem clampar a magnitude dos números (ex.: `efeitos.atributos.con: 9999`).
-  Afeta só a própria ficha (risco de balanceamento, não de plataforma), mas vale um schema/limites
-  no backend e, idealmente, traços incrementais sujeitos à aprovação do Mestre da mesa.
+  (O ASI do E26 já usa esse padrão de clamp no servidor — falta aplicar o mesmo aos traços e,
+  idealmente, traços incrementais sujeitos à aprovação do Mestre da mesa.)
 - 🔴 **Sub-raças aplicando efeitos**: a raça aplica `efeitos`, mas **sub-raça** (ex.: Halfling
   Robusto +1 CON, resistência a veneno) não é auto-aplicada. Hoje embutimos na base/descrição.
 - 🟡 **Talentos vs ASI**: feats reais (Sortudo, Bravura) existem como conteúdo, mas a escolha
-  "ASI ou talento" por nível não é guiada.
-- 🔴 **Recursos de classe** (Fúria [usos], Dados de Vida [n], Inspiração como recurso):
-  sem rastreio de usos/recarga. Hoje viram texto.
+  "ASI ou talento" por nível não é guiada. (Base do E26 facilita isso.)
+- ✅ **Recursos de classe** (Fúria [usos], Dados de Vida [n], Inspiração) — FEITO (E27): campo
+  `recursos` (atual/máx/recarga) + `POST /recursos/ajustar` e `POST /descanso` (curto/longo,
+  longo restaura PV) + painel na ficha.
 - 🟡 **Defesa sem Armadura** (CA = 10 + DES + CON): a CA é manual; não há fórmula automática por
   classe quando sem armadura.
 - 🟡 **Testes contra a morte** (sucessos/falhas) e **exaustão**: sem campos próprios.
@@ -61,6 +62,21 @@
     `UPLOAD_DIR`) — hoje já é seguro por basename + autoescape do Jinja, mas vale o cinto-e-suspensório.
   - ⚪ Rate-limit / cache no endpoint de PDF (render é CPU-bound; evitar abuso de spam).
   - ⚪ Tema alternativo de PDF, watermark "homebrew", export de bestiário/PDM.
+
+## ⭐ NOVO — Interatividade na ficha (sugestão do agente, 2026-06-07)
+> A ficha hoje é "calculadora viva" mas **estática**: mostra os números, não os usa. O passo natural
+> (à la D&D Beyond) é **rolar dados** direto da ficha, reaproveitando os modificadores já calculados.
+
+- 🔴 **Rolador de dados integrado**: clicar numa **perícia / salvaguarda / ataque / iniciativa**
+  rola `1d20 + modificador` (o `derivados` já tem todos os valores) e mostra o resultado num popover,
+  com **Vantagem/Desvantagem** (rola 2d20, pega maior/menor) e **crítico** destacado (20/1). Dano da
+  arma idem (`1d12+4` etc.). 100% frontend (engine de rolagem pura, testável) — **sem migração**.
+  - *Quick win adjacente:* botão "rolar Dados de Vida" no descanso curto (já temos `recursos`).
+- 🟡 **Mini-histórico de rolagens**: as últimas N rolagens numa gaveta lateral (em memória/localStorage).
+  Evolui depois para um **log compartilhado da mesa** (todos veem as rolagens uns dos outros, via o
+  polling "ao vivo" do E21) — aí vira recurso de **mesa**, não só de ficha.
+- ⚪ **Compartilhar ficha por link público (read-only)**: reaproveita o render do PDF/ficha para um
+  link público (estilo "ficha pública" do D&D Beyond), sem login, só leitura.
 
 ## Futuro distante (ideias do dono)
 - ⚪ **Importação de ficha por LLM**: jogador/mestre faz upload de uma ficha (PDF/imagem) e um
