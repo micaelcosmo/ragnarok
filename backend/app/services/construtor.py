@@ -155,7 +155,9 @@ class ConstrutorDeFicha:
 
         mods = derivado["modificadores"]
         bp = derivado["bonus_proficiencia"]
+        self._ca_detalhe = "CA base (manual)"
         derivado["ca"] = self._calcular_ca(personagem, mods, final["ca_bonus"])
+        derivado["ca_detalhe"] = self._ca_detalhe
         derivado["ataques_equipados"] = self._ataques(personagem, mods, bp)
         derivado["atributos_final"] = final["atributos"]
         derivado["asi"] = self._asi()
@@ -181,7 +183,15 @@ class ConstrutorDeFicha:
             from app.models.items import Armadura
             armadura = Armadura.query.get(personagem.armadura_equipada_id)
         if armadura is None:
-            return int(personagem.ca or 10) + ajuste
+            base = int(personagem.ca or 10)
+            from app.rules import dnd5e
+            sem_armadura = dnd5e.ca_sem_armadura(personagem.classe_slug, mods)
+            if sem_armadura is not None and sem_armadura >= base:
+                self._ca_detalhe = f"Defesa sem Armadura ({personagem.classe_slug})"
+                return sem_armadura + ajuste
+            self._ca_detalhe = "CA base (manual)"
+            return base + ajuste
+        self._ca_detalhe = f"Armadura: {armadura.nome}"
         ca = int(armadura.ca_base or 10)
         if armadura.ca_soma_des:
             des = mods["des"]

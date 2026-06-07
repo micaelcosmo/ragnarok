@@ -82,7 +82,7 @@ function pintarFicha(view, personagem) {
 
       <div>
         <div class="combat-row card">
-          ${combatBox('CA', personagem.ca, DESC_COMBATE.CA)}
+          ${combatBox('CA', derivados.ca ?? personagem.ca, (derivados.ca_detalhe ? derivados.ca_detalhe + '. ' : '') + DESC_COMBATE.CA)}
           ${combatBox('Iniciativa', sinal(derivados.iniciativa), DESC_COMBATE.Iniciativa)}
           ${combatBox('Deslocamento', esc(personagem.deslocamento || '—'), DESC_COMBATE.Deslocamento)}
           ${combatBox('Proficiência', sinal(derivados.bonus_proficiencia), DESC_COMBATE.Proficiência)}

@@ -1,5 +1,12 @@
 # Changelog — Enriquecimento
 
+## [E30 — Defesa sem Armadura automática]
+### feat
+- `dnd5e.ca_sem_armadura(classe_slug, mods)`: Bárbaro 10+DES+CON, Monge 10+DES+SAB (None p/ outras).
+- `ConstrutorDeFicha._calcular_ca`: sem armadura, usa `max(CA manual, fórmula da classe)`; expõe
+  `derivados.ca_detalhe` (origem do cálculo). Sem migração.
+- +N testes. Unit: `planning/defesa-sem-armadura.md`.
+
 ## [E29 — Sub-raças aplicando efeitos]
 ### feat
 - Personagem: campo `subraca_slug` + migração Alembic.
