@@ -47,7 +47,7 @@
 | E33 | Moedas por tipo (PC/PP/PE/PO/PL) + total em PO | ✅ (em prod) |
 | E34 | Galeria de imagens do personagem (várias + principal) | ✅ (em prod) |
 | E35 | Multiclasse (nível total → proficiência; classes extras) | ✅ (em prod) |
-| E36 | ⭐ Clonar personagem (duplicar ficha) | 🔄 em andamento |
+| E36 | ⭐ Clonar personagem (duplicar ficha) | ✅ (em prod) |
 
 ---
 
