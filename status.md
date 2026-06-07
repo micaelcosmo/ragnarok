@@ -40,6 +40,13 @@
 | E26 | Aumentos de Habilidade (ASI) por nível — pool reversível | ✅ (em prod) |
 | E27 | Recursos de classe com usos (Fúria/Dados de Vida) + descanso | ✅ (em prod) |
 | E28 | Toggle EN/PT na UI (i18n visual do compêndio) | ✅ (em prod) |
+| E29 | Sub-raças aplicando efeitos (auto, reversível) | ✅ (em prod) |
+| E30 | Defesa sem armadura automática (Bárbaro/Monge) | ✅ (em prod) |
+| E31 | Testes de morte + exaustão (rastreio na ficha) | ✅ (em prod) |
+| E32 | Admin marca conteúdo como OFICIAL (curadoria) | ✅ (em prod) |
+| E33 | Moedas por tipo (PC/PP/PE/PO/PL) + total em PO | ✅ (em prod) |
+| E34 | Galeria de imagens do personagem (várias + principal) | ✅ (em prod) |
+| E35 | Multiclasse (nível total → proficiência; classes extras) | ✅ (em prod) |
 
 ---
 
