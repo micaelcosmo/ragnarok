@@ -106,6 +106,15 @@ docker compose up --build -d       # sobe db + backend + frontend (entrypoint ro
 docker compose logs -f backend     # acompanha logs
 ```
 
+### Stack DEV isolada (testar antes de tocar a prod)
+> Sobe uma cópia paralela (projeto `ragnarok-dev`, portas 8090/5060/5434, volume próprio) para
+> validar uma mudança sem afetar os dados/serviço de produção. Derrube ao terminar.
+```bash
+docker compose -p ragnarok-dev -f docker-compose.yml -f docker-compose.dev.yml up --build -d
+docker exec ragnarok-dev-backend python -m pytest -q        # suíte completa no ambiente real
+docker compose -p ragnarok-dev -f docker-compose.yml -f docker-compose.dev.yml down
+```
+
 ### Banco de dados — migrações (Alembic/Flask-Migrate) e backup
 > Schema é versionado. **Não** se usa mais `down -v` para aplicar mudanças. Ver ADR-0002.
 ```bash
@@ -147,6 +156,14 @@ flask db upgrade                           # aplica preservando os dados
   **magic-bytes**, gera nome aleatório (uuid) e salva em `UPLOAD_DIR` (`/app/uploads`, volume
   `ragnarok_uploads`). Servida em `GET /api/v1/uploads/<nome>`. nginx tem `client_max_body_size 4m`.
 - Usada para **retrato** (`avatar_url`) e **símbolo da facção** (`simbolo_faccao_url`).
+
+## 7.2 Exportação da ficha em PDF
+- `GET /api/v1/characters/<id>/pdf` (autenticado; dono/ADMIN/mestre) gera um PDF **estilo oficial 5E**
+  via serviço `FichaPDF` (template Jinja `app/templates/pdf/` + **WeasyPrint**). Ver ADR-0003.
+- O `backend/Dockerfile` instala libs nativas do WeasyPrint (pango/cairo/gdk-pixbuf/dejavu) — se o
+  build do backend falhar com erro de `libpango`/`cairo`, é aqui que se ajusta.
+- Imagens no PDF só de **uploads locais** (resolvidas por basename em `UPLOAD_DIR`); URLs externas
+  são ignoradas (anti-SSRF). Reaproveita os derivados do `ConstrutorDeFicha` (uma fonte da verdade).
 
 ## 8. Estado atual
 Veja **`status.md`** para a lista completa de tasks e o que está pronto/pendente.

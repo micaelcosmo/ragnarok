@@ -1,5 +1,49 @@
 # Changelog — Enriquecimento
 
+## [E25 — Exportar ficha em PDF (estilo oficial 5E)]
+### feat
+- Serviço `FichaPDF` (POO): monta o contexto a partir do `ConstrutorDeFicha` (mesmos derivados
+  da ficha web) e renderiza um template Jinja (HTML + print-CSS) convertido por **WeasyPrint**.
+- Template `app/templates/pdf/ficha.{html,css}` — **2 páginas**: pág.1 atributos/salvaguardas/
+  perícias + combate/ataques + traços & recursos (selo números/descritivo) + personalidade;
+  pág.2 identidade (características/aparência/aliados/tesouro/equipamento/história) + retrato e símbolo.
+- Endpoint `GET /api/v1/characters/<id>/pdf` (auth; dono/ADMIN/mestre) → `application/pdf` (attachment).
+- Imagens só de uploads locais (basename → `file://` em `UPLOAD_DIR`); URLs externas ignoradas (anti-SSRF).
+- Frontend: botão **🖨️ Exportar PDF** + `baixarArquivo()` (fetch blob autenticado → download).
+- Infra: `weasyprint` no requirements; libs nativas (pango/cairo/gdk-pixbuf/dejavu) no Dockerfile.
+  Sem migração (feature só-leitura). ADR-0003 + unit `planning/export-pdf.md`.
+- +4 testes (**115 no total**). Verificado em prod (Kzen 74 KB, retrato+símbolo embutidos).
+
+## [E24 — Tradução PT de armas/armaduras (de-para curado)]
+### feat
+- `backend/data/traducoes_pt.json` (47 nomes PT de weapons/armor do SRD) semeado de forma
+  idempotente por `SeedRunner.semear_traducoes()` no cache `Traducao`.
+- `/reference|catalog/weapons?idioma=pt` aplica via `Tradutor` (ex.: greataxe → "Machado Grande");
+  **fallback gracioso** mantém o original quando não há tradução. Argos segue opcional.
+- +1 teste (seed idempotente). Opção (c) do roadmap (offline, sem instalar o Argos).
+
+## [E23 — Equipamento mundano no catálogo]
+### feat
+- `backend/data/gear.json` (30 itens SRD: mochila, corda, tochas, rações, kits, pacotes)
+  semeado como `Item` global oficial via `SeedRunner.semear_equipamento` (homebrew=False, idioma=pt).
+- Fecha o gap de "adventuring gear" que só existia no campo de texto `equipamento` da ficha.
+
+## [E22 — Traços/Recursos como cards incrementais + Aumentos de Habilidade]
+### feat
+- Personagem: campo `tracos_extras` (JSON). Migração `7ed254ff640a`.
+- `ConstrutorDeFicha`: `_tracos_ativos()` lista talentos + traços extras como **cards**, marcando
+  `tipo` **numérico** (altera atributos/iniciativa/CA/etc., reversível) × **descritivo**; os efeitos
+  numéricos entram como fonte (base + fontes), somando e revertendo.
+- Frontend: painel **Traços & Recursos** na ficha (criar/editar/remover traço, alocar +atributo
+  "tipo joguinho"). Bênção do Kzen (+2 CON, "StormKing - Mestre Atila") migrada de talento → card.
+- +2 testes (numérico soma/reverte; descritivo não muda número). Hardening de validação no roadmap.
+
+## [E21 — Atualização ao vivo (sem F5)]
+### feat
+- `frontend/js/live.js`: `iniciarPolling`/`pararPolling` — um poller por view, re-render só quando a
+  assinatura JSON muda; pula se há modal aberto ou input/textarea/select focado; router para o poller
+  ao navegar. Aplicado na ficha (7s) e na mesa (8s) → reflete mudanças entre usuários sem refresh.
+
 ## [E20 — Identidade & Imagens]
 ### feat
 - Personagem: campos de identidade (idade/altura/peso/olhos/pele/cabelo/facção/aparência/
