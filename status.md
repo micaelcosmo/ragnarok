@@ -42,7 +42,7 @@
 | E28 | Toggle EN/PT na UI (i18n visual do compêndio) | ✅ (em prod) |
 | E29 | Sub-raças aplicando efeitos (auto, reversível) | ✅ (em prod) |
 | E30 | Defesa sem armadura automática (Bárbaro/Monge) | ✅ (em prod) |
-| E31 | Testes de morte + exaustão (rastreio na ficha) | 🔄 em andamento |
+| E31 | Testes de morte + exaustão (rastreio na ficha) | ✅ (em prod) |
 
 ---
 
